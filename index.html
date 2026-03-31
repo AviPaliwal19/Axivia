@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<title>Axivia Field App</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0A0A0F;--bg2:#111118;--card:#161620;--card2:#1C1C28;--border:#2A2A3A;
+--gold:#C9A84C;--text:#E8E3DA;--text2:#B8B3AA;--text3:#7A7A8A;
+--green:#22c55e;--red:#ef4444;--blue:#4C8EC9;--orange:#fb923c;
+--rose:#C94C6E;--teal:#4CC9A8;--purple:#9B4CC9;
+--nav-h:64px;--header-h:56px;--mode-h:48px;
+}
+html,body{height:100%;overflow:hidden;-webkit-text-size-adjust:100%;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif}
+body{height:100vh;height:100dvh;position:relative}
+input,textarea,select,button{font-family:inherit;font-size:16px;outline:none;border:none;background:none;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+a{color:var(--gold);text-decoration:none}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* PIN SCREEN */
+#pin-screen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s,transform .4s}
+#pin-screen.hidden{opacity:0;pointer-events:none;transform:scale(1.05)}
+.pin-wordmark{font-size:42px;font-weight:900;letter-spacing:6px;color:#fff;margin-bottom:8px}
+.pin-sub{color:var(--text3);font-size:13px;margin-bottom:40px;letter-spacing:1px}
+.pin-dots{display:flex;gap:16px;margin-bottom:8px;height:36px;align-items:center}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);transition:all .15s}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold)}
+.pin-error{color:var(--red);font-size:13px;height:20px;margin-bottom:12px;opacity:0;transition:opacity .2s}
+.pin-error.show{opacity:1}
+.pin-pad{display:grid;grid-template-columns:repeat(3,80px);gap:12px}
+.pin-key{width:80px;height:64px;border-radius:16px;background:var(--card);color:var(--text);font-size:24px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;transition:background .1s}
+.pin-key:active{background:var(--card2)}
+.pin-key.backspace{font-size:20px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pin-dots.shake{animation:shake .4s}
+
+/* APP SHELL */
+#app{display:none;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+#app.active{display:flex}
+
+/* HEADER */
+#header{height:var(--header-h);min-height:var(--header-h);display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--bg);border-bottom:1px solid var(--border);z-index:100}
+.header-wordmark{font-size:18px;font-weight:900;letter-spacing:2.5px;color:#fff}
+.header-right{display:flex;align-items:center;gap:8px}
+.agent-pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2);cursor:pointer;min-height:32px;display:flex;align-items:center}
+.sheet-badge{border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;min-height:28px;display:flex;align-items:center;gap:4px}
+.sheet-badge.ok{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.sheet-badge.warn{background:rgba(251,146,60,.15);color:var(--orange);border:1px solid rgba(251,146,60,.3)}
+
+/* MODE BAR */
+#mode-bar{height:var(--mode-h);min-height:var(--mode-h);display:flex;background:var(--bg);border-bottom:1px solid var(--border);z-index:99}
+.mode-btn{flex:1;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;letter-spacing:1.5px;color:var(--text3);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.mode-btn.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(201,168,76,.06)}
+
+/* SCORE BAR */
+#score-bar{display:none;align-items:center;padding:10px 16px;gap:12px;background:var(--bg2);border-bottom:1px solid var(--border);min-height:52px}
+#score-bar.visible{display:flex}
+.score-num{font-size:28px;font-weight:900;min-width:42px;text-align:center}
+.score-bar-wrap{flex:1;height:10px;background:var(--card);border-radius:5px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:5px;transition:width .3s,background .3s}
+.score-tier{font-size:13px;font-weight:700;min-width:72px;text-align:right;letter-spacing:1px}
+
+/* PAGE SCROLL */
+#page-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:140px}
+
+/* BOTTOM NAV */
+#bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);display:flex;background:var(--bg);border-top:1px solid var(--border);z-index:100}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .15s}
+.nav-btn.active{color:var(--gold)}
+.nav-btn .nav-icon{font-size:22px}
+
+/* SAVE BUTTON */
+#save-btn-wrap{position:fixed;bottom:var(--nav-h);left:0;right:0;padding:8px 16px;background:linear-gradient(transparent,var(--bg) 30%);z-index:99;padding-top:24px;display:none}
+#save-btn-wrap.visible{display:block}
+#save-btn{width:100%;height:52px;border-radius:12px;background:var(--gold);color:var(--bg);font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+#save-btn:active{transform:scale(.98)}
+#save-btn.saved{background:var(--green);pointer-events:none}
+
+/* TOAST */
+#toast{position:fixed;top:calc(var(--header-h) + 8px);left:16px;right:16px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;text-align:center;z-index:200;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.success{background:rgba(34,197,94,.9);color:#fff}
+#toast.error{background:rgba(239,68,68,.9);color:#fff}
+#toast.info{background:rgba(76,142,201,.9);color:#fff}
+
+/* FORM STYLES */
+.form-section{padding:16px}
+.form-group{margin-bottom:16px}
+.form-label{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:.3px}
+.form-label .star{color:var(--gold);font-size:11px}
+.form-input{width:100%;height:48px;padding:0 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:16px;transition:border-color .15s}
+.form-input:focus{border-color:var(--gold)}
+textarea.form-input{height:auto;padding:12px 14px;resize:none;line-height:1.5}
+.form-row{display:flex;gap:10px}
+.form-row>.form-group{flex:1}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{height:40px;padding:0 16px;border-radius:20px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:500;display:flex;align-items:center;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.chip.active{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold)}
+.chip-sm{height:36px;padding:0 12px;font-size:12px;border-radius:18px}
+.phone-row{display:flex;gap:8px;align-items:center}
+.phone-row .form-input{flex:1}
+.phone-btn{min-width:48px;height:48px;border-radius:10px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+.phone-btn:active{background:var(--card2)}
+.caller-btns{display:flex;gap:8px}
+.caller-btn{flex:1;height:56px;border-radius:12px;background:var(--card);border:2px solid var(--border);font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all .15s}
+.caller-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.1)}
+.caller-hint{font-size:11px;color:var(--text3);margin-top:4px;text-align:center}
+.timer-row{display:flex;gap:8px;align-items:center}
+.timer-btn{min-width:48px;height:48px;border-radius:10px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
+.timer-btn:active{background:var(--card2)}
+.timer-display{font-size:14px;font-weight:600;color:var(--text2);min-width:60px;text-align:center;font-variant-numeric:tabular-nums}
+.warning-strip{padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;margin:0 16px 8px}
+.warning-strip.red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.warning-strip.amber{background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.3)}
+.section-divider{height:1px;background:var(--border);margin:8px 16px 16px}
+.section-title{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:16px 16px 8px}
+.callback-date{margin-top:8px}
+
+/* LOG VIEW */
+#log-view{display:none}
+#log-view.active{display:block}
+.log-search{margin:12px 16px;position:relative}
+.log-search input{width:100%;height:44px;padding:0 14px 0 40px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px}
+.log-search .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px}
+.filter-chips{display:flex;gap:6px;padding:0 16px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.filter-chips::-webkit-scrollbar{display:none}
+.filter-chip{height:32px;padding:0 12px;border-radius:16px;background:var(--card);border:1px solid var(--border);color:var(--text3);font-size:12px;font-weight:600;display:flex;align-items:center;cursor:pointer;white-space:nowrap;transition:all .15s}
+.filter-chip.active{background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold)}
+.callbacks-banner{margin:0 16px 12px;padding:10px 14px;border-radius:10px;background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.3);font-size:13px;font-weight:600;color:var(--orange)}
+.log-card{margin:0 16px 10px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:background .15s}
+.log-card:active{background:var(--card2)}
+.log-card-top{display:flex;align-items:center;gap:10px}
+.log-tier{padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;color:#fff}
+.log-tier.hot{background:var(--green)}.log-tier.warm{background:var(--gold)}.log-tier.cold{background:var(--orange)}.log-tier.trace{background:var(--red)}
+.log-name{flex:1;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log-score{font-size:13px;font-weight:700;color:var(--text2)}
+.log-mode{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.5px}
+.log-mode.seller{background:rgba(76,142,201,.15);color:var(--blue)}
+.log-mode.buyer{background:rgba(155,76,201,.15);color:var(--purple)}
+.log-phone{font-size:12px;color:var(--text3);margin-top:4px}
+.log-detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.log-card.expanded .log-detail{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:13px;margin-bottom:10px}
+.detail-key{color:var(--text3);font-size:11px}
+.detail-val{color:var(--text);font-weight:500}
+.log-notes{font-size:13px;color:var(--text2);margin-bottom:12px;padding:8px;background:var(--bg2);border-radius:6px;white-space:pre-wrap}
+.log-actions{display:flex;gap:8px}
+.log-action-btn{flex:1;height:40px;border-radius:8px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.log-action-btn.edit{background:rgba(76,142,201,.15);color:var(--blue);border:1px solid rgba(76,142,201,.3)}
+.log-action-btn.delete{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.log-footer{display:flex;gap:8px;padding:16px}
+.log-footer-btn{flex:1;height:44px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.log-footer-btn.export{background:rgba(76,142,201,.12);color:var(--blue);border:1px solid rgba(76,142,201,.3)}
+.log-footer-btn.clear{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.log-empty{text-align:center;padding:48px 16px;color:var(--text3);font-size:14px}
+
+/* ANALYTICS VIEW */
+#analytics-view{display:none}
+#analytics-view.active{display:block}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat-val{font-size:28px;font-weight:900}
+.stat-label{font-size:12px;color:var(--text3);margin-top:4px;font-weight:600}
+.chart-section{padding:0 16px 16px}
+.chart-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;letter-spacing:.3px}
+.h-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.h-bar-label{font-size:12px;color:var(--text2);min-width:60px;text-align:right;font-weight:500}
+.h-bar-track{flex:1;height:20px;background:var(--card);border-radius:4px;overflow:hidden}
+.h-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+.h-bar-val{font-size:12px;color:var(--text3);min-width:30px;font-weight:600}
+
+/* MODAL / BOTTOM SHEET */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal-sheet{width:100%;max-width:500px;max-height:85vh;background:var(--bg2);border-radius:20px 20px 0 0;overflow-y:auto;padding:20px 16px 32px;-webkit-overflow-scrolling:touch}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px}
+.modal-close{position:absolute;right:16px;top:20px;font-size:24px;color:var(--text3);cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+.modal-save-btn{width:100%;height:48px;border-radius:12px;background:var(--gold);color:var(--bg);font-size:15px;font-weight:700;cursor:pointer;margin-top:16px}
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+  <div class="pin-wordmark">AXIVIA</div>
+  <div class="pin-sub">Field App &mdash; Authorised Access Only</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-error" id="pin-error">Incorrect PIN</div>
+  <div class="pin-pad" id="pin-pad">
+    <div class="pin-key" data-key="1">1</div>
+    <div class="pin-key" data-key="2">2</div>
+    <div class="pin-key" data-key="3">3</div>
+    <div class="pin-key" data-key="4">4</div>
+    <div class="pin-key" data-key="5">5</div>
+    <div class="pin-key" data-key="6">6</div>
+    <div class="pin-key" data-key="7">7</div>
+    <div class="pin-key" data-key="8">8</div>
+    <div class="pin-key" data-key="9">9</div>
+    <div class="pin-key" style="visibility:hidden"></div>
+    <div class="pin-key" data-key="0">0</div>
+    <div class="pin-key backspace" data-key="back">&larr;</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- HEADER -->
+  <div id="header">
+    <div class="header-wordmark">AXIVIA</div>
+    <div class="header-right">
+      <div class="agent-pill" id="agent-pill" onclick="openSetup()">Agent</div>
+      <div class="sheet-badge warn" id="sheet-badge" onclick="openSetup()">&#9888; Sheet</div>
+    </div>
+  </div>
+
+  <!-- MODE BAR -->
+  <div id="mode-bar">
+    <div class="mode-btn active" data-mode="SELLER" onclick="setMode('SELLER')">SELLER</div>
+    <div class="mode-btn" data-mode="BUYER" onclick="setMode('BUYER')">BUYER</div>
+  </div>
+
+  <!-- SCORE BAR -->
+  <div id="score-bar">
+    <div class="score-num" id="score-num">0</div>
+    <div class="score-bar-wrap"><div class="score-bar-fill" id="score-fill" style="width:0"></div></div>
+    <div class="score-tier" id="score-tier">TRACE</div>
+  </div>
+
+  <!-- PAGE SCROLL -->
+  <div id="page-scroll">
+    <!-- FORM VIEW -->
+    <div id="form-view" class="active">
+      <!-- DNC / Duplicate warnings -->
+      <div id="dnc-warning" class="warning-strip red" style="display:none;margin-top:12px">&#9888; DNC: This number is on the Do Not Call list</div>
+      <div id="dup-warning" class="warning-strip amber" style="display:none">&#9888; Duplicate: This number already exists in logs</div>
+
+      <div class="form-section">
+        <!-- Call Status -->
+        <div class="form-group">
+          <div class="form-label">Call Status</div>
+          <div class="chip-row" id="callstatus-chips">
+            <div class="chip chip-sm" data-val="Completed" onclick="pickChip(this,'callStatus')">Completed</div>
+            <div class="chip chip-sm" data-val="No Answer" onclick="pickChip(this,'callStatus')">No Answer</div>
+            <div class="chip chip-sm" data-val="Busy" onclick="pickChip(this,'callStatus')">Busy</div>
+            <div class="chip chip-sm" data-val="Wrong #" onclick="pickChip(this,'callStatus')">Wrong #</div>
+            <div class="chip chip-sm" data-val="Callback" onclick="pickChip(this,'callStatus')">Callback</div>
+            <div class="chip chip-sm" data-val="DNC" onclick="pickChip(this,'callStatus')">DNC</div>
+          </div>
+          <div class="callback-date" id="callback-date-wrap" style="display:none">
+            <div class="form-label">Callback Date</div>
+            <input type="date" class="form-input" id="callbackDate" onchange="updateScore()">
+          </div>
+        </div>
+
+        <!-- Name -->
+        <div class="form-group">
+          <div class="form-label">Full Name</div>
+          <input type="text" class="form-input" id="fullName" placeholder="Full Name" autocomplete="off">
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <div class="form-label">Phone</div>
+          <div class="phone-row">
+            <input type="tel" class="form-input" id="phone" placeholder="Phone Number" autocomplete="off" oninput="checkPhone()">
+            <div class="phone-btn" onclick="dialPhone()" title="Dial">&#128222;</div>
+            <div class="phone-btn" onclick="whatsappPhone()" title="WhatsApp">&#128172;</div>
+          </div>
+        </div>
+
+        <!-- Alt Contact -->
+        <div class="form-group">
+          <div class="form-label">Alt. Contact No.</div>
+          <input type="tel" class="form-input" id="altPhone" placeholder="Alternative Number" autocomplete="off">
+        </div>
+
+        <!-- Source -->
+        <div class="form-group">
+          <div class="form-label">Source</div>
+          <div class="chip-row" id="source-chips">
+            <div class="chip chip-sm" data-val="Cold Call" onclick="pickChip(this,'source')">Cold Call</div>
+            <div class="chip chip-sm" data-val="Referral" onclick="pickChip(this,'source')">Referral</div>
+            <div class="chip chip-sm" data-val="Walk-in" onclick="pickChip(this,'source')">Walk-in</div>
+            <div class="chip chip-sm" data-val="Event" onclick="pickChip(this,'source')">Event</div>
+          </div>
+        </div>
+
+        <!-- Locality -->
+        <div class="form-group">
+          <div class="form-label">Locality</div>
+          <input type="text" class="form-input" id="locality" placeholder="Area / Locality" autocomplete="off">
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- SELLER-ONLY FIELDS -->
+        <div id="seller-fields">
+          <div class="section-title">Seller Details</div>
+          <div class="form-group">
+            <div class="form-label">Owned By <span class="star">&#9733;</span></div>
+            <div class="chip-row" id="ownedBy-chips">
+              <div class="chip chip-sm" data-val="Owner" onclick="pickChip(this,'ownedBy')">Owner (sole)</div>
+              <div class="chip chip-sm" data-val="Co-Owner" onclick="pickChip(this,'ownedBy')">Co-Owner</div>
+              <div class="chip chip-sm" data-val="Third Party" onclick="pickChip(this,'ownedBy')">Third Party</div>
+              <div class="chip chip-sm" data-val="Unknown" onclick="pickChip(this,'ownedBy')">Unknown</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Occupied By</div>
+            <div class="chip-row" id="occupiedBy-chips">
+              <div class="chip chip-sm" data-val="Self" onclick="pickChip(this,'occupiedBy')">Self</div>
+              <div class="chip chip-sm" data-val="Tenant" onclick="pickChip(this,'occupiedBy')">Tenant</div>
+              <div class="chip chip-sm" data-val="Vacant" onclick="pickChip(this,'occupiedBy')">Vacant</div>
+              <div class="chip chip-sm" data-val="Unknown" onclick="pickChip(this,'occupiedBy')">Unknown</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Property Type <span class="star">&#9733;</span></div>
+            <div class="chip-row" id="propType-chips">
+              <div class="chip chip-sm" data-val="Apartment" onclick="pickChip(this,'propType')">Apartment</div>
+              <div class="chip chip-sm" data-val="Independent House" onclick="pickChip(this,'propType')">Indep. House</div>
+              <div class="chip chip-sm" data-val="Villa" onclick="pickChip(this,'propType')">Villa</div>
+              <div class="chip chip-sm" data-val="Plot" onclick="pickChip(this,'propType')">Plot</div>
+              <div class="chip chip-sm" data-val="Commercial" onclick="pickChip(this,'propType')">Commercial</div>
+              <div class="chip chip-sm" data-val="Other" onclick="pickChip(this,'propType')">Other</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="form-label">Size (sq.ft)</div>
+              <input type="text" class="form-input" id="size" placeholder="e.g. 1200" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <div class="form-label">Neighborhood / Society</div>
+              <input type="text" class="form-input" id="neighborhood" placeholder="Society name" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Intent <span class="star">&#9733;</span></div>
+            <div class="chip-row" id="sellerIntent-chips">
+              <div class="chip chip-sm" data-val="Sell" onclick="pickChip(this,'sellerIntent')">Sell</div>
+              <div class="chip chip-sm" data-val="Rent Out" onclick="pickChip(this,'sellerIntent')">Rent Out</div>
+              <div class="chip chip-sm" data-val="No Intent" onclick="pickChip(this,'sellerIntent')">No Intent</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Timeline <span class="star">&#9733;</span></div>
+            <div class="chip-row" id="sellerTimeline-chips">
+              <div class="chip chip-sm" data-val="under1month" onclick="pickChip(this,'sellerTimeline')">&lt;1 month</div>
+              <div class="chip chip-sm" data-val="1-3 months" onclick="pickChip(this,'sellerTimeline')">1-3 months</div>
+              <div class="chip chip-sm" data-val="3-6 months" onclick="pickChip(this,'sellerTimeline')">3-6 months</div>
+              <div class="chip chip-sm" data-val="6+ months" onclick="pickChip(this,'sellerTimeline')">6+ months</div>
+              <div class="chip chip-sm" data-val="No Timeline" onclick="pickChip(this,'sellerTimeline')">No Timeline</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Asking Price / Valuation <span class="star">&#9733;</span></div>
+            <input type="text" class="form-input" id="sellerBudget" placeholder="e.g. 85L or 1.2Cr" autocomplete="off" oninput="updateScore()">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Financing <span class="star">&#9733;</span></div>
+            <div class="chip-row" id="sellerFinancing-chips">
+              <div class="chip chip-sm" data-val="Bank Pre-Approved" onclick="pickChip(this,'sellerFinancing')">Bank Pre-Approved</div>
+              <div class="chip chip-sm" data-val="Self / Cash" onclick="pickChip(this,'sellerFinancing')">Self / Cash</div>
+              <div class="chip chip-sm" data-val="Not Yet" onclick="pickChip(this,'sellerFinancing')">Not Yet</div>
+              <div class="chip chip-sm" data-val="N/A" onclick="pickChip(this,'sellerFinancing')">N/A</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BUYER-ONLY FIELDS -->
+        <div id="buyer-fields" style="display:none">
+          <div class="section-title">Buyer Details</div>
+          <div class="form-group">
+            <div class="form-label">Purpose <span class="star">&#9733;</span></div>
+            <div class="chip-row" id="purpose-chips">
+              <div class="chip chip-sm" data-val="Self-Use" onclick="pickChip(this,'purpose')">Self-Use</div>
+              <div class="chip chip-sm" data-val="Investment" onclick="pickChip(this,'purpose')">Investment</div>
+              <div class="chip chip-sm" data-val="Rental Income" onclick="pickChip(this,'purpose')">Rental Income</div>
+              <div class="chip chip-sm" data-val="Unclear" onclick="pickChip(this,'purpose')">Unclear</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Current Situation</div>
+            <div class="chip-row" id="currentSit-chips">
+              <div class="chip chip-sm" data-val="Renting" onclick="pickChip(this,'currentSit')">Renting</div>
+              <div class="chip chip-sm" data-val="Owns Another" onclick="pickChip(this,'currentSit')">Owns Another</div>
+              <div class="chip chip-sm" data-val="First Purchase" onclick="pickChip(this,'currentSit')">First Purchase</div>
+              <div class="chip chip-sm" data-val="Unknown" onclick="pickChip(this,'currentSit')">Unknown</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Property Type Preference <span class="star">&#9733;</span></div>
+            <div class="chip-row" id="buyerPropPref-chips">
+              <div class="chip chip-sm" data-val="Apartment" onclick="pickChip(this,'buyerPropPref')">Apartment</div>
+              <div class="chip chip-sm" data-val="Independent House" onclick="pickChip(this,'buyerPropPref')">Indep. House</div>
+              <div class="chip chip-sm" data-val="Villa" onclick="pickChip(this,'buyerPropPref')">Villa</div>
+              <div class="chip chip-sm" data-val="Plot" onclick="pickChip(this,'buyerPropPref')">Plot</div>
+              <div class="chip chip-sm" data-val="Commercial" onclick="pickChip(this,'buyerPropPref')">Commercial</div>
+              <div class="chip chip-sm" data-val="Any" onclick="pickChip(this,'buyerPropPref')">Any</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="form-label">Preferred Localities</div>
+              <input type="text" class="form-input" id="prefLocalities" placeholder="e.g. Saddu, Shankar Nagar" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <div class="form-label">BHK / Config</div>
+              <input type="text" class="form-input" id="bhk" placeholder="e.g. 3BHK" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Intent <span class="star">&#9733;</span></div>
+            <div class="chip-row" id="buyerIntent-chips">
+              <div class="chip chip-sm" data-val="Buy" onclick="pickChip(this,'buyerIntent')">Buy</div>
+              <div class="chip chip-sm" data-val="Invest" onclick="pickChip(this,'buyerIntent')">Invest</div>
+              <div class="chip chip-sm" data-val="Just Browsing" onclick="pickChip(this,'buyerIntent')">Just Browsing</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Timeline <span class="star">&#9733;</span></div>
+            <div class="chip-row" id="buyerTimeline-chips">
+              <div class="chip chip-sm" data-val="under1month" onclick="pickChip(this,'buyerTimeline')">&lt;1 month</div>
+              <div class="chip chip-sm" data-val="1-3 months" onclick="pickChip(this,'buyerTimeline')">1-3 months</div>
+              <div class="chip chip-sm" data-val="3-6 months" onclick="pickChip(this,'buyerTimeline')">3-6 months</div>
+              <div class="chip chip-sm" data-val="6+ months" onclick="pickChip(this,'buyerTimeline')">6+ months</div>
+              <div class="chip chip-sm" data-val="No Timeline" onclick="pickChip(this,'buyerTimeline')">No Timeline</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Budget Range <span class="star">&#9733;</span></div>
+            <input type="text" class="form-input" id="buyerBudget" placeholder="e.g. 80L-1.2Cr" autocomplete="off" oninput="updateScore()">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Financing <span class="star">&#9733;</span></div>
+            <div class="chip-row" id="buyerFinancing-chips">
+              <div class="chip chip-sm" data-val="Bank Pre-Approved" onclick="pickChip(this,'buyerFinancing')">Bank Pre-Approved</div>
+              <div class="chip chip-sm" data-val="Self / Cash" onclick="pickChip(this,'buyerFinancing')">Self / Cash</div>
+              <div class="chip chip-sm" data-val="Not Yet" onclick="pickChip(this,'buyerFinancing')">Not Yet</div>
+              <div class="chip chip-sm" data-val="N/A" onclick="pickChip(this,'buyerFinancing')">N/A</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- SHARED BOTTOM FIELDS -->
+        <div class="form-group">
+          <div class="form-label">Next Action <span class="star">&#9733;</span></div>
+          <div class="chip-row" id="nextAction-chips">
+            <div class="chip chip-sm" data-val="Book Meeting" onclick="pickChip(this,'nextAction')">Book Meeting</div>
+            <div class="chip chip-sm" data-val="Send WhatsApp" onclick="pickChip(this,'nextAction')">Send WhatsApp</div>
+            <div class="chip chip-sm" data-val="Call Back" onclick="pickChip(this,'nextAction')">Call Back</div>
+            <div class="chip chip-sm" data-val="No Action Needed" onclick="pickChip(this,'nextAction')">No Action Needed</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">Broker Status</div>
+          <div class="chip-row" id="broker-chips">
+            <div class="chip chip-sm" data-val="No Broker" onclick="pickChip(this,'broker')">No Broker</div>
+            <div class="chip chip-sm" data-val="Working With Broker" onclick="pickChip(this,'broker')">Working With</div>
+            <div class="chip chip-sm" data-val="Open to Broker" onclick="pickChip(this,'broker')">Open</div>
+            <div class="chip chip-sm" data-val="Not Discussed" onclick="pickChip(this,'broker')">Not Discussed</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">Caller Quality Score <span class="star">&#9733;</span></div>
+          <div class="caller-btns" id="caller-btns">
+            <div class="caller-btn" data-val="0" onclick="pickCaller(0)">0</div>
+            <div class="caller-btn" data-val="1" onclick="pickCaller(1)">1</div>
+            <div class="caller-btn" data-val="2" onclick="pickCaller(2)">2</div>
+            <div class="caller-btn" data-val="3" onclick="pickCaller(3)">3</div>
+          </div>
+          <div class="caller-hint">0 = No engagement &rarr; 3 = Excellent</div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">Notes</div>
+          <textarea class="form-input" id="notes" rows="3" placeholder="Additional notes..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">Duration (mins)</div>
+          <div class="timer-row">
+            <input type="number" class="form-input" id="duration" placeholder="0.0" step="0.1" style="flex:1">
+            <div class="timer-btn" id="timer-start" onclick="toggleTimer()">&#9654;</div>
+            <div class="timer-display" id="timer-display">0:00</div>
+            <div class="timer-btn" id="timer-reset" onclick="resetTimer()">&#8634;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOG VIEW -->
+    <div id="log-view">
+      <div id="callbacks-banner" class="callbacks-banner" style="display:none;margin-top:12px"></div>
+      <div class="log-search">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" id="log-search-input" placeholder="Search name, phone, locality..." oninput="renderLogs()">
+      </div>
+      <div class="filter-chips" id="filter-chips">
+        <div class="filter-chip active" data-filter="ALL" onclick="setFilter('ALL',this)">ALL</div>
+        <div class="filter-chip" data-filter="SELLER" onclick="setFilter('SELLER',this)">SELLER</div>
+        <div class="filter-chip" data-filter="BUYER" onclick="setFilter('BUYER',this)">BUYER</div>
+        <div class="filter-chip" data-filter="HOT" onclick="setFilter('HOT',this)">HOT</div>
+        <div class="filter-chip" data-filter="WARM" onclick="setFilter('WARM',this)">WARM</div>
+        <div class="filter-chip" data-filter="COLD" onclick="setFilter('COLD',this)">COLD</div>
+        <div class="filter-chip" data-filter="TRACE" onclick="setFilter('TRACE',this)">TRACE</div>
+      </div>
+      <div id="log-list"></div>
+      <div class="log-footer">
+        <div class="log-footer-btn export" onclick="exportCSV()">&#128230; Export CSV</div>
+        <div class="log-footer-btn clear" onclick="clearAllLogs()">&#128465; Clear All</div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS VIEW -->
+    <div id="analytics-view">
+      <div class="stat-grid" id="stat-grid"></div>
+      <div id="charts-container"></div>
+    </div>
+  </div>
+
+  <!-- SAVE BUTTON -->
+  <div id="save-btn-wrap">
+    <button id="save-btn" onclick="saveEntry()">Save Call</button>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div id="bottom-nav">
+    <div class="nav-btn active" data-view="form" onclick="setView('form')">
+      <span class="nav-icon">&#128203;</span>
+      <span>Form</span>
+    </div>
+    <div class="nav-btn" data-view="log" onclick="setView('log')">
+      <span class="nav-icon">&#128214;</span>
+      <span>Log</span>
+    </div>
+    <div class="nav-btn" data-view="analytics" onclick="setView('analytics')">
+      <span class="nav-icon">&#128202;</span>
+      <span>Analytics</span>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- SETUP MODAL -->
+<div class="modal-overlay" id="setup-modal">
+  <div class="modal-sheet" style="position:relative">
+    <div class="modal-handle"></div>
+    <div class="modal-close" onclick="closeSetup()">&times;</div>
+    <div class="modal-title">Setup</div>
+    <div class="form-group">
+      <div class="form-label">Agent Name</div>
+      <input type="text" class="form-input" id="setup-agent" placeholder="Your name">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Google Sheet URL (Apps Script)</div>
+      <input type="url" class="form-input" id="setup-sheet" placeholder="https://script.google.com/macros/s/.../exec">
+    </div>
+    <button class="modal-save-btn" onclick="saveSetup()">Save Setup</button>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-sheet" style="position:relative">
+    <div class="modal-handle"></div>
+    <div class="modal-close" onclick="closeEdit()">&times;</div>
+    <div class="modal-title">Edit Entry</div>
+    <div id="edit-fields"></div>
+    <button class="modal-save-btn" onclick="saveEdit()">Save Changes</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   AXIVIA FIELD APP — MAIN SCRIPT
+   ═══════════════════════════════════════════════════ */
+
+const APP_PIN = '1234';
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbyTuNGrrqy2QzFquaEFrvLr4_CEJsvpTsHyf_RGCYPXdu8-p290jxofIhnUkEAy86zQ/exec";
+
+// ─── STATE ───────────────────────────────────────────
+let currentMode = 'SELLER';
+let currentView = 'form';
+let currentFilter = 'ALL';
+let logs = [];
+let dncList = [];
+let config = {};
+let pinInput = '';
+let inactivityTimeout = null;
+let callTimerInterval = null;
+let callStartTime = null;
+let callerScore = 0;
+let editingIndex = -1;
+
+// Chip state
+const chipState = {};
+
+// ─── INIT ────────────────────────────────────────────
+function init() {
+  logs = JSON.parse(localStorage.getItem('axivia_logs_v5') || '[]');
+  dncList = JSON.parse(localStorage.getItem('axivia_dnc_v1') || '[]');
+  config = JSON.parse(localStorage.getItem('axivia_config_v1') || '{}');
+  updateSheetBadge();
+  updateAgentPill();
+}
+
+// ─── PIN ─────────────────────────────────────────────
+document.getElementById('pin-pad').addEventListener('click', function(e) {
+  const key = e.target.closest('.pin-key');
+  if (!key) return;
+  const val = key.dataset.key;
+  if (val === 'back') {
+    pinInput = pinInput.slice(0, -1);
+  } else if (pinInput.length < 4) {
+    pinInput += val;
+  }
+  updatePinDots();
+  if (pinInput.length === 4) {
+    if (pinInput === APP_PIN) {
+      document.getElementById('pin-screen').classList.add('hidden');
+      document.getElementById('app').classList.add('active');
+      resetInactivity();
+    } else {
+      document.getElementById('pin-error').classList.add('show');
+      document.getElementById('pin-dots').classList.add('shake');
+      setTimeout(() => {
+        pinInput = '';
+        updatePinDots();
+        document.getElementById('pin-error').classList.remove('show');
+        document.getElementById('pin-dots').classList.remove('shake');
+      }, 1000);
+    }
+  }
+});
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('pd' + i).classList.toggle('filled', i < pinInput.length);
+  }
+}
+
+// ─── INACTIVITY LOCK ─────────────────────────────────
+function resetInactivity() {
+  clearTimeout(inactivityTimeout);
+  inactivityTimeout = setTimeout(lockApp, 15 * 60 * 1000);
+}
+
+function lockApp() {
+  pinInput = '';
+  updatePinDots();
+  document.getElementById('pin-screen').classList.remove('hidden');
+  document.getElementById('app').classList.remove('active');
+}
+
+document.addEventListener('touchstart', resetInactivity, { passive: true });
+document.addEventListener('click', resetInactivity);
+document.addEventListener('keydown', function(e) {
+  resetInactivity();
+  if (e.ctrlKey && e.key === 'Enter') {
+    e.preventDefault();
+    saveEntry();
+  }
+});
+
+// ─── MODE ────────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.getElementById('seller-fields').style.display = mode === 'SELLER' ? '' : 'none';
+  document.getElementById('buyer-fields').style.display = mode === 'BUYER' ? '' : 'none';
+  resetForm();
+  updateScore();
+}
+
+// ─── VIEW ────────────────────────────────────────────
+function setView(view) {
+  currentView = view;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  document.getElementById('form-view').classList.toggle('active', view === 'form');
+  document.getElementById('log-view').classList.toggle('active', view === 'log');
+  document.getElementById('analytics-view').classList.toggle('active', view === 'analytics');
+  document.getElementById('form-view').style.display = view === 'form' ? '' : 'none';
+  document.getElementById('log-view').style.display = view === 'log' ? '' : 'none';
+  document.getElementById('analytics-view').style.display = view === 'analytics' ? '' : 'none';
+  document.getElementById('score-bar').classList.toggle('visible', view === 'form');
+  document.getElementById('save-btn-wrap').classList.toggle('visible', view === 'form');
+  if (view === 'log') renderLogs();
+  if (view === 'analytics') renderAnalytics();
+}
+
+// ─── CHIPS ───────────────────────────────────────────
+function pickChip(el, field) {
+  const row = el.parentElement;
+  row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  chipState[field] = el.dataset.val;
+
+  // Callback date toggle
+  if (field === 'callStatus') {
+    document.getElementById('callback-date-wrap').style.display = el.dataset.val === 'Callback' ? '' : 'none';
+    // DNC handling
+    if (el.dataset.val === 'DNC') {
+      const phone = document.getElementById('phone').value.trim();
+      if (phone && !dncList.includes(phone)) {
+        dncList.push(phone);
+        localStorage.setItem('axivia_dnc_v1', JSON.stringify(dncList));
+        showToast('Number added to DNC list', 'info');
+      }
+    }
+  }
+  updateScore();
+}
+
+function clearChips(field) {
+  const el = document.getElementById(field + '-chips');
+  if (el) el.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  delete chipState[field];
+}
+
+// ─── CALLER SCORE ────────────────────────────────────
+function pickCaller(val) {
+  callerScore = val;
+  document.querySelectorAll('.caller-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.val) === val));
+  updateScore();
+}
+
+// ─── SCORING ─────────────────────────────────────────
+function calcScore() {
+  let score = 0;
+  if (currentMode === 'SELLER') {
+    const owned = chipState.ownedBy;
+    if (owned === 'Owner' || owned === 'Co-Owner') score++;
+    if (chipState.propType) score++;
+    const intent = chipState.sellerIntent;
+    if (intent === 'Sell' || intent === 'Rent Out') score++;
+    const tl = chipState.sellerTimeline;
+    if (tl === 'under1month' || tl === '1-3 months') score++;
+    if (document.getElementById('sellerBudget').value.trim()) score++;
+    const fin = chipState.sellerFinancing;
+    if (fin === 'Bank Pre-Approved' || fin === 'Self / Cash') score++;
+  } else {
+    if (chipState.purpose) score++;
+    if (chipState.buyerPropPref) score++;
+    const intent = chipState.buyerIntent;
+    if (intent === 'Buy' || intent === 'Invest') score++;
+    const tl = chipState.buyerTimeline;
+    if (tl === 'under1month' || tl === '1-3 months') score++;
+    if (document.getElementById('buyerBudget').value.trim()) score++;
+    const fin = chipState.buyerFinancing;
+    if (fin === 'Bank Pre-Approved' || fin === 'Self / Cash') score++;
+  }
+  // Shared caller score points
+  if (callerScore >= 1) score++;
+  if (callerScore >= 2) score++;
+  if (callerScore >= 3) score++;
+  // Next action
+  const na = chipState.nextAction;
+  if (na && na !== 'No Action Needed') score++;
+  return score;
+}
+
+function getTier(score) {
+  if (score >= 8) return { label: 'HOT \uD83D\uDD25', cls: 'hot', color: 'var(--green)' };
+  if (score >= 5) return { label: 'WARM', cls: 'warm', color: 'var(--gold)' };
+  if (score >= 3) return { label: 'COLD', cls: 'cold', color: 'var(--orange)' };
+  return { label: 'TRACE', cls: 'trace', color: 'var(--red)' };
+}
+
+function updateScore() {
+  const score = calcScore();
+  const tier = getTier(score);
+  const pct = (score / 10) * 100;
+  document.getElementById('score-num').textContent = score;
+  document.getElementById('score-num').style.color = tier.color;
+  document.getElementById('score-fill').style.width = pct + '%';
+  document.getElementById('score-fill').style.background = tier.color;
+  document.getElementById('score-tier').textContent = tier.label;
+  document.getElementById('score-tier').style.color = tier.color;
+}
+
+// ─── PHONE CHECKS ────────────────────────────────────
+function checkPhone() {
+  const phone = document.getElementById('phone').value.trim();
+  const isDnc = dncList.includes(phone);
+  const isDup = logs.some(l => l.phone === phone);
+  document.getElementById('dnc-warning').style.display = isDnc ? '' : 'none';
+  document.getElementById('dup-warning').style.display = isDup ? '' : 'none';
+}
+
+function dialPhone() {
+  const phone = document.getElementById('phone').value.trim();
+  if (phone) window.location.href = 'tel:' + phone;
+}
+
+function whatsappPhone() {
+  const phone = document.getElementById('phone').value.trim();
+  if (phone) {
+    const num = phone.replace(/[^0-9]/g, '');
+    window.open('https://wa.me/' + num, '_blank');
+  }
+}
+
+// ─── CALL TIMER ──────────────────────────────────────
+function toggleTimer() {
+  if (callTimerInterval) {
+    // Stop
+    clearInterval(callTimerInterval);
+    callTimerInterval = null;
+    const elapsed = (Date.now() - callStartTime) / 60000;
+    document.getElementById('duration').value = elapsed.toFixed(1);
+    document.getElementById('timer-start').innerHTML = '&#9654;';
+  } else {
+    // Start
+    callStartTime = Date.now();
+    document.getElementById('timer-start').innerHTML = '&#9632;';
+    callTimerInterval = setInterval(() => {
+      const secs = Math.floor((Date.now() - callStartTime) / 1000);
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      document.getElementById('timer-display').textContent = m + ':' + String(s).padStart(2, '0');
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  clearInterval(callTimerInterval);
+  callTimerInterval = null;
+  callStartTime = null;
+  document.getElementById('timer-display').textContent = '0:00';
+  document.getElementById('timer-start').innerHTML = '&#9654;';
+  document.getElementById('duration').value = '';
+}
+
+// ─── SAVE ────────────────────────────────────────────
+function saveEntry() {
+  const score = calcScore();
+  const tier = getTier(score);
+  const now = new Date();
+  const entry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    no: logs.length + 1,
+    mode: currentMode,
+    date: now.toISOString().split('T')[0],
+    timestamp: now.toISOString(),
+    callStatus: chipState.callStatus || '',
+    callbackDate: document.getElementById('callbackDate').value || '',
+    fullName: document.getElementById('fullName').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    altPhone: document.getElementById('altPhone').value.trim(),
+    source: chipState.source || '',
+    locality: document.getElementById('locality').value.trim(),
+    nextAction: chipState.nextAction || '',
+    broker: chipState.broker || '',
+    callerScore: callerScore,
+    notes: document.getElementById('notes').value.trim(),
+    duration: document.getElementById('duration').value || '',
+    score: score,
+    tier: tier.label.replace(' \uD83D\uDD25', ''),
+    agent: config.agentName || ''
+  };
+
+  if (currentMode === 'SELLER') {
+    entry.sheetTab = 'Sellers';
+    entry.ownedBy = chipState.ownedBy || '';
+    entry.occupiedBy = chipState.occupiedBy || '';
+    entry.propType = chipState.propType || '';
+    entry.size = document.getElementById('size').value.trim();
+    entry.neighborhood = document.getElementById('neighborhood').value.trim();
+    entry.intent = chipState.sellerIntent || '';
+    entry.timeline = chipState.sellerTimeline || '';
+    entry.budget = document.getElementById('sellerBudget').value.trim();
+    entry.financing = chipState.sellerFinancing || '';
+  } else {
+    entry.sheetTab = 'Buyers';
+    entry.purpose = chipState.purpose || '';
+    entry.currentSituation = chipState.currentSit || '';
+    entry.propPref = chipState.buyerPropPref || '';
+    entry.prefLocalities = document.getElementById('prefLocalities').value.trim();
+    entry.bhk = document.getElementById('bhk').value.trim();
+    entry.intent = chipState.buyerIntent || '';
+    entry.timeline = chipState.buyerTimeline || '';
+    entry.budget = document.getElementById('buyerBudget').value.trim();
+    entry.financing = chipState.buyerFinancing || '';
+  }
+
+  logs.push(entry);
+  localStorage.setItem('axivia_logs_v5', JSON.stringify(logs));
+
+  // Sheet sync
+  syncToSheet(Object.assign({}, entry, { action: 'new' }));
+
+  // UI feedback
+  const btn = document.getElementById('save-btn');
+  btn.classList.add('saved');
+  btn.textContent = '\u2713 Saved!';
+  setTimeout(() => {
+    btn.classList.remove('saved');
+    btn.textContent = 'Save Call';
+  }, 1200);
+
+  resetForm();
+  updateScore();
+}
+
+// ─── SHEET SYNC ──────────────────────────────────────
+function syncToSheet(entry) {
+  const url = config.sheetUrl || SHEET_URL;
+  if (!url) return;
+  try {
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(entry)
+    }).then(() => {
+      showToast('\u2713 Saved to sheet', 'success');
+    }).catch(() => {
+      showToast('\u2717 Sheet sync failed', 'error');
+    });
+  } catch (e) {
+    showToast('\u2717 Sheet sync failed', 'error');
+  }
+}
+
+// ─── TOAST ───────────────────────────────────────────
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + (type || 'info');
+  setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// ─── RESET FORM ──────────────────────────────────────
+function resetForm() {
+  // Clear text inputs
+  ['fullName','phone','altPhone','locality','size','neighborhood','sellerBudget',
+   'prefLocalities','bhk','buyerBudget','notes','duration','callbackDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  // Clear all chips
+  ['callstatus','source','ownedBy','occupiedBy','propType','sellerIntent','sellerTimeline',
+   'sellerFinancing','purpose','currentSit','buyerPropPref','buyerIntent','buyerTimeline',
+   'buyerFinancing','nextAction','broker'].forEach(field => {
+    const row = document.getElementById(field + '-chips');
+    if (row) row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  });
+  Object.keys(chipState).forEach(k => delete chipState[k]);
+
+  // Reset caller score
+  callerScore = 0;
+  document.querySelectorAll('.caller-btn').forEach(b => b.classList.remove('active'));
+
+  // Reset timer
+  resetTimer();
+
+  // Hide warnings
+  document.getElementById('dnc-warning').style.display = 'none';
+  document.getElementById('dup-warning').style.display = 'none';
+  document.getElementById('callback-date-wrap').style.display = 'none';
+
+  // Scroll to top
+  document.getElementById('page-scroll').scrollTop = 0;
+}
+
+// ─── LOG VIEW ────────────────────────────────────────
+function setFilter(filter, el) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderLogs();
+}
+
+function renderLogs() {
+  const search = (document.getElementById('log-search-input').value || '').toLowerCase();
+  let filtered = logs.slice().reverse();
+
+  if (currentFilter !== 'ALL') {
+    if (currentFilter === 'SELLER' || currentFilter === 'BUYER') {
+      filtered = filtered.filter(l => l.mode === currentFilter);
+    } else {
+      filtered = filtered.filter(l => l.tier === currentFilter);
+    }
+  }
+
+  if (search) {
+    filtered = filtered.filter(l =>
+      (l.fullName || '').toLowerCase().includes(search) ||
+      (l.phone || '').includes(search) ||
+      (l.locality || '').toLowerCase().includes(search)
+    );
+  }
+
+  // Callbacks banner
+  const today = new Date().toISOString().split('T')[0];
+  const callbacks = logs.filter(l => l.callbackDate && l.callbackDate <= today);
+  const banner = document.getElementById('callbacks-banner');
+  if (callbacks.length > 0) {
+    banner.textContent = '\uD83D\uDD14 ' + callbacks.length + ' callback(s) due today or overdue';
+    banner.style.display = '';
+  } else {
+    banner.style.display = 'none';
+  }
+
+  const container = document.getElementById('log-list');
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="log-empty">No entries found</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((l, vi) => {
+    const realIdx = logs.indexOf(l);
+    const tierCls = (l.tier || 'TRACE').toLowerCase();
+    const modeCls = (l.mode || 'SELLER').toLowerCase();
+    return '<div class="log-card" data-idx="' + realIdx + '" onclick="toggleLogCard(this)">' +
+      '<div class="log-card-top">' +
+        '<span class="log-tier ' + tierCls + '">' + (l.tier || 'TRACE') + '</span>' +
+        '<span class="log-name">' + esc(l.fullName || 'No Name') + '</span>' +
+        '<span class="log-score">' + (l.score || 0) + '/10</span>' +
+        '<span class="log-mode ' + modeCls + '">' + (l.mode || '') + '</span>' +
+      '</div>' +
+      '<div class="log-phone">' + esc(l.phone || '') + (l.locality ? ' \u2022 ' + esc(l.locality) : '') + '</div>' +
+      '<div class="log-detail">' +
+        buildDetailGrid(l) +
+        (l.notes ? '<div class="log-notes">' + esc(l.notes) + '</div>' : '') +
+        '<div class="log-actions">' +
+          '<div class="log-action-btn edit" onclick="event.stopPropagation();openEdit(' + realIdx + ')">Edit</div>' +
+          '<div class="log-action-btn delete" onclick="event.stopPropagation();deleteEntry(' + realIdx + ')">Delete</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function buildDetailGrid(l) {
+  const pairs = [];
+  if (l.date) pairs.push(['Date', l.date]);
+  if (l.callStatus) pairs.push(['Status', l.callStatus]);
+  if (l.source) pairs.push(['Source', l.source]);
+  if (l.intent) pairs.push(['Intent', l.intent]);
+  if (l.timeline) pairs.push(['Timeline', l.timeline]);
+  if (l.budget) pairs.push(['Budget', l.budget]);
+  if (l.financing) pairs.push(['Financing', l.financing]);
+  if (l.nextAction) pairs.push(['Next Action', l.nextAction]);
+  if (l.broker) pairs.push(['Broker', l.broker]);
+  if (l.callerScore !== undefined) pairs.push(['Caller Q', l.callerScore + '/3']);
+  if (l.duration) pairs.push(['Duration', l.duration + ' min']);
+  if (l.agent) pairs.push(['Agent', l.agent]);
+  // Mode-specific
+  if (l.mode === 'SELLER') {
+    if (l.ownedBy) pairs.push(['Owned By', l.ownedBy]);
+    if (l.propType) pairs.push(['Property', l.propType]);
+    if (l.size) pairs.push(['Size', l.size + ' sq.ft']);
+    if (l.neighborhood) pairs.push(['Neighborhood', l.neighborhood]);
+    if (l.occupiedBy) pairs.push(['Occupied', l.occupiedBy]);
+  } else {
+    if (l.purpose) pairs.push(['Purpose', l.purpose]);
+    if (l.propPref) pairs.push(['Prop Pref', l.propPref]);
+    if (l.bhk) pairs.push(['BHK', l.bhk]);
+    if (l.prefLocalities) pairs.push(['Pref Areas', l.prefLocalities]);
+    if (l.currentSituation) pairs.push(['Situation', l.currentSituation]);
+  }
+  return '<div class="detail-grid">' + pairs.map(p =>
+    '<div><span class="detail-key">' + p[0] + '</span><br><span class="detail-val">' + esc(String(p[1])) + '</span></div>'
+  ).join('') + '</div>';
+}
+
+function toggleLogCard(card) {
+  card.classList.toggle('expanded');
+}
+
+function deleteEntry(idx) {
+  if (!confirm('Delete this entry?')) return;
+  logs.splice(idx, 1);
+  localStorage.setItem('axivia_logs_v5', JSON.stringify(logs));
+  renderLogs();
+  showToast('Entry deleted', 'info');
+}
+
+// ─── EDIT ────────────────────────────────────────────
+function openEdit(idx) {
+  editingIndex = idx;
+  const entry = logs[idx];
+  const fields = document.getElementById('edit-fields');
+  const editableFields = [
+    { key: 'fullName', label: 'Full Name', type: 'text' },
+    { key: 'phone', label: 'Phone', type: 'tel' },
+    { key: 'locality', label: 'Locality', type: 'text' },
+    { key: 'intent', label: 'Intent', type: 'text' },
+    { key: 'timeline', label: 'Timeline', type: 'text' },
+    { key: 'budget', label: 'Budget', type: 'text' },
+    { key: 'financing', label: 'Financing', type: 'text' },
+    { key: 'nextAction', label: 'Next Action', type: 'text' },
+    { key: 'notes', label: 'Notes', type: 'textarea' },
+  ];
+
+  fields.innerHTML = editableFields.map(f => {
+    const val = entry[f.key] || '';
+    if (f.type === 'textarea') {
+      return '<div class="form-group"><div class="form-label">' + f.label + '</div>' +
+        '<textarea class="form-input" id="edit-' + f.key + '" rows="3">' + esc(val) + '</textarea></div>';
+    }
+    return '<div class="form-group"><div class="form-label">' + f.label + '</div>' +
+      '<input type="' + f.type + '" class="form-input" id="edit-' + f.key + '" value="' + esc(val) + '"></div>';
+  }).join('');
+
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function closeEdit() {
+  document.getElementById('edit-modal').classList.remove('show');
+  editingIndex = -1;
+}
+
+function saveEdit() {
+  if (editingIndex < 0) return;
+  const entry = logs[editingIndex];
+  ['fullName','phone','locality','intent','timeline','budget','financing','nextAction','notes'].forEach(key => {
+    const el = document.getElementById('edit-' + key);
+    if (el) entry[key] = el.value.trim();
+  });
+
+  // Recalculate score
+  entry.score = calcScoreForEntry(entry);
+  entry.tier = getTierLabel(entry.score);
+
+  logs[editingIndex] = entry;
+  localStorage.setItem('axivia_logs_v5', JSON.stringify(logs));
+
+  // Sync update
+  syncToSheet(Object.assign({}, entry, { action: 'update' }));
+
+  closeEdit();
+  renderLogs();
+  showToast('Entry updated', 'success');
+}
+
+function calcScoreForEntry(e) {
+  let s = 0;
+  if (e.mode === 'SELLER') {
+    if (e.ownedBy === 'Owner' || e.ownedBy === 'Co-Owner') s++;
+    if (e.propType) s++;
+    if (e.intent === 'Sell' || e.intent === 'Rent Out') s++;
+    if (e.timeline === 'under1month' || e.timeline === '1-3 months') s++;
+    if (e.budget) s++;
+    if (e.financing === 'Bank Pre-Approved' || e.financing === 'Self / Cash') s++;
+  } else {
+    if (e.purpose) s++;
+    if (e.propPref) s++;
+    if (e.intent === 'Buy' || e.intent === 'Invest') s++;
+    if (e.timeline === 'under1month' || e.timeline === '1-3 months') s++;
+    if (e.budget) s++;
+    if (e.financing === 'Bank Pre-Approved' || e.financing === 'Self / Cash') s++;
+  }
+  const cs = e.callerScore || 0;
+  if (cs >= 1) s++;
+  if (cs >= 2) s++;
+  if (cs >= 3) s++;
+  if (e.nextAction && e.nextAction !== 'No Action Needed') s++;
+  return s;
+}
+
+function getTierLabel(score) {
+  if (score >= 8) return 'HOT';
+  if (score >= 5) return 'WARM';
+  if (score >= 3) return 'COLD';
+  return 'TRACE';
+}
+
+// ─── CSV EXPORT ──────────────────────────────────────
+function exportCSV() {
+  if (logs.length === 0) { showToast('No entries to export', 'info'); return; }
+  const allKeys = new Set();
+  logs.forEach(l => Object.keys(l).forEach(k => allKeys.add(k)));
+  const keys = Array.from(allKeys);
+  const csvRows = [keys.join(',')];
+  logs.forEach(l => {
+    csvRows.push(keys.map(k => {
+      let v = String(l[k] || '');
+      if (v.includes(',') || v.includes('"') || v.includes('\n')) {
+        v = '"' + v.replace(/"/g, '""') + '"';
+      }
+      return v;
+    }).join(','));
+  });
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'axivia_export_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported', 'success');
+}
+
+function clearAllLogs() {
+  if (!confirm('Clear ALL entries? This cannot be undone.')) return;
+  logs = [];
+  localStorage.setItem('axivia_logs_v5', '[]');
+  renderLogs();
+  showToast('All entries cleared', 'info');
+}
+
+// ─── ANALYTICS ───────────────────────────────────────
+function renderAnalytics() {
+  const sellers = logs.filter(l => l.mode === 'SELLER');
+  const buyers = logs.filter(l => l.mode === 'BUYER');
+  const hot = logs.filter(l => l.tier === 'HOT').length;
+
+  // Stats
+  document.getElementById('stat-grid').innerHTML = [
+    { val: logs.length, label: 'Total Calls', color: 'var(--text)' },
+    { val: sellers.length, label: 'Sellers', color: 'var(--blue)' },
+    { val: buyers.length, label: 'Buyers', color: 'var(--purple)' },
+    { val: hot, label: 'HOT Leads', color: 'var(--green)' },
+  ].map(s =>
+    '<div class="stat-card"><div class="stat-val" style="color:' + s.color + '">' + s.val + '</div>' +
+    '<div class="stat-label">' + s.label + '</div></div>'
+  ).join('');
+
+  // Charts
+  let chartsHtml = '';
+
+  // Tier split - Sellers
+  chartsHtml += buildBarChart('Seller Tiers', tierCounts(sellers), [
+    { key: 'HOT', color: 'var(--green)' },
+    { key: 'WARM', color: 'var(--gold)' },
+    { key: 'COLD', color: 'var(--orange)' },
+    { key: 'TRACE', color: 'var(--red)' },
+  ]);
+
+  // Tier split - Buyers
+  chartsHtml += buildBarChart('Buyer Tiers', tierCounts(buyers), [
+    { key: 'HOT', color: 'var(--green)' },
+    { key: 'WARM', color: 'var(--gold)' },
+    { key: 'COLD', color: 'var(--orange)' },
+    { key: 'TRACE', color: 'var(--red)' },
+  ]);
+
+  // Top localities
+  const locCounts = {};
+  logs.forEach(l => { if (l.locality) locCounts[l.locality] = (locCounts[l.locality] || 0) + 1; });
+  const topLocs = Object.entries(locCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  if (topLocs.length > 0) {
+    chartsHtml += buildBarChart('Top 5 Localities', Object.fromEntries(topLocs),
+      topLocs.map(l => ({ key: l[0], color: 'var(--teal)' })));
+  }
+
+  // Intent breakdown
+  const intentCounts = {};
+  logs.forEach(l => { if (l.intent) intentCounts[l.intent] = (intentCounts[l.intent] || 0) + 1; });
+  if (Object.keys(intentCounts).length > 0) {
+    chartsHtml += buildBarChart('Intent Breakdown', intentCounts,
+      Object.keys(intentCounts).map(k => ({ key: k, color: 'var(--purple)' })));
+  }
+
+  document.getElementById('charts-container').innerHTML = chartsHtml;
+}
+
+function tierCounts(arr) {
+  const c = { HOT: 0, WARM: 0, COLD: 0, TRACE: 0 };
+  arr.forEach(l => { c[l.tier || 'TRACE']++; });
+  return c;
+}
+
+function buildBarChart(title, data, bars) {
+  const max = Math.max(1, ...Object.values(data));
+  let html = '<div class="chart-section"><div class="chart-title">' + title + '</div>';
+  bars.forEach(b => {
+    const val = data[b.key] || 0;
+    const pct = (val / max) * 100;
+    html += '<div class="h-bar">' +
+      '<span class="h-bar-label">' + esc(b.key) + '</span>' +
+      '<div class="h-bar-track"><div class="h-bar-fill" style="width:' + pct + '%;background:' + b.color + '"></div></div>' +
+      '<span class="h-bar-val">' + val + '</span></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+// ─── SETUP MODAL ─────────────────────────────────────
+function openSetup() {
+  document.getElementById('setup-agent').value = config.agentName || '';
+  document.getElementById('setup-sheet').value = config.sheetUrl || SHEET_URL;
+  document.getElementById('setup-modal').classList.add('show');
+}
+
+function closeSetup() {
+  document.getElementById('setup-modal').classList.remove('show');
+}
+
+function saveSetup() {
+  config.agentName = document.getElementById('setup-agent').value.trim();
+  config.sheetUrl = document.getElementById('setup-sheet').value.trim();
+  localStorage.setItem('axivia_config_v1', JSON.stringify(config));
+  updateSheetBadge();
+  updateAgentPill();
+  closeSetup();
+  showToast('Setup saved', 'success');
+}
+
+function updateSheetBadge() {
+  const badge = document.getElementById('sheet-badge');
+  const url = config.sheetUrl || SHEET_URL;
+  if (url && url.includes('script.google.com')) {
+    badge.className = 'sheet-badge ok';
+    badge.innerHTML = '&#10003; Sheet';
+  } else {
+    badge.className = 'sheet-badge warn';
+    badge.innerHTML = '&#9888; Sheet';
+  }
+}
+
+function updateAgentPill() {
+  document.getElementById('agent-pill').textContent = config.agentName || 'Agent';
+}
+
+// ─── UTILS ───────────────────────────────────────────
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ─── PASSIVE TOUCH FIX ──────────────────────────────
+document.addEventListener('touchstart', function(){}, { passive: true });
+
+// ─── CLOSE MODALS ON OVERLAY CLICK ──────────────────
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', function(e) {
+    if (e.target === m) {
+      m.classList.remove('show');
+    }
+  });
+});
+
+// ─── SERVICE WORKER ──────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+
+// ─── BOOT ────────────────────────────────────────────
+init();
+updateScore();
+</script>
+</body>
+</html>
