@@ -2,1375 +2,1998 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0A0A0F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" type="image/png" href="./icon-192.png">
-<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-title" content="Axivia">
+<meta name="format-detection" content="telephone=no">
+<title>Axivia — Field App</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-<title>Axivia Field App</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
---bg:#0A0A0F;--bg2:#111118;--card:#161620;--card2:#1C1C28;--border:#2A2A3A;
---gold:#C9A84C;--text:#E8E3DA;--text2:#B8B3AA;--text3:#7A7A8A;
---green:#22c55e;--red:#ef4444;--blue:#4C8EC9;--orange:#fb923c;
---rose:#C94C6E;--teal:#4CC9A8;--purple:#9B4CC9;
---nav-h:64px;--header-h:56px;--mode-h:48px;
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{
+  height:100%;background:#0A0A0F;color:#E8E3DA;
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:16px;-webkit-font-smoothing:antialiased;
+  overflow:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%;
 }
-html,body{height:100%;overflow:hidden;-webkit-text-size-adjust:100%;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif}
-body{height:100vh;height:100dvh;position:relative}
-input,textarea,select,button{font-family:inherit;font-size:16px;outline:none;border:none;background:none;color:inherit}
-input::placeholder,textarea::placeholder{color:var(--text3)}
-a{color:var(--gold);text-decoration:none}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-/* PIN SCREEN */
-#pin-screen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s,transform .4s}
-#pin-screen.hidden{opacity:0;pointer-events:none;transform:scale(1.05)}
-.pin-wordmark{font-size:42px;font-weight:900;letter-spacing:6px;color:#fff;margin-bottom:8px}
-.pin-sub{color:var(--text3);font-size:13px;margin-bottom:40px;letter-spacing:1px}
-.pin-dots{display:flex;gap:16px;margin-bottom:8px;height:36px;align-items:center}
-.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);transition:all .15s}
-.pin-dot.filled{background:var(--gold);border-color:var(--gold)}
-.pin-error{color:var(--red);font-size:13px;height:20px;margin-bottom:12px;opacity:0;transition:opacity .2s}
-.pin-error.show{opacity:1}
-.pin-pad{display:grid;grid-template-columns:repeat(3,80px);gap:12px}
-.pin-key{width:80px;height:64px;border-radius:16px;background:var(--card);color:var(--text);font-size:24px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;transition:background .1s}
-.pin-key:active{background:var(--card2)}
-.pin-key.backspace{font-size:20px}
-@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-.pin-dots.shake{animation:shake .4s}
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root{
+  --bg:#0A0A0F;
+  --bg2:#111118;
+  --card:#15151E;
+  --card2:#1A1A25;
+  --card3:#1F1F2C;
+  --border:#252535;
+  --border2:#353548;
+  --gold:#C9A84C;
+  --gold2:#DDB85A;
+  --text:#E8E3DA;
+  --text2:#B0AABA;
+  --text3:#6E6E85;
+  --text4:#3E3E52;
+  --green:#22c55e;
+  --red:#ef4444;
+  --blue:#5B9BD5;
+  --orange:#f97316;
+  --rose:#E05580;
+  --teal:#2DD4BF;
+  --purple:#A855F7;
+  --seller:#C9A84C;
+  --buyer:#5B9BD5;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --header-h:54px;
+  --modebar-h:46px;
+  --scorebar-h:58px;
+  --nav-h:62px;
+}
 
-/* APP SHELL */
-#app{display:none;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
-#app.active{display:flex}
+/* ═══════════════════════════════════════════
+   PIN / AUTH SCREEN
+═══════════════════════════════════════════ */
+#auth-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 28px;padding-top:calc(24px + var(--safe-top));
+  padding-bottom:calc(24px + var(--safe-bottom));
+}
+.auth-logo{
+  font-size:28px;font-weight:900;letter-spacing:4px;color:#fff;
+  margin-bottom:6px;
+}
+.auth-sub{font-size:11px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:40px;text-align:center}
+.auth-label{font-size:12px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;text-align:center}
+.auth-input-wrap{
+  width:100%;background:var(--card2);border:1.5px solid var(--border2);
+  border-radius:14px;padding:14px 18px;margin-bottom:6px;
+  display:flex;align-items:center;gap:10px;
+}
+.auth-input-wrap input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-size:22px;font-weight:700;color:var(--text);letter-spacing:4px;
+  font-family:inherit;
+}
+.auth-input-wrap input::placeholder{color:var(--text4);font-weight:400;letter-spacing:1px;font-size:14px}
+.auth-error{font-size:12px;color:var(--red);text-align:center;margin-bottom:16px;height:16px;transition:opacity .2s}
+.auth-btn{
+  width:100%;height:54px;border-radius:14px;border:none;
+  background:var(--gold);color:#0A0A0F;font-size:15px;font-weight:800;
+  cursor:pointer;font-family:inherit;letter-spacing:.5px;margin-top:10px;
+}
+.auth-btn:active{opacity:.85}
+
+/* ═══════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════ */
+#app{
+  display:flex;flex-direction:column;
+  height:100vh;height:100dvh;
+  padding-top:var(--safe-top);
+  padding-bottom:var(--safe-bottom);
+  display:none;
+}
 
 /* HEADER */
-#header{height:var(--header-h);min-height:var(--header-h);display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--bg);border-bottom:1px solid var(--border);z-index:100}
-.header-wordmark{font-size:18px;font-weight:900;letter-spacing:2.5px;color:#fff}
-.header-right{display:flex;align-items:center;gap:8px}
-.agent-pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2);cursor:pointer;min-height:32px;display:flex;align-items:center}
-.sheet-badge{border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;min-height:28px;display:flex;align-items:center;gap:4px}
-.sheet-badge.ok{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
-.sheet-badge.warn{background:rgba(251,146,60,.15);color:var(--orange);border:1px solid rgba(251,146,60,.3)}
+#header{
+  height:var(--header-h);flex-shrink:0;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;z-index:50;
+}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.hdr-logo{font-size:17px;font-weight:900;letter-spacing:3px;color:#fff}
+.hdr-call{font-size:10px;color:var(--text3);letter-spacing:.5px;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:7px}
+.hdr-pill{
+  font-size:11px;padding:5px 10px;border-radius:20px;cursor:pointer;
+  border:1px solid var(--border2);color:var(--text2);background:var(--card);
+  white-space:nowrap;font-weight:600;
+}
+.sheet-ok{color:var(--green);border-color:#22c55e33;background:#22c55e0A}
+.sheet-warn{color:var(--gold);border-color:#C9A84C33;background:#C9A84C0A}
 
 /* MODE BAR */
-#mode-bar{height:var(--mode-h);min-height:var(--mode-h);display:flex;background:var(--bg);border-bottom:1px solid var(--border);z-index:99}
-.mode-btn{flex:1;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;letter-spacing:1.5px;color:var(--text3);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;-webkit-tap-highlight-color:transparent}
-.mode-btn.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(201,168,76,.06)}
+#mode-bar{
+  height:var(--modebar-h);flex-shrink:0;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;
+}
+.mode-btn{
+  flex:1;border:none;background:transparent;font-size:13px;font-weight:800;
+  color:var(--text3);cursor:pointer;letter-spacing:1.5px;text-transform:uppercase;
+  border-bottom:2px solid transparent;transition:all .15s;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.mode-btn.active-seller{color:var(--seller);border-bottom-color:var(--seller);background:#C9A84C08}
+.mode-btn.active-buyer{color:var(--buyer);border-bottom-color:var(--buyer);background:#5B9BD508}
 
 /* SCORE BAR */
-#score-bar{display:none;align-items:center;padding:10px 16px;gap:12px;background:var(--bg2);border-bottom:1px solid var(--border);min-height:52px}
-#score-bar.visible{display:flex}
-.score-num{font-size:28px;font-weight:900;min-width:42px;text-align:center}
-.score-bar-wrap{flex:1;height:10px;background:var(--card);border-radius:5px;overflow:hidden}
-.score-bar-fill{height:100%;border-radius:5px;transition:width .3s,background .3s}
-.score-tier{font-size:13px;font-weight:700;min-width:72px;text-align:right;letter-spacing:1px}
+#score-bar{
+  flex-shrink:0;background:var(--card);border-bottom:1px solid var(--border);
+  padding:10px 16px;display:flex;align-items:center;gap:12px;
+}
+.sb-score{font-size:30px;font-weight:900;line-height:1;min-width:34px;transition:color .3s}
+.sb-denom{font-size:11px;color:var(--text3);font-weight:600;margin-top:4px}
+.sb-track{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.sb-fill{height:100%;border-radius:4px;transition:width .35s ease,background .3s}
+.sb-tier{font-size:13px;font-weight:900;letter-spacing:.5px;min-width:64px;text-align:right;transition:color .3s}
 
-/* PAGE SCROLL */
-#page-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:140px}
+/* SCROLL */
+#page-scroll{
+  flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;scroll-behavior:smooth;
+}
+#page-scroll::-webkit-scrollbar{display:none}
+
+/* SAVE WRAP */
+#save-wrap{
+  flex-shrink:0;padding:10px 14px 6px;
+  background:linear-gradient(to bottom,transparent,var(--bg) 35%);
+}
+#save-btn{
+  width:100%;height:54px;border-radius:14px;border:none;
+  background:var(--gold);color:#0A0A0F;font-size:15px;font-weight:800;
+  cursor:pointer;font-family:inherit;letter-spacing:.5px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 24px rgba(201,168,76,.28);transition:all .15s;
+}
+#save-btn:active{transform:scale(.98);box-shadow:none}
+#save-btn.saved{background:var(--green);color:#fff;box-shadow:0 4px 24px rgba(34,197,94,.25)}
+.save-hint{text-align:center;font-size:10px;color:var(--text4);margin-top:4px;padding-bottom:2px}
 
 /* BOTTOM NAV */
-#bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);display:flex;background:var(--bg);border-top:1px solid var(--border);z-index:100}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .15s}
-.nav-btn.active{color:var(--gold)}
-.nav-btn .nav-icon{font-size:22px}
+#bottom-nav{
+  height:var(--nav-h);flex-shrink:0;
+  background:var(--bg2);border-top:1px solid var(--border);
+  display:flex;
+}
+.nav-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;border:none;background:transparent;
+  color:var(--text3);font-size:10px;font-weight:700;letter-spacing:.3px;
+  cursor:pointer;font-family:inherit;transition:color .15s;
+  text-transform:uppercase;
+}
+.nav-tab.active{color:var(--gold)}
+.nav-icon{font-size:19px;line-height:1}
 
-/* SAVE BUTTON */
-#save-btn-wrap{position:fixed;bottom:var(--nav-h);left:0;right:0;padding:8px 16px;background:linear-gradient(transparent,var(--bg) 30%);z-index:99;padding-top:24px;display:none}
-#save-btn-wrap.visible{display:block}
-#save-btn{width:100%;height:52px;border-radius:12px;background:var(--gold);color:var(--bg);font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px}
-#save-btn:active{transform:scale(.98)}
-#save-btn.saved{background:var(--green);pointer-events:none}
+/* ═══════════════════════════════════════════
+   VIEWS
+═══════════════════════════════════════════ */
+.view{display:none}
+.view.active{display:block}
+
+/* ═══════════════════════════════════════════
+   FORM VIEW
+═══════════════════════════════════════════ */
+#form-view{padding:10px 13px 100px}
+
+/* CARDS */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;margin-bottom:9px;overflow:hidden;
+}
+.card-head{
+  display:flex;align-items:center;gap:9px;
+  padding:11px 14px 9px;
+}
+.c-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-title{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2)}
+.card-body{padding:0 13px 13px}
+
+/* FIELDS */
+.field{margin-bottom:9px}
+.field:last-child{margin-bottom:0}
+.field label{
+  display:block;font-size:10px;font-weight:700;color:var(--text3);
+  letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;
+}
+.star{color:var(--gold);font-size:9px;margin-left:3px;vertical-align:middle}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--card2);border:1.5px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:16px;font-family:inherit;
+  padding:11px 13px;outline:none;appearance:none;-webkit-appearance:none;
+  transition:border-color .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--gold);
+}
+.field textarea{resize:none;line-height:1.5;min-height:70px}
+.field input::placeholder,.field textarea::placeholder{color:var(--text4)}
+
+/* SELECT */
+.sel{position:relative}
+.sel::after{
+  content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  color:var(--text3);font-size:13px;pointer-events:none;
+}
+.sel select{padding-right:34px;cursor:pointer}
+
+/* ROW LAYOUTS */
+.r2{display:flex;gap:9px}.r2 .field{flex:1}
+.r3{display:flex;gap:9px}.r3 .field{flex:1}
+.phone-row{display:flex;gap:8px;align-items:flex-end}
+.phone-row .field{flex:1;margin-bottom:0}
+.icon-btn{
+  width:48px;height:48px;border-radius:10px;border:1.5px solid var(--border);
+  background:var(--card2);display:flex;align-items:center;justify-content:center;
+  font-size:19px;cursor:pointer;flex-shrink:0;text-decoration:none;
+  transition:border-color .15s;
+}
+.icon-btn:active{border-color:var(--gold)}
+
+/* WARN STRIPS */
+.warn{
+  border-radius:9px;padding:8px 12px;font-size:12px;font-weight:600;
+  margin-bottom:9px;display:none;
+}
+.warn-dup{background:#C9A84C10;border:1px solid #C9A84C33;color:var(--gold)}
+.warn-dnc{background:#ef444410;border:1px solid #ef444433;color:var(--red)}
+
+/* STATUS CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{
+  padding:9px 14px;border-radius:20px;font-size:12px;font-weight:700;
+  border:1.5px solid;cursor:pointer;transition:all .15s;min-height:38px;
+  display:flex;align-items:center;
+}
+
+/* CALLER SCORE BUTTONS */
+.cq-row{display:flex;gap:8px;margin-top:2px}
+.cq-btn{
+  flex:1;height:54px;border-radius:11px;border:1.5px solid var(--border);
+  background:var(--card2);color:var(--text3);font-size:20px;font-weight:900;
+  cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.cq-btn.on{border-color:var(--gold);color:var(--gold);background:#C9A84C12}
+.cq-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--text4)}
+
+/* DYNAMIC PROP FIELDS */
+.prop-fields{display:none}
+.prop-fields.show{display:block}
+
+/* COOWNER REVEAL */
+#coowner-reveal{display:none;margin-top:9px}
+
+/* CALLBACK DATE */
+#cb-date-wrap{display:none;margin-top:9px}
+
+/* SECTION DIVIDER */
+.sec-div{
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text4);
+  font-weight:700;padding:4px 0 8px;
+}
+
+/* ═══════════════════════════════════════════
+   LOG VIEW
+═══════════════════════════════════════════ */
+#log-view{padding:13px 13px 80px}
+.log-bar{display:flex;align-items:center;gap:8px;margin-bottom:11px;flex-wrap:wrap}
+.log-title{font-size:17px;font-weight:800;flex:1}
+.log-action-btn{
+  height:36px;padding:0 12px;border-radius:9px;border:1px solid var(--border);
+  background:var(--card);color:var(--text2);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+}
+.log-search{
+  width:100%;background:var(--card);border:1.5px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:15px;padding:10px 14px;
+  outline:none;font-family:inherit;margin-bottom:10px;
+}
+.log-search::placeholder{color:var(--text4)}
+.filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.fc{
+  padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;
+  border:1.5px solid var(--border);background:var(--card);color:var(--text3);
+  cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;
+}
+.fc.on{border-color:var(--gold);color:var(--gold);background:#C9A84C0F}
+
+/* LOG CARDS */
+.lc{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.lc-h{display:flex;align-items:center;gap:10px;padding:12px 13px;cursor:pointer}
+.lc-tier{width:38px;height:38px;border-radius:9px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.3px}
+.lc-info{flex:1;min-width:0}
+.lc-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-meta{font-size:11px;color:var(--text3);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.mode-pill{font-size:9px;font-weight:800;padding:2px 7px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase}
+.seller-pill{background:#C9A84C18;color:var(--seller)}
+.buyer-pill{background:#5B9BD518;color:var(--buyer)}
+.lc-score{font-size:24px;font-weight:900;flex-shrink:0}
+.lc-body{display:none;padding:0 13px 12px;border-top:1px solid var(--border)}
+.lc.open .lc-body{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-top:10px}
+.lc-f{background:var(--card2);border-radius:8px;padding:8px 10px}
+.lc-fl{font-size:9px;color:var(--text4);letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px}
+.lc-fv{font-size:12px;color:var(--text2);font-weight:500;word-break:break-word}
+.lc-acts{display:flex;gap:7px;margin-top:8px;grid-column:span 2}
+.lc-ab{flex:1;height:38px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.lc-ab.del{color:var(--red);border-color:#ef444430}
+
+/* CALLBACKS BANNER */
+.cb-banner{background:#5B9BD510;border:1px solid #5B9BD530;border-radius:10px;padding:10px 12px;margin-bottom:11px;display:none}
+.cb-item{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)}
+.cb-item:last-child{border:none}
+.empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+
+/* ═══════════════════════════════════════════
+   ANALYTICS VIEW
+═══════════════════════════════════════════ */
+#analytics-view{padding:13px 13px 80px}
+.an-title{font-size:17px;font-weight:800;margin-bottom:13px}
+.an-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
+.an-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px}
+.an-n{font-size:28px;font-weight:900}
+.an-l{font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-top:3px}
+.an-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:9px}
+.an-sh{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:11px}
+.bar-row{margin-bottom:8px}
+.bar-lbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;color:var(--text2)}
+.bar-bg{height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s ease}
+
+/* ═══════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;
+  display:none;align-items:flex-end;padding-bottom:var(--safe-bottom);
+}
+.overlay.open{display:flex}
+.sheet{
+  background:var(--card);border-radius:20px 20px 0 0;width:100%;
+  padding:18px 16px 22px;max-height:88vh;overflow-y:auto;
+}
+.sheet-handle{width:38px;height:3px;background:var(--border2);border-radius:2px;margin:0 auto 16px}
+.sheet-title{font-size:16px;font-weight:800;margin-bottom:14px}
+.m-actions{display:flex;gap:9px;margin-top:14px}
+.m-btn{flex:1;height:50px;border-radius:12px;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit}
+.m-primary{background:var(--gold);color:#0A0A0F}
+.m-secondary{background:var(--card2);color:var(--text2)}
 
 /* TOAST */
-#toast{position:fixed;top:calc(var(--header-h) + 8px);left:16px;right:16px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;text-align:center;z-index:200;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none}
-#toast.show{opacity:1;transform:translateY(0)}
-#toast.success{background:rgba(34,197,94,.9);color:#fff}
-#toast.error{background:rgba(239,68,68,.9);color:#fff}
-#toast.info{background:rgba(76,142,201,.9);color:#fff}
+#toasts{
+  position:fixed;top:calc(var(--safe-top) + var(--header-h) + 8px);
+  left:50%;transform:translateX(-50%);z-index:999;
+  display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;
+  width:90%;max-width:320px;
+}
+.toast{
+  background:var(--card2);border:1px solid var(--border2);border-radius:20px;
+  padding:9px 16px;font-size:12px;font-weight:700;color:var(--text);
+  opacity:0;transform:translateY(-6px);transition:all .2s;white-space:nowrap;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;
+}
+.toast.show{opacity:1;transform:none}
+.t-green{color:var(--green);border-color:#22c55e33}
+.t-red{color:var(--red);border-color:#ef444433}
+.t-gold{color:var(--gold);border-color:#C9A84C33}
+.t-blue{color:var(--blue);border-color:#5B9BD533}
 
-/* FORM STYLES */
-.form-section{padding:16px}
-.form-group{margin-bottom:16px}
-.form-label{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:.3px}
-.form-label .star{color:var(--gold);font-size:11px}
-.form-input{width:100%;height:48px;padding:0 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:16px;transition:border-color .15s}
-.form-input:focus{border-color:var(--gold)}
-textarea.form-input{height:auto;padding:12px 14px;resize:none;line-height:1.5}
-.form-row{display:flex;gap:10px}
-.form-row>.form-group{flex:1}
-.chip-row{display:flex;flex-wrap:wrap;gap:8px}
-.chip{height:40px;padding:0 16px;border-radius:20px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:500;display:flex;align-items:center;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
-.chip.active{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold)}
-.chip-sm{height:36px;padding:0 12px;font-size:12px;border-radius:18px}
-.phone-row{display:flex;gap:8px;align-items:center}
-.phone-row .form-input{flex:1}
-.phone-btn{min-width:48px;height:48px;border-radius:10px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
-.phone-btn:active{background:var(--card2)}
-.caller-btns{display:flex;gap:8px}
-.caller-btn{flex:1;height:56px;border-radius:12px;background:var(--card);border:2px solid var(--border);font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all .15s}
-.caller-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.1)}
-.caller-hint{font-size:11px;color:var(--text3);margin-top:4px;text-align:center}
-.timer-row{display:flex;gap:8px;align-items:center}
-.timer-btn{min-width:48px;height:48px;border-radius:10px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
-.timer-btn:active{background:var(--card2)}
-.timer-display{font-size:14px;font-weight:600;color:var(--text2);min-width:60px;text-align:center;font-variant-numeric:tabular-nums}
-.warning-strip{padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;margin:0 16px 8px}
-.warning-strip.red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
-.warning-strip.amber{background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.3)}
-.section-divider{height:1px;background:var(--border);margin:8px 16px 16px}
-.section-title{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:16px 16px 8px}
-.callback-date{margin-top:8px}
-
-/* LOG VIEW */
-#log-view{display:none}
-#log-view.active{display:block}
-.log-search{margin:12px 16px;position:relative}
-.log-search input{width:100%;height:44px;padding:0 14px 0 40px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px}
-.log-search .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px}
-.filter-chips{display:flex;gap:6px;padding:0 16px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.filter-chips::-webkit-scrollbar{display:none}
-.filter-chip{height:32px;padding:0 12px;border-radius:16px;background:var(--card);border:1px solid var(--border);color:var(--text3);font-size:12px;font-weight:600;display:flex;align-items:center;cursor:pointer;white-space:nowrap;transition:all .15s}
-.filter-chip.active{background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold)}
-.callbacks-banner{margin:0 16px 12px;padding:10px 14px;border-radius:10px;background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.3);font-size:13px;font-weight:600;color:var(--orange)}
-.log-card{margin:0 16px 10px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:background .15s}
-.log-card:active{background:var(--card2)}
-.log-card-top{display:flex;align-items:center;gap:10px}
-.log-tier{padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;color:#fff}
-.log-tier.hot{background:var(--green)}.log-tier.warm{background:var(--gold)}.log-tier.cold{background:var(--orange)}.log-tier.trace{background:var(--red)}
-.log-name{flex:1;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.log-score{font-size:13px;font-weight:700;color:var(--text2)}
-.log-mode{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.5px}
-.log-mode.seller{background:rgba(76,142,201,.15);color:var(--blue)}
-.log-mode.buyer{background:rgba(155,76,201,.15);color:var(--purple)}
-.log-phone{font-size:12px;color:var(--text3);margin-top:4px}
-.log-detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
-.log-card.expanded .log-detail{display:block}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:13px;margin-bottom:10px}
-.detail-key{color:var(--text3);font-size:11px}
-.detail-val{color:var(--text);font-weight:500}
-.log-notes{font-size:13px;color:var(--text2);margin-bottom:12px;padding:8px;background:var(--bg2);border-radius:6px;white-space:pre-wrap}
-.log-actions{display:flex;gap:8px}
-.log-action-btn{flex:1;height:40px;border-radius:8px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.log-action-btn.edit{background:rgba(76,142,201,.15);color:var(--blue);border:1px solid rgba(76,142,201,.3)}
-.log-action-btn.delete{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3)}
-.log-footer{display:flex;gap:8px;padding:16px}
-.log-footer-btn{flex:1;height:44px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
-.log-footer-btn.export{background:rgba(76,142,201,.12);color:var(--blue);border:1px solid rgba(76,142,201,.3)}
-.log-footer-btn.clear{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.log-empty{text-align:center;padding:48px 16px;color:var(--text3);font-size:14px}
-
-/* ANALYTICS VIEW */
-#analytics-view{display:none}
-#analytics-view.active{display:block}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
-.stat-val{font-size:28px;font-weight:900}
-.stat-label{font-size:12px;color:var(--text3);margin-top:4px;font-weight:600}
-.chart-section{padding:0 16px 16px}
-.chart-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;letter-spacing:.3px}
-.h-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.h-bar-label{font-size:12px;color:var(--text2);min-width:60px;text-align:right;font-weight:500}
-.h-bar-track{flex:1;height:20px;background:var(--card);border-radius:4px;overflow:hidden}
-.h-bar-fill{height:100%;border-radius:4px;transition:width .4s}
-.h-bar-val{font-size:12px;color:var(--text3);min-width:30px;font-weight:600}
-
-/* MODAL / BOTTOM SHEET */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:flex-end;justify-content:center}
-.modal-overlay.show{display:flex}
-.modal-sheet{width:100%;max-width:500px;max-height:85vh;background:var(--bg2);border-radius:20px 20px 0 0;overflow-y:auto;padding:20px 16px 32px;-webkit-overflow-scrolling:touch}
-.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
-.modal-title{font-size:18px;font-weight:700;margin-bottom:16px}
-.modal-close{position:absolute;right:16px;top:20px;font-size:24px;color:var(--text3);cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center}
-.modal-save-btn{width:100%;height:48px;border-radius:12px;background:var(--gold);color:var(--bg);font-size:15px;font-weight:700;cursor:pointer;margin-top:16px}
+/* MATCHING RESULTS */
+#match-results{display:none;margin-top:13px}
+.match-card{
+  background:var(--card2);border:1px solid var(--border2);border-radius:12px;
+  padding:12px 13px;margin-bottom:8px;
+}
+.match-card.strong{border-color:#22c55e44;background:#22c55e08}
+.match-card.partial{border-color:#C9A84C33;background:#C9A84C08}
+.match-type{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.match-type.s{color:var(--green)}
+.match-type.p{color:var(--gold)}
+.match-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.match-detail{font-size:12px;color:var(--text3)}
 </style>
 </head>
 <body>
 
-<!-- PIN SCREEN -->
-<div id="pin-screen">
-  <div class="pin-wordmark">AXIVIA</div>
-  <div class="pin-sub">Field App &mdash; Authorised Access Only</div>
-  <div class="pin-dots" id="pin-dots">
-    <div class="pin-dot" id="pd0"></div>
-    <div class="pin-dot" id="pd1"></div>
-    <div class="pin-dot" id="pd2"></div>
-    <div class="pin-dot" id="pd3"></div>
+<!-- ═══════════ AUTH SCREEN ═══════════ -->
+<div id="auth-screen">
+  <div class="auth-logo">AXIVIA</div>
+  <div class="auth-sub">Field App · Authorised Access Only</div>
+  <div class="auth-label">Enter Employee Code</div>
+  <div class="auth-input-wrap">
+    <input type="text" id="auth-input" placeholder="e.g. 0001"
+      maxlength="8" autocomplete="off" autocorrect="off" spellcheck="false"
+      onkeydown="if(event.key==='Enter')attemptLogin()">
   </div>
-  <div class="pin-error" id="pin-error">Incorrect PIN</div>
-  <div class="pin-pad" id="pin-pad">
-    <div class="pin-key" data-key="1">1</div>
-    <div class="pin-key" data-key="2">2</div>
-    <div class="pin-key" data-key="3">3</div>
-    <div class="pin-key" data-key="4">4</div>
-    <div class="pin-key" data-key="5">5</div>
-    <div class="pin-key" data-key="6">6</div>
-    <div class="pin-key" data-key="7">7</div>
-    <div class="pin-key" data-key="8">8</div>
-    <div class="pin-key" data-key="9">9</div>
-    <div class="pin-key" style="visibility:hidden"></div>
-    <div class="pin-key" data-key="0">0</div>
-    <div class="pin-key backspace" data-key="back">&larr;</div>
-  </div>
+  <div class="auth-error" id="auth-error">&nbsp;</div>
+  <button class="auth-btn" onclick="attemptLogin()">Enter</button>
 </div>
 
-<!-- APP -->
+<!-- ═══════════ APP ═══════════ -->
 <div id="app">
+
   <!-- HEADER -->
   <div id="header">
-    <div class="header-wordmark">AXIVIA</div>
-    <div class="header-right">
-      <div class="agent-pill" id="agent-pill" onclick="openSetup()">Agent</div>
-      <div class="sheet-badge warn" id="sheet-badge" onclick="openSetup()">&#9888; Sheet</div>
+    <div class="hdr-left">
+      <div>
+        <div class="hdr-logo">AXIVIA</div>
+        <div class="hdr-call" id="call-badge">Call #1</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-pill" id="agent-pill" onclick="openSetup()">Agent ▾</div>
+      <div class="hdr-pill sheet-warn" id="sheet-badge" onclick="openSetup()">⚠ Sheet</div>
     </div>
   </div>
 
   <!-- MODE BAR -->
   <div id="mode-bar">
-    <div class="mode-btn active" data-mode="SELLER" onclick="setMode('SELLER')">SELLER</div>
-    <div class="mode-btn" data-mode="BUYER" onclick="setMode('BUYER')">BUYER</div>
+    <button class="mode-btn active-seller" id="btn-seller" onclick="setMode('SELLER')">
+      🏠 Seller
+    </button>
+    <button class="mode-btn" id="btn-buyer" onclick="setMode('BUYER')">
+      🔍 Buyer
+    </button>
   </div>
 
   <!-- SCORE BAR -->
   <div id="score-bar">
-    <div class="score-num" id="score-num">0</div>
-    <div class="score-bar-wrap"><div class="score-bar-fill" id="score-fill" style="width:0"></div></div>
-    <div class="score-tier" id="score-tier">TRACE</div>
+    <div>
+      <div class="sb-score" id="sb-num" style="color:var(--red)">0</div>
+      <div class="sb-denom">/10</div>
+    </div>
+    <div class="sb-track">
+      <div class="sb-fill" id="sb-fill" style="width:0%;background:var(--red)"></div>
+    </div>
+    <div class="sb-tier" id="sb-tier" style="color:var(--red)">TRACE</div>
   </div>
 
-  <!-- PAGE SCROLL -->
+  <!-- SCROLL AREA -->
   <div id="page-scroll">
-    <!-- FORM VIEW -->
-    <div id="form-view" class="active">
-      <!-- DNC / Duplicate warnings -->
-      <div id="dnc-warning" class="warning-strip red" style="display:none;margin-top:12px">&#9888; DNC: This number is on the Do Not Call list</div>
-      <div id="dup-warning" class="warning-strip amber" style="display:none">&#9888; Duplicate: This number already exists in logs</div>
 
-      <div class="form-section">
-        <!-- Call Status -->
-        <div class="form-group">
-          <div class="form-label">Call Status</div>
-          <div class="chip-row" id="callstatus-chips">
-            <div class="chip chip-sm" data-val="Completed" onclick="pickChip(this,'callStatus')">Completed</div>
-            <div class="chip chip-sm" data-val="No Answer" onclick="pickChip(this,'callStatus')">No Answer</div>
-            <div class="chip chip-sm" data-val="Busy" onclick="pickChip(this,'callStatus')">Busy</div>
-            <div class="chip chip-sm" data-val="Wrong #" onclick="pickChip(this,'callStatus')">Wrong #</div>
-            <div class="chip chip-sm" data-val="Callback" onclick="pickChip(this,'callStatus')">Callback</div>
-            <div class="chip chip-sm" data-val="DNC" onclick="pickChip(this,'callStatus')">DNC</div>
-          </div>
-          <div class="callback-date" id="callback-date-wrap" style="display:none">
-            <div class="form-label">Callback Date</div>
-            <input type="date" class="form-input" id="callbackDate" onchange="updateScore()">
-          </div>
+    <!-- ═══ FORM VIEW ═══ -->
+    <div class="view active" id="form-view">
+
+      <!-- CALL STATUS -->
+      <div class="card" style="margin-top:6px">
+        <div class="card-head">
+          <div class="c-dot" style="background:var(--green)"></div>
+          <div class="c-title">Call Status</div>
         </div>
-
-        <!-- Name -->
-        <div class="form-group">
-          <div class="form-label">Full Name</div>
-          <input type="text" class="form-input" id="fullName" placeholder="Full Name" autocomplete="off">
-        </div>
-
-        <!-- Phone -->
-        <div class="form-group">
-          <div class="form-label">Phone</div>
-          <div class="phone-row">
-            <input type="tel" class="form-input" id="phone" placeholder="Phone Number" autocomplete="off" oninput="checkPhone()">
-            <div class="phone-btn" onclick="dialPhone()" title="Dial">&#128222;</div>
-            <div class="phone-btn" onclick="whatsappPhone()" title="WhatsApp">&#128172;</div>
-          </div>
-        </div>
-
-        <!-- Alt Contact -->
-        <div class="form-group">
-          <div class="form-label">Alt. Contact No.</div>
-          <input type="tel" class="form-input" id="altPhone" placeholder="Alternative Number" autocomplete="off">
-        </div>
-
-        <!-- Source -->
-        <div class="form-group">
-          <div class="form-label">Source</div>
-          <div class="chip-row" id="source-chips">
-            <div class="chip chip-sm" data-val="Cold Call" onclick="pickChip(this,'source')">Cold Call</div>
-            <div class="chip chip-sm" data-val="Referral" onclick="pickChip(this,'source')">Referral</div>
-            <div class="chip chip-sm" data-val="Walk-in" onclick="pickChip(this,'source')">Walk-in</div>
-            <div class="chip chip-sm" data-val="Event" onclick="pickChip(this,'source')">Event</div>
-          </div>
-        </div>
-
-        <!-- Locality -->
-        <div class="form-group">
-          <div class="form-label">Locality</div>
-          <input type="text" class="form-input" id="locality" placeholder="Area / Locality" autocomplete="off">
-        </div>
-
-        <div class="section-divider"></div>
-
-        <!-- SELLER-ONLY FIELDS -->
-        <div id="seller-fields">
-          <div class="section-title">Seller Details</div>
-          <div class="form-group">
-            <div class="form-label">Owned By <span class="star">&#9733;</span></div>
-            <div class="chip-row" id="ownedBy-chips">
-              <div class="chip chip-sm" data-val="Owner" onclick="pickChip(this,'ownedBy')">Owner (sole)</div>
-              <div class="chip chip-sm" data-val="Co-Owner" onclick="pickChip(this,'ownedBy')">Co-Owner</div>
-              <div class="chip chip-sm" data-val="Third Party" onclick="pickChip(this,'ownedBy')">Third Party</div>
-              <div class="chip chip-sm" data-val="Unknown" onclick="pickChip(this,'ownedBy')">Unknown</div>
+        <div class="card-body">
+          <div class="warn warn-dnc" id="dnc-warn">🚫 Do Not Call — this number is on the DNC list</div>
+          <div class="warn warn-dup" id="dup-warn">⚠ Duplicate — this number is already in the log</div>
+          <div class="chips" id="status-chips"></div>
+          <div id="cb-date-wrap">
+            <div class="field" style="margin-top:10px">
+              <label>Callback Date</label>
+              <input type="date" id="f-callback-date">
             </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Occupied By</div>
-            <div class="chip-row" id="occupiedBy-chips">
-              <div class="chip chip-sm" data-val="Self" onclick="pickChip(this,'occupiedBy')">Self</div>
-              <div class="chip chip-sm" data-val="Tenant" onclick="pickChip(this,'occupiedBy')">Tenant</div>
-              <div class="chip chip-sm" data-val="Vacant" onclick="pickChip(this,'occupiedBy')">Vacant</div>
-              <div class="chip chip-sm" data-val="Unknown" onclick="pickChip(this,'occupiedBy')">Unknown</div>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Property Type <span class="star">&#9733;</span></div>
-            <div class="chip-row" id="propType-chips">
-              <div class="chip chip-sm" data-val="Apartment" onclick="pickChip(this,'propType')">Apartment</div>
-              <div class="chip chip-sm" data-val="Independent House" onclick="pickChip(this,'propType')">Indep. House</div>
-              <div class="chip chip-sm" data-val="Villa" onclick="pickChip(this,'propType')">Villa</div>
-              <div class="chip chip-sm" data-val="Plot" onclick="pickChip(this,'propType')">Plot</div>
-              <div class="chip chip-sm" data-val="Commercial" onclick="pickChip(this,'propType')">Commercial</div>
-              <div class="chip chip-sm" data-val="Other" onclick="pickChip(this,'propType')">Other</div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <div class="form-label">Size (sq.ft)</div>
-              <input type="text" class="form-input" id="size" placeholder="e.g. 1200" autocomplete="off">
-            </div>
-            <div class="form-group">
-              <div class="form-label">Neighborhood / Society</div>
-              <input type="text" class="form-input" id="neighborhood" placeholder="Society name" autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Intent <span class="star">&#9733;</span></div>
-            <div class="chip-row" id="sellerIntent-chips">
-              <div class="chip chip-sm" data-val="Sell" onclick="pickChip(this,'sellerIntent')">Sell</div>
-              <div class="chip chip-sm" data-val="Rent Out" onclick="pickChip(this,'sellerIntent')">Rent Out</div>
-              <div class="chip chip-sm" data-val="No Intent" onclick="pickChip(this,'sellerIntent')">No Intent</div>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Timeline <span class="star">&#9733;</span></div>
-            <div class="chip-row" id="sellerTimeline-chips">
-              <div class="chip chip-sm" data-val="under1month" onclick="pickChip(this,'sellerTimeline')">&lt;1 month</div>
-              <div class="chip chip-sm" data-val="1-3 months" onclick="pickChip(this,'sellerTimeline')">1-3 months</div>
-              <div class="chip chip-sm" data-val="3-6 months" onclick="pickChip(this,'sellerTimeline')">3-6 months</div>
-              <div class="chip chip-sm" data-val="6+ months" onclick="pickChip(this,'sellerTimeline')">6+ months</div>
-              <div class="chip chip-sm" data-val="No Timeline" onclick="pickChip(this,'sellerTimeline')">No Timeline</div>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Asking Price / Valuation <span class="star">&#9733;</span></div>
-            <input type="text" class="form-input" id="sellerBudget" placeholder="e.g. 85L or 1.2Cr" autocomplete="off" oninput="updateScore()">
-          </div>
-          <div class="form-group">
-            <div class="form-label">Financing <span class="star">&#9733;</span></div>
-            <div class="chip-row" id="sellerFinancing-chips">
-              <div class="chip chip-sm" data-val="Bank Pre-Approved" onclick="pickChip(this,'sellerFinancing')">Bank Pre-Approved</div>
-              <div class="chip chip-sm" data-val="Self / Cash" onclick="pickChip(this,'sellerFinancing')">Self / Cash</div>
-              <div class="chip chip-sm" data-val="Not Yet" onclick="pickChip(this,'sellerFinancing')">Not Yet</div>
-              <div class="chip chip-sm" data-val="N/A" onclick="pickChip(this,'sellerFinancing')">N/A</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- BUYER-ONLY FIELDS -->
-        <div id="buyer-fields" style="display:none">
-          <div class="section-title">Buyer Details</div>
-          <div class="form-group">
-            <div class="form-label">Purpose <span class="star">&#9733;</span></div>
-            <div class="chip-row" id="purpose-chips">
-              <div class="chip chip-sm" data-val="Self-Use" onclick="pickChip(this,'purpose')">Self-Use</div>
-              <div class="chip chip-sm" data-val="Investment" onclick="pickChip(this,'purpose')">Investment</div>
-              <div class="chip chip-sm" data-val="Rental Income" onclick="pickChip(this,'purpose')">Rental Income</div>
-              <div class="chip chip-sm" data-val="Unclear" onclick="pickChip(this,'purpose')">Unclear</div>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Current Situation</div>
-            <div class="chip-row" id="currentSit-chips">
-              <div class="chip chip-sm" data-val="Renting" onclick="pickChip(this,'currentSit')">Renting</div>
-              <div class="chip chip-sm" data-val="Owns Another" onclick="pickChip(this,'currentSit')">Owns Another</div>
-              <div class="chip chip-sm" data-val="First Purchase" onclick="pickChip(this,'currentSit')">First Purchase</div>
-              <div class="chip chip-sm" data-val="Unknown" onclick="pickChip(this,'currentSit')">Unknown</div>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Property Type Preference <span class="star">&#9733;</span></div>
-            <div class="chip-row" id="buyerPropPref-chips">
-              <div class="chip chip-sm" data-val="Apartment" onclick="pickChip(this,'buyerPropPref')">Apartment</div>
-              <div class="chip chip-sm" data-val="Independent House" onclick="pickChip(this,'buyerPropPref')">Indep. House</div>
-              <div class="chip chip-sm" data-val="Villa" onclick="pickChip(this,'buyerPropPref')">Villa</div>
-              <div class="chip chip-sm" data-val="Plot" onclick="pickChip(this,'buyerPropPref')">Plot</div>
-              <div class="chip chip-sm" data-val="Commercial" onclick="pickChip(this,'buyerPropPref')">Commercial</div>
-              <div class="chip chip-sm" data-val="Any" onclick="pickChip(this,'buyerPropPref')">Any</div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <div class="form-label">Preferred Localities</div>
-              <input type="text" class="form-input" id="prefLocalities" placeholder="e.g. Saddu, Shankar Nagar" autocomplete="off">
-            </div>
-            <div class="form-group">
-              <div class="form-label">BHK / Config</div>
-              <input type="text" class="form-input" id="bhk" placeholder="e.g. 3BHK" autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Intent <span class="star">&#9733;</span></div>
-            <div class="chip-row" id="buyerIntent-chips">
-              <div class="chip chip-sm" data-val="Buy" onclick="pickChip(this,'buyerIntent')">Buy</div>
-              <div class="chip chip-sm" data-val="Invest" onclick="pickChip(this,'buyerIntent')">Invest</div>
-              <div class="chip chip-sm" data-val="Just Browsing" onclick="pickChip(this,'buyerIntent')">Just Browsing</div>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Timeline <span class="star">&#9733;</span></div>
-            <div class="chip-row" id="buyerTimeline-chips">
-              <div class="chip chip-sm" data-val="under1month" onclick="pickChip(this,'buyerTimeline')">&lt;1 month</div>
-              <div class="chip chip-sm" data-val="1-3 months" onclick="pickChip(this,'buyerTimeline')">1-3 months</div>
-              <div class="chip chip-sm" data-val="3-6 months" onclick="pickChip(this,'buyerTimeline')">3-6 months</div>
-              <div class="chip chip-sm" data-val="6+ months" onclick="pickChip(this,'buyerTimeline')">6+ months</div>
-              <div class="chip chip-sm" data-val="No Timeline" onclick="pickChip(this,'buyerTimeline')">No Timeline</div>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Budget Range <span class="star">&#9733;</span></div>
-            <input type="text" class="form-input" id="buyerBudget" placeholder="e.g. 80L-1.2Cr" autocomplete="off" oninput="updateScore()">
-          </div>
-          <div class="form-group">
-            <div class="form-label">Financing <span class="star">&#9733;</span></div>
-            <div class="chip-row" id="buyerFinancing-chips">
-              <div class="chip chip-sm" data-val="Bank Pre-Approved" onclick="pickChip(this,'buyerFinancing')">Bank Pre-Approved</div>
-              <div class="chip chip-sm" data-val="Self / Cash" onclick="pickChip(this,'buyerFinancing')">Self / Cash</div>
-              <div class="chip chip-sm" data-val="Not Yet" onclick="pickChip(this,'buyerFinancing')">Not Yet</div>
-              <div class="chip chip-sm" data-val="N/A" onclick="pickChip(this,'buyerFinancing')">N/A</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-divider"></div>
-
-        <!-- SHARED BOTTOM FIELDS -->
-        <div class="form-group">
-          <div class="form-label">Next Action <span class="star">&#9733;</span></div>
-          <div class="chip-row" id="nextAction-chips">
-            <div class="chip chip-sm" data-val="Book Meeting" onclick="pickChip(this,'nextAction')">Book Meeting</div>
-            <div class="chip chip-sm" data-val="Send WhatsApp" onclick="pickChip(this,'nextAction')">Send WhatsApp</div>
-            <div class="chip chip-sm" data-val="Call Back" onclick="pickChip(this,'nextAction')">Call Back</div>
-            <div class="chip chip-sm" data-val="No Action Needed" onclick="pickChip(this,'nextAction')">No Action Needed</div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-label">Broker Status</div>
-          <div class="chip-row" id="broker-chips">
-            <div class="chip chip-sm" data-val="No Broker" onclick="pickChip(this,'broker')">No Broker</div>
-            <div class="chip chip-sm" data-val="Working With Broker" onclick="pickChip(this,'broker')">Working With</div>
-            <div class="chip chip-sm" data-val="Open to Broker" onclick="pickChip(this,'broker')">Open</div>
-            <div class="chip chip-sm" data-val="Not Discussed" onclick="pickChip(this,'broker')">Not Discussed</div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-label">Caller Quality Score <span class="star">&#9733;</span></div>
-          <div class="caller-btns" id="caller-btns">
-            <div class="caller-btn" data-val="0" onclick="pickCaller(0)">0</div>
-            <div class="caller-btn" data-val="1" onclick="pickCaller(1)">1</div>
-            <div class="caller-btn" data-val="2" onclick="pickCaller(2)">2</div>
-            <div class="caller-btn" data-val="3" onclick="pickCaller(3)">3</div>
-          </div>
-          <div class="caller-hint">0 = No engagement &rarr; 3 = Excellent</div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-label">Notes</div>
-          <textarea class="form-input" id="notes" rows="3" placeholder="Additional notes..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <div class="form-label">Duration (mins)</div>
-          <div class="timer-row">
-            <input type="number" class="form-input" id="duration" placeholder="0.0" step="0.1" style="flex:1">
-            <div class="timer-btn" id="timer-start" onclick="toggleTimer()">&#9654;</div>
-            <div class="timer-display" id="timer-display">0:00</div>
-            <div class="timer-btn" id="timer-reset" onclick="resetTimer()">&#8634;</div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- LOG VIEW -->
-    <div id="log-view">
-      <div id="callbacks-banner" class="callbacks-banner" style="display:none;margin-top:12px"></div>
-      <div class="log-search">
-        <span class="search-icon">&#128269;</span>
-        <input type="text" id="log-search-input" placeholder="Search name, phone, locality..." oninput="renderLogs()">
+      <!-- CONTACT -->
+      <div class="card">
+        <div class="card-head">
+          <div class="c-dot" style="background:var(--blue)"></div>
+          <div class="c-title">Contact Details</div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label>Full Name</label>
+            <input type="text" id="f-name" placeholder="Lead's full name" oninput="autoScore()">
+          </div>
+          <div class="field">
+            <label>Phone Number</label>
+            <div class="phone-row">
+              <div class="field" style="margin-bottom:0">
+                <input type="tel" id="f-phone" inputmode="tel" placeholder="+91 9XXXXXXXXX"
+                  oninput="onPhoneInput(this.value)">
+              </div>
+              <a id="dial-btn" class="icon-btn" title="Call">📞</a>
+              <a id="wa-btn" class="icon-btn" target="_blank" title="WhatsApp">💬</a>
+            </div>
+          </div>
+          <div class="field">
+            <label>Alt. Contact No.</label>
+            <input type="tel" id="f-alt-phone" inputmode="tel" placeholder="Secondary number (optional)">
+          </div>
+          <div class="r2">
+            <div class="field">
+              <label>Source<span class="star">★</span></label>
+              <div class="sel">
+                <select id="f-source" onchange="autoScore()">
+                  <option value="">— Select —</option>
+                  <option value="Organic — Cold Call">Organic — Cold Call</option>
+                  <option value="Organic — Walk-in">Organic — Walk-in</option>
+                  <option value="Organic — Event">Organic — Event</option>
+                  <option value="Broker Referred">Broker Referred</option>
+                  <option value="Referral — Existing Client">Referral — Existing Client</option>
+                  <option value="Digital — Social Media">Digital — Social Media</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Broker Status</label>
+              <div class="sel">
+                <select id="f-broker">
+                  <option value="">— Select —</option>
+                  <option value="No Broker Involved">No Broker Involved</option>
+                  <option value="Working With Broker">Working With Broker</option>
+                  <option value="Open to Broker">Open to Broker</option>
+                  <option value="Not Discussed">Not Discussed</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="filter-chips" id="filter-chips">
-        <div class="filter-chip active" data-filter="ALL" onclick="setFilter('ALL',this)">ALL</div>
-        <div class="filter-chip" data-filter="SELLER" onclick="setFilter('SELLER',this)">SELLER</div>
-        <div class="filter-chip" data-filter="BUYER" onclick="setFilter('BUYER',this)">BUYER</div>
-        <div class="filter-chip" data-filter="HOT" onclick="setFilter('HOT',this)">HOT</div>
-        <div class="filter-chip" data-filter="WARM" onclick="setFilter('WARM',this)">WARM</div>
-        <div class="filter-chip" data-filter="COLD" onclick="setFilter('COLD',this)">COLD</div>
-        <div class="filter-chip" data-filter="TRACE" onclick="setFilter('TRACE',this)">TRACE</div>
+
+      <!-- SELLER FIELDS -->
+      <div id="seller-section">
+
+        <!-- PROPERTY LOCATION -->
+        <div class="card">
+          <div class="card-head">
+            <div class="c-dot" style="background:var(--teal)"></div>
+            <div class="c-title">Property Location</div>
+          </div>
+          <div class="card-body">
+            <div class="r2">
+              <div class="field">
+                <label>Locality</label>
+                <input type="text" id="f-locality" placeholder="Area / Colony">
+              </div>
+              <div class="field">
+                <label>Neighbourhood / Society</label>
+                <input type="text" id="f-nbhd" placeholder="Society name">
+              </div>
+            </div>
+            <div class="field">
+              <label>Google Maps Location Pin<span class="star">★</span></label>
+              <input type="url" id="f-location-pin" placeholder="Paste Google Maps link here"
+                oninput="autoScore()" style="font-size:13px">
+            </div>
+          </div>
+        </div>
+
+        <!-- OWNERSHIP -->
+        <div class="card">
+          <div class="card-head">
+            <div class="c-dot" style="background:var(--gold)"></div>
+            <div class="c-title">Ownership</div>
+          </div>
+          <div class="card-body">
+            <div class="r2">
+              <div class="field">
+                <label>Owned By<span class="star">★</span></label>
+                <div class="sel">
+                  <select id="f-owned-by" onchange="onOwnershipChange()">
+                    <option value="">— Select —</option>
+                    <option value="Owner">Owner (Sole)</option>
+                    <option value="Co-Owner">Co-Owner / Joint</option>
+                    <option value="Third Party">Third Party</option>
+                    <option value="Unknown">Unknown</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Occupied By</label>
+                <div class="sel">
+                  <select id="f-occupied-by">
+                    <option value="">— Select —</option>
+                    <option value="Self">Self</option>
+                    <option value="Tenant">Tenant</option>
+                    <option value="Vacant">Vacant</option>
+                    <option value="Unknown">Unknown</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div id="coowner-reveal">
+              <div class="field">
+                <label>Co-Owner / Joint Title Holder Name</label>
+                <input type="text" id="f-coowner-name" placeholder="Full name of co-owner">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROPERTY DETAILS -->
+        <div class="card">
+          <div class="card-head">
+            <div class="c-dot" style="background:var(--rose)"></div>
+            <div class="c-title">Property Details</div>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label>Property Type<span class="star">★</span></label>
+              <div class="sel">
+                <select id="f-prop-type" onchange="onPropTypeChange()">
+                  <option value="">— Select —</option>
+                  <optgroup label="Residential">
+                    <option value="Apartment">Apartment / Flat</option>
+                    <option value="Independent House">Independent House</option>
+                    <option value="Villa">Villa</option>
+                    <option value="Row House">Row House</option>
+                    <option value="Penthouse">Penthouse</option>
+                  </optgroup>
+                  <optgroup label="Land / Plot">
+                    <option value="Residential Plot">Residential Plot</option>
+                    <option value="Agricultural Land">Agricultural Land</option>
+                    <option value="Leased Land">Leased Land</option>
+                  </optgroup>
+                  <optgroup label="Commercial">
+                    <option value="Shop / Retail">Shop / Retail Unit</option>
+                    <option value="Office Space">Office Space</option>
+                    <option value="Commercial Building">Commercial Building</option>
+                    <option value="Godown / Storage">Godown / Storage Facility</option>
+                    <option value="Warehouse">Warehouse</option>
+                    <option value="Industrial">Industrial Use Property</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="Other">Other</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+
+            <!-- APARTMENT fields -->
+            <div class="prop-fields" id="pf-apartment">
+              <div class="sec-div">Apartment Specifications</div>
+              <div class="r2">
+                <div class="field"><label>Carpet Area (sq.ft)</label><input type="text" id="f-carpet" placeholder="e.g. 950" inputmode="decimal"></div>
+                <div class="field"><label>Built-up Area (sq.ft)</label><input type="text" id="f-buildup" placeholder="e.g. 1100" inputmode="decimal"></div>
+              </div>
+              <div class="r2">
+                <div class="field"><label>Super Built-up (sq.ft)</label><input type="text" id="f-superbuildup" placeholder="e.g. 1250" inputmode="decimal"></div>
+                <div class="field"><label>Car Parking Spaces</label><input type="text" id="f-parking-apt" placeholder="e.g. 1" inputmode="numeric"></div>
+              </div>
+              <div class="r2">
+                <div class="field"><label>Floor Number</label><input type="text" id="f-floor" placeholder="e.g. 4th" inputmode="numeric"></div>
+                <div class="field"><label>Maintenance (₹/mo)</label><input type="text" id="f-maintenance" placeholder="e.g. 3,500" inputmode="decimal"></div>
+              </div>
+              <div class="field"><label>BHK / Configuration</label><input type="text" id="f-bhk" placeholder="e.g. 3BHK + Study"></div>
+            </div>
+
+            <!-- HOUSE / VILLA fields -->
+            <div class="prop-fields" id="pf-house">
+              <div class="sec-div">House / Villa Specifications</div>
+              <div class="r2">
+                <div class="field"><label>Plot Area (sq.ft)</label><input type="text" id="f-plot-area" placeholder="e.g. 2400" inputmode="decimal"></div>
+                <div class="field"><label>Built-up Area (sq.ft)</label><input type="text" id="f-house-buildup" placeholder="e.g. 1800" inputmode="decimal"></div>
+              </div>
+              <div class="r2">
+                <div class="field"><label>No. of Floors</label><input type="text" id="f-floors" placeholder="e.g. G+2" inputmode="numeric"></div>
+                <div class="field"><label>Car Parking Spaces</label><input type="text" id="f-parking-house" placeholder="e.g. 2" inputmode="numeric"></div>
+              </div>
+              <div class="field"><label>BHK / Configuration</label><input type="text" id="f-house-bhk" placeholder="e.g. 4BHK"></div>
+            </div>
+
+            <!-- PLOT / LAND fields -->
+            <div class="prop-fields" id="pf-plot">
+              <div class="sec-div">Plot / Land Specifications</div>
+              <div class="r2">
+                <div class="field"><label>Plot Dimensions</label><input type="text" id="f-dimensions" placeholder="e.g. 40 × 60 ft"></div>
+                <div class="field"><label>Total Area (sq.ft)</label><input type="text" id="f-plot-total" placeholder="e.g. 2400" inputmode="decimal"></div>
+              </div>
+              <div class="r2">
+                <div class="field"><label>Road Frontage (ft)</label><input type="text" id="f-frontage" placeholder="e.g. 40" inputmode="decimal"></div>
+                <div class="field"><label>Orientation</label>
+                  <div class="sel">
+                    <select id="f-orientation">
+                      <option value="">— Select —</option>
+                      <option>North Facing</option><option>South Facing</option>
+                      <option>East Facing</option><option>West Facing</option>
+                      <option>North-East</option><option>North-West</option>
+                      <option>South-East</option><option>South-West</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="r2">
+                <div class="field"><label>Corner Plot</label>
+                  <div class="sel">
+                    <select id="f-corner">
+                      <option value="">— Select —</option>
+                      <option value="Yes">Yes</option><option value="No">No</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field"><label>Road Width (ft)</label><input type="text" id="f-road-width" placeholder="e.g. 30" inputmode="decimal"></div>
+              </div>
+            </div>
+
+            <!-- COMMERCIAL fields -->
+            <div class="prop-fields" id="pf-commercial">
+              <div class="sec-div">Commercial Specifications</div>
+              <div class="r2">
+                <div class="field"><label>Carpet Area (sq.ft)</label><input type="text" id="f-comm-carpet" placeholder="e.g. 500" inputmode="decimal"></div>
+                <div class="field"><label>Floor Number</label><input type="text" id="f-comm-floor" placeholder="e.g. Ground" inputmode="numeric"></div>
+              </div>
+              <div class="r2">
+                <div class="field"><label>Building / Complex Name</label><input type="text" id="f-comm-building" placeholder="Building name"></div>
+                <div class="field"><label>Monthly Maintenance</label><input type="text" id="f-comm-maint" placeholder="e.g. ₹5,000" inputmode="decimal"></div>
+              </div>
+            </div>
+
+            <!-- AGRICULTURAL / WAREHOUSE / OTHER fields -->
+            <div class="prop-fields" id="pf-other">
+              <div class="sec-div">Additional Details</div>
+              <div class="r2">
+                <div class="field"><label>Total Area</label><input type="text" id="f-other-area" placeholder="e.g. 5 acres / 2000 sq.ft"></div>
+                <div class="field"><label>Usage / Zoning</label><input type="text" id="f-other-usage" placeholder="e.g. Agricultural / Industrial"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SELLER INTENT & PRICING -->
+        <div class="card">
+          <div class="card-head">
+            <div class="c-dot" style="background:var(--purple)"></div>
+            <div class="c-title">Intent &amp; Pricing</div>
+          </div>
+          <div class="card-body">
+            <div class="r2">
+              <div class="field">
+                <label>Seller Intent<span class="star">★</span></label>
+                <div class="sel">
+                  <select id="f-intent" onchange="autoScore()">
+                    <option value="">— Select —</option>
+                    <option value="Sell">Sell</option>
+                    <option value="Rent Out">Rent Out</option>
+                    <option value="Sell or Rent">Sell or Rent</option>
+                    <option value="No Intent">No Intent / Just Checking</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Asking Price / Valuation<span class="star">★</span></label>
+                <input type="text" id="f-budget" placeholder="e.g. 85L, 1.2Cr" oninput="autoScore()">
+              </div>
+            </div>
+            <div class="r2">
+              <div class="field">
+                <label>Next Action<span class="star">★</span></label>
+                <div class="sel">
+                  <select id="f-next-action" onchange="autoScore()">
+                    <option value="">— Select —</option>
+                    <option value="Book Site Visit">Book Site Visit</option>
+                    <option value="Book Meeting">Book Meeting</option>
+                    <option value="Send WhatsApp">Send WhatsApp</option>
+                    <option value="Schedule Callback">Schedule Callback</option>
+                    <option value="No Action Needed">No Action Needed</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Urgency</label>
+                <div class="sel">
+                  <select id="f-urgency">
+                    <option value="">— Select —</option>
+                    <option value="Immediate">Immediate — needs to sell now</option>
+                    <option value="Within 3 Months">Within 3 Months</option>
+                    <option value="Flexible">Flexible</option>
+                    <option value="No Urgency">No Urgency</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /seller-section -->
+
+      <!-- BUYER FIELDS -->
+      <div id="buyer-section" style="display:none">
+
+        <!-- BUYER REQUIREMENTS -->
+        <div class="card">
+          <div class="card-head">
+            <div class="c-dot" style="background:var(--teal)"></div>
+            <div class="c-title">Property Requirements</div>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label>Purchase Purpose<span class="star">★</span></label>
+              <div class="sel">
+                <select id="f-purpose" onchange="autoScore()">
+                  <option value="">— Select —</option>
+                  <option value="Self-Use">Self-Use / Primary Residence</option>
+                  <option value="Investment">Investment / Capital Appreciation</option>
+                  <option value="Rental Income">Rental Income</option>
+                  <option value="Business Use">Business Use</option>
+                  <option value="Unclear">Unclear / Still Deciding</option>
+                </select>
+              </div>
+            </div>
+            <div class="r2">
+              <div class="field">
+                <label>Property Type Preference<span class="star">★</span></label>
+                <div class="sel">
+                  <select id="f-prop-pref" onchange="autoScore()">
+                    <option value="">— Select —</option>
+                    <option value="Apartment">Apartment / Flat</option>
+                    <option value="Independent House">Independent House</option>
+                    <option value="Villa">Villa</option>
+                    <option value="Plot">Residential Plot</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Any">Open to Any</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>BHK / Configuration</label>
+                <input type="text" id="f-buyer-bhk" placeholder="e.g. 3BHK, 2BHK+Study">
+              </div>
+            </div>
+            <div class="field">
+              <label>Preferred Localities <span style="font-size:9px;color:var(--text4)">(comma separated)</span></label>
+              <input type="text" id="f-pref-localities" placeholder="e.g. Saddu, Shankar Nagar, Avanti Vihar" oninput="autoScore()">
+            </div>
+          </div>
+        </div>
+
+        <!-- BUYER FINANCIALS -->
+        <div class="card">
+          <div class="card-head">
+            <div class="c-dot" style="background:var(--gold)"></div>
+            <div class="c-title">Budget &amp; Financing</div>
+          </div>
+          <div class="card-body">
+            <div class="r2">
+              <div class="field">
+                <label>Budget — Minimum<span class="star">★</span></label>
+                <input type="text" id="f-budget-min" placeholder="e.g. 60L" oninput="autoScore()">
+              </div>
+              <div class="field">
+                <label>Budget — Maximum<span class="star">★</span></label>
+                <input type="text" id="f-budget-max" placeholder="e.g. 1.2Cr" oninput="autoScore()">
+              </div>
+            </div>
+            <div class="r2">
+              <div class="field">
+                <label>Financing Status<span class="star">★</span></label>
+                <div class="sel">
+                  <select id="f-financing" onchange="autoScore()">
+                    <option value="">— Select —</option>
+                    <option value="Bank Pre-Approved">Bank Loan Pre-Approved</option>
+                    <option value="Self / Cash">Self-Funded / Cash Ready</option>
+                    <option value="Loan In Progress">Loan Application In Progress</option>
+                    <option value="Not Yet Started">Financing Not Yet Arranged</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Current Living Situation</label>
+                <div class="sel">
+                  <select id="f-living-situation">
+                    <option value="">— Select —</option>
+                    <option value="Renting — Lease Expiring">Renting — Lease Expiring Soon</option>
+                    <option value="Renting — Flexible">Renting — No Immediate Pressure</option>
+                    <option value="Owns Another">Owns Another Property</option>
+                    <option value="First Purchase">First-Time Buyer</option>
+                    <option value="Unknown">Unknown</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BUYER INTENT -->
+        <div class="card">
+          <div class="card-head">
+            <div class="c-dot" style="background:var(--purple)"></div>
+            <div class="c-title">Intent &amp; Urgency</div>
+          </div>
+          <div class="card-body">
+            <div class="r2">
+              <div class="field">
+                <label>Buyer Intent<span class="star">★</span></label>
+                <div class="sel">
+                  <select id="f-buyer-intent" onchange="autoScore()">
+                    <option value="">— Select —</option>
+                    <option value="Buy">Actively Looking to Buy</option>
+                    <option value="Invest">Looking to Invest</option>
+                    <option value="Just Browsing">Just Browsing / No Urgency</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Purchase Trigger</label>
+                <div class="sel">
+                  <select id="f-trigger">
+                    <option value="">— Select —</option>
+                    <option value="Job Transfer">Job Transfer / Relocation</option>
+                    <option value="Marriage">Upcoming Marriage</option>
+                    <option value="Investment Window">Investment Window</option>
+                    <option value="School Admission">School Admission Deadline</option>
+                    <option value="Lease Expiry">Rental Lease Expiring</option>
+                    <option value="Retirement Planning">Retirement Planning</option>
+                    <option value="No Specific Trigger">No Specific Trigger</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="r2">
+              <div class="field">
+                <label>Shown Options Previously</label>
+                <div class="sel">
+                  <select id="f-shown-before">
+                    <option value="">— Select —</option>
+                    <option value="Yes">Yes — seen properties before</option>
+                    <option value="No">No — first interaction</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Open to Site Visit</label>
+                <div class="sel">
+                  <select id="f-site-visit">
+                    <option value="">— Select —</option>
+                    <option value="Yes">Yes — ready to visit</option>
+                    <option value="Maybe">Maybe — needs more info</option>
+                    <option value="No">No — not yet</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="r2">
+              <div class="field">
+                <label>Next Action<span class="star">★</span></label>
+                <div class="sel">
+                  <select id="f-buyer-next-action" onchange="autoScore()">
+                    <option value="">— Select —</option>
+                    <option value="Book Site Visit">Book Site Visit</option>
+                    <option value="Book Meeting">Book Meeting</option>
+                    <option value="Send WhatsApp">Send WhatsApp</option>
+                    <option value="Schedule Callback">Schedule Callback</option>
+                    <option value="No Action Needed">No Action Needed</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FIND MATCHES -->
+        <div class="card" id="match-card">
+          <div class="card-head">
+            <div class="c-dot" style="background:var(--green)"></div>
+            <div class="c-title">Seller Match Engine</div>
+          </div>
+          <div class="card-body">
+            <div style="font-size:12px;color:var(--text3);margin-bottom:11px;line-height:1.6">
+              Fill in the buyer's property preference, locality, and budget range above — then tap <strong style="color:var(--text)">Find Matches</strong> to surface relevant listings from the seller database while still on the call.
+            </div>
+            <button onclick="findMatches()" style="width:100%;height:50px;border-radius:12px;border:1.5px solid var(--green);background:#22c55e12;color:var(--green);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.5px">
+              🔍 Find Matching Sellers
+            </button>
+            <div id="match-results">
+              <div style="font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:8px" id="match-label"></div>
+              <div id="match-list"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /buyer-section -->
+
+      <!-- CALLER QUALITY (shared) -->
+      <div class="card">
+        <div class="card-head">
+          <div class="c-dot" style="background:var(--orange)"></div>
+          <div class="c-title">Caller Assessment</div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label>Conversation Quality<span class="star">★★★</span> <span style="font-size:9px;color:var(--text4);font-weight:400">— 3 points, your assessment</span></label>
+            <div class="cq-row" id="cq-row">
+              <button class="cq-btn on" data-v="0" onclick="setCallerScore(0)" type="button">0</button>
+              <button class="cq-btn" data-v="1" onclick="setCallerScore(1)" type="button">1</button>
+              <button class="cq-btn" data-v="2" onclick="setCallerScore(2)" type="button">2</button>
+              <button class="cq-btn" data-v="3" onclick="setCallerScore(3)" type="button">3</button>
+            </div>
+            <div class="cq-labels">
+              <span>Hostile / Unresponsive</span><span>Excellent</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALL NOTES (shared) -->
+      <div class="card">
+        <div class="card-head">
+          <div class="c-dot" style="background:var(--text3)"></div>
+          <div class="c-title">Call Notes</div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:7px">
+            <span id="timer-disp" style="font-size:13px;font-weight:700;color:var(--text2);font-family:monospace">00:00</span>
+            <button id="timer-btn" onclick="timerToggle()" style="background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:13px;color:var(--text2);cursor:pointer;font-family:inherit">▶</button>
+            <button onclick="timerReset()" style="background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer">↺</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <textarea id="f-notes" rows="3" placeholder="Key observations, objections, next steps…"></textarea>
+          </div>
+          <div class="field">
+            <label>Duration (mins)</label>
+            <input type="text" id="f-duration" placeholder="e.g. 4.5" inputmode="decimal">
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /form-view -->
+
+    <!-- ═══ LOG VIEW ═══ -->
+    <div class="view" id="log-view">
+      <div class="log-bar">
+        <div class="log-title">📋 Call Log</div>
+        <button class="log-action-btn" onclick="exportCSV()">⬇ CSV</button>
+        <button class="log-action-btn" style="color:var(--red);border-color:#ef444430" onclick="clearLogs()">🗑</button>
+      </div>
+      <input class="log-search" id="log-search" placeholder="Search name, phone, locality…" oninput="renderLog()">
+      <div class="filters" id="filters"></div>
+      <div class="cb-banner" id="cb-banner">
+        <div style="font-size:11px;font-weight:800;color:var(--blue);margin-bottom:6px">📅 Callbacks Due Today</div>
+        <div id="cb-list"></div>
       </div>
       <div id="log-list"></div>
-      <div class="log-footer">
-        <div class="log-footer-btn export" onclick="exportCSV()">&#128230; Export CSV</div>
-        <div class="log-footer-btn clear" onclick="clearAllLogs()">&#128465; Clear All</div>
-      </div>
     </div>
 
-    <!-- ANALYTICS VIEW -->
-    <div id="analytics-view">
-      <div class="stat-grid" id="stat-grid"></div>
-      <div id="charts-container"></div>
+    <!-- ═══ ANALYTICS VIEW ═══ -->
+    <div class="view" id="analytics-view">
+      <div class="an-title">📊 Analytics</div>
+      <div class="an-grid" id="an-grid"></div>
+      <div id="an-body"></div>
     </div>
-  </div>
+
+  </div><!-- /page-scroll -->
 
   <!-- SAVE BUTTON -->
-  <div id="save-btn-wrap">
-    <button id="save-btn" onclick="saveEntry()">Save Call</button>
+  <div id="save-wrap">
+    <button id="save-btn" onclick="saveCall()">
+      <span id="save-label">Save &amp; Next Call</span>
+    </button>
+    <div class="save-hint">or Ctrl + Enter</div>
   </div>
 
   <!-- BOTTOM NAV -->
   <div id="bottom-nav">
-    <div class="nav-btn active" data-view="form" onclick="setView('form')">
-      <span class="nav-icon">&#128203;</span>
-      <span>Form</span>
-    </div>
-    <div class="nav-btn" data-view="log" onclick="setView('log')">
-      <span class="nav-icon">&#128214;</span>
-      <span>Log</span>
-    </div>
-    <div class="nav-btn" data-view="analytics" onclick="setView('analytics')">
-      <span class="nav-icon">&#128202;</span>
-      <span>Analytics</span>
-    </div>
+    <button class="nav-tab active" id="nav-form" onclick="switchView('form')">
+      <div class="nav-icon">📋</div><span>Form</span>
+    </button>
+    <button class="nav-tab" id="nav-log" onclick="switchView('log')">
+      <div class="nav-icon">📖</div><span>Log</span>
+    </button>
+    <button class="nav-tab" id="nav-analytics" onclick="switchView('analytics')">
+      <div class="nav-icon">📊</div><span>Analytics</span>
+    </button>
   </div>
-</div>
+
+</div><!-- /app -->
 
 <!-- TOAST -->
-<div id="toast"></div>
+<div id="toasts"></div>
 
 <!-- SETUP MODAL -->
-<div class="modal-overlay" id="setup-modal">
-  <div class="modal-sheet" style="position:relative">
-    <div class="modal-handle"></div>
-    <div class="modal-close" onclick="closeSetup()">&times;</div>
-    <div class="modal-title">Setup</div>
-    <div class="form-group">
-      <div class="form-label">Agent Name</div>
-      <input type="text" class="form-input" id="setup-agent" placeholder="Your name">
+<div class="overlay" id="setup-modal" onclick="closeOverlay('setup-modal',event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">⚙ Settings</div>
+    <div class="field"><label>Your Name</label><input type="text" id="setup-name" placeholder="e.g. Avi Paliwal"></div>
+    <div class="field" style="margin-top:9px"><label>Apps Script URL</label>
+      <input type="url" id="setup-url" placeholder="https://script.google.com/macros/s/…" style="font-size:13px">
     </div>
-    <div class="form-group">
-      <div class="form-label">Google Sheet URL (Apps Script)</div>
-      <input type="url" class="form-input" id="setup-sheet" placeholder="https://script.google.com/macros/s/.../exec">
+    <div class="m-actions">
+      <button class="m-btn m-secondary" onclick="closeOverlay('setup-modal')">Cancel</button>
+      <button class="m-btn m-primary" onclick="saveSetup()">Save</button>
     </div>
-    <button class="modal-save-btn" onclick="saveSetup()">Save Setup</button>
   </div>
 </div>
 
 <!-- EDIT MODAL -->
-<div class="modal-overlay" id="edit-modal">
-  <div class="modal-sheet" style="position:relative">
-    <div class="modal-handle"></div>
-    <div class="modal-close" onclick="closeEdit()">&times;</div>
-    <div class="modal-title">Edit Entry</div>
-    <div id="edit-fields"></div>
-    <button class="modal-save-btn" onclick="saveEdit()">Save Changes</button>
+<div class="overlay" id="edit-modal" onclick="closeOverlay('edit-modal',event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">✏ Edit Entry</div>
+    <div class="field"><label>Name</label><input type="text" id="e-name"></div>
+    <div class="field"><label>Phone</label><input type="tel" id="e-phone"></div>
+    <div class="field"><label>Alt Phone</label><input type="tel" id="e-alt-phone"></div>
+    <div class="field"><label>Locality</label><input type="text" id="e-locality"></div>
+    <div class="field"><label>Budget / Asking Price</label><input type="text" id="e-budget"></div>
+    <div class="field"><label>Next Action</label>
+      <div class="sel"><select id="e-next-action">
+        <option value="">— Select —</option>
+        <option>Book Site Visit</option><option>Book Meeting</option>
+        <option>Send WhatsApp</option><option>Schedule Callback</option>
+        <option>No Action Needed</option>
+      </select></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="e-notes" rows="3"></textarea></div>
+    <div class="m-actions">
+      <button class="m-btn m-secondary" onclick="closeOverlay('edit-modal')">Cancel</button>
+      <button class="m-btn m-primary" onclick="saveEdit()">Save &amp; Sync</button>
+    </div>
   </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════
-   AXIVIA FIELD APP — MAIN SCRIPT
-   ═══════════════════════════════════════════════════ */
+// ═══════════════════════════════════════════════════════════════
+// EMPLOYEE CODES — edit this object to add / remove employees
+// Format: "CODE": "Employee Name"
+// ═══════════════════════════════════════════════════════════════
+const EMPLOYEE_CODES = {
+  "0001": "Caller 1",
+  "0002": "Caller 2",
+  "ADMIN": "Avi Paliwal",
+};
 
-const APP_PIN = '1234';
+// ═══════════════════════════════════════════════════════════════
+// SHEET
+// ═══════════════════════════════════════════════════════════════
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbyTuNGrrqy2QzFquaEFrvLr4_CEJsvpTsHyf_RGCYPXdu8-p290jxofIhnUkEAy86zQ/exec";
 
-// ─── STATE ───────────────────────────────────────────
-let currentMode = 'SELLER';
-let currentView = 'form';
-let currentFilter = 'ALL';
+// ═══════════════════════════════════════════════════════════════
+// SCORING GROUPS
+// ═══════════════════════════════════════════════════════════════
+const SELLER_GROUPS = [
+  { key:"isOwner",      n:1,  label:"Confirmed owner",           rule:"Owner or Co-Owner selected" },
+  { key:"hasPropType",  n:2,  label:"Property type established", rule:"Any property type selected" },
+  { key:"hasIntent",    n:3,  label:"Active sell intent",        rule:"Sell / Rent Out confirmed" },
+  { key:"hasBudget",    n:4,  label:"Asking price stated",       rule:"Any figure entered" },
+  { key:"hasLocationPin",n:5, label:"Location pin provided",     rule:"Google Maps link pasted" },
+  { key:"hasSource",    n:6,  label:"Lead source identified",    rule:"Source field set" },
+  { key:"hasNextAction",n:7,  label:"Follow-up agreed",          rule:"Next action set (not No Action)" },
+  { key:"callerQ1",     n:8,  label:"Caller quality — pt 1",     rule:"Caller score ≥ 1" },
+  { key:"callerQ2",     n:9,  label:"Caller quality — pt 2",     rule:"Caller score ≥ 2" },
+  { key:"callerQ3",     n:10, label:"Caller quality — pt 3",     rule:"Caller score = 3" },
+];
+
+const BUYER_GROUPS = [
+  { key:"hasPurpose",   n:1,  label:"Purchase purpose confirmed",rule:"Purpose field set" },
+  { key:"hasPropPref",  n:2,  label:"Property type preference",  rule:"Property preference selected" },
+  { key:"hasIntent",    n:3,  label:"Active buy intent",         rule:"Buy / Invest confirmed" },
+  { key:"hasBudget",    n:4,  label:"Budget range stated",       rule:"Both min and max entered" },
+  { key:"hasFinancing", n:5,  label:"Financing arranged",        rule:"Pre-approved or Self/Cash" },
+  { key:"hasLocalities",n:6,  label:"Locality preference stated",rule:"At least one locality entered" },
+  { key:"hasNextAction",n:7,  label:"Follow-up agreed",          rule:"Next action set (not No Action)" },
+  { key:"callerQ1",     n:8,  label:"Caller quality — pt 1",     rule:"Caller score ≥ 1" },
+  { key:"callerQ2",     n:9,  label:"Caller quality — pt 2",     rule:"Caller score ≥ 2" },
+  { key:"callerQ3",     n:10, label:"Caller quality — pt 3",     rule:"Caller score = 3" },
+];
+
+const STATUSES = [
+  {val:"Completed",  label:"Completed",  color:"#22c55e"},
+  {val:"No Answer",  label:"No Answer",  color:"#6B7280"},
+  {val:"Busy",       label:"Busy",       color:"#f97316"},
+  {val:"Wrong #",    label:"Wrong #",    color:"#ef4444"},
+  {val:"Callback",   label:"Callback",   color:"#5B9BD5"},
+  {val:"DNC",        label:"DNC",        color:"#ef4444"},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let currentAgent = null;
+let mode = "SELLER";
+let callNo = 1;
 let logs = [];
-let dncList = [];
-let config = {};
-let pinInput = '';
-let inactivityTimeout = null;
-let callTimerInterval = null;
-let callStartTime = null;
+let chk = {};
+let activeStatus = "Completed";
 let callerScore = 0;
-let editingIndex = -1;
+let dncSet = new Set();
+let editIdx = null;
+let logFilter = "ALL";
+let activeView = "form";
+let timerInterval = null, timerSec = 0, timerRunning = false;
+let inactivityTimer = null;
 
-// Chip state
-const chipState = {};
+const LS_LOGS   = "axivia_logs_v5";
+const LS_DNC    = "axivia_dnc_v1";
+const LS_CONFIG = "axivia_config_v1";
 
-// ─── INIT ────────────────────────────────────────────
-function init() {
-  logs = JSON.parse(localStorage.getItem('axivia_logs_v5') || '[]');
-  dncList = JSON.parse(localStorage.getItem('axivia_dnc_v1') || '[]');
-  config = JSON.parse(localStorage.getItem('axivia_config_v1') || '{}');
-  updateSheetBadge();
-  updateAgentPill();
+let CONFIG = { agentName: "", sheetUrl: SHEET_URL };
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+function H(s){ return String(s||'').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function norm(p){ return p.replace(/[\s\-().+]/g,""); }
+function tierInfo(s){
+  if(s>=8) return{color:"#22c55e",tier:"HOT",label:"HOT 🔥"};
+  if(s>=5) return{color:"#C9A84C",tier:"WARM",label:"WARM"};
+  if(s>=3) return{color:"#f97316",tier:"COLD",label:"COLD"};
+  return{color:"#ef4444",tier:"TRACE",label:"TRACE"};
 }
+function today(){ return new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
+function currentGroups(){ return mode==="SELLER" ? SELLER_GROUPS : BUYER_GROUPS; }
 
-// ─── PIN ─────────────────────────────────────────────
-document.getElementById('pin-pad').addEventListener('click', function(e) {
-  const key = e.target.closest('.pin-key');
-  if (!key) return;
-  const val = key.dataset.key;
-  if (val === 'back') {
-    pinInput = pinInput.slice(0, -1);
-  } else if (pinInput.length < 4) {
-    pinInput += val;
+// ═══════════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════════
+function attemptLogin(){
+  const code = document.getElementById('auth-input').value.trim().toUpperCase();
+  const name = EMPLOYEE_CODES[code];
+  if(name){
+    currentAgent = {code, name};
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    updateAgentPill();
+    startInactivityTimer();
+    showToast(`Welcome, ${name}`,'t-gold');
+  } else {
+    const err = document.getElementById('auth-error');
+    err.textContent = 'Incorrect employee code. Try again.';
+    document.getElementById('auth-input').value = '';
+    setTimeout(()=>{ err.textContent='\u00A0'; }, 2000);
   }
-  updatePinDots();
-  if (pinInput.length === 4) {
-    if (pinInput === APP_PIN) {
-      document.getElementById('pin-screen').classList.add('hidden');
-      document.getElementById('app').classList.add('active');
-      resetInactivity();
-    } else {
-      document.getElementById('pin-error').classList.add('show');
-      document.getElementById('pin-dots').classList.add('shake');
-      setTimeout(() => {
-        pinInput = '';
-        updatePinDots();
-        document.getElementById('pin-error').classList.remove('show');
-        document.getElementById('pin-dots').classList.remove('shake');
-      }, 1000);
-    }
-  }
-});
-
-function updatePinDots() {
-  for (let i = 0; i < 4; i++) {
-    document.getElementById('pd' + i).classList.toggle('filled', i < pinInput.length);
-  }
 }
-
-// ─── INACTIVITY LOCK ─────────────────────────────────
-function resetInactivity() {
-  clearTimeout(inactivityTimeout);
-  inactivityTimeout = setTimeout(lockApp, 15 * 60 * 1000);
+function lockApp(){
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('auth-input').value = '';
+  document.getElementById('auth-error').textContent = '\u00A0';
+  currentAgent = null;
 }
-
-function lockApp() {
-  pinInput = '';
-  updatePinDots();
-  document.getElementById('pin-screen').classList.remove('hidden');
-  document.getElementById('app').classList.remove('active');
-}
-
-document.addEventListener('touchstart', resetInactivity, { passive: true });
-document.addEventListener('click', resetInactivity);
-document.addEventListener('keydown', function(e) {
+function startInactivityTimer(){
   resetInactivity();
-  if (e.ctrlKey && e.key === 'Enter') {
-    e.preventDefault();
-    saveEntry();
-  }
+  document.addEventListener('touchstart', resetInactivity, {passive:true});
+  document.addEventListener('click', resetInactivity);
+}
+function resetInactivity(){
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(lockApp, 15 * 60 * 1000); // 15 min
+}
+
+// Enter key on auth
+document.getElementById('auth-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter') attemptLogin();
 });
 
-// ─── MODE ────────────────────────────────────────────
-function setMode(mode) {
-  currentMode = mode;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  document.getElementById('seller-fields').style.display = mode === 'SELLER' ? '' : 'none';
-  document.getElementById('buyer-fields').style.display = mode === 'BUYER' ? '' : 'none';
-  resetForm();
-  updateScore();
+// ═══════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════
+function loadConfig(){
+  try{
+    const r = localStorage.getItem(LS_CONFIG);
+    if(r){ const s=JSON.parse(r); CONFIG.agentName=s.agentName||""; if(s.sheetUrl) CONFIG.sheetUrl=s.sheetUrl; }
+  }catch(e){}
 }
-
-// ─── VIEW ────────────────────────────────────────────
-function setView(view) {
-  currentView = view;
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-  document.getElementById('form-view').classList.toggle('active', view === 'form');
-  document.getElementById('log-view').classList.toggle('active', view === 'log');
-  document.getElementById('analytics-view').classList.toggle('active', view === 'analytics');
-  document.getElementById('form-view').style.display = view === 'form' ? '' : 'none';
-  document.getElementById('log-view').style.display = view === 'log' ? '' : 'none';
-  document.getElementById('analytics-view').style.display = view === 'analytics' ? '' : 'none';
-  document.getElementById('score-bar').classList.toggle('visible', view === 'form');
-  document.getElementById('save-btn-wrap').classList.toggle('visible', view === 'form');
-  if (view === 'log') renderLogs();
-  if (view === 'analytics') renderAnalytics();
+function saveConfig(){ try{localStorage.setItem(LS_CONFIG,JSON.stringify(CONFIG));}catch(e){} }
+function openSetup(){
+  document.getElementById('setup-name').value = CONFIG.agentName||'';
+  document.getElementById('setup-url').value  = CONFIG.sheetUrl||'';
+  openOverlay('setup-modal');
 }
-
-// ─── CHIPS ───────────────────────────────────────────
-function pickChip(el, field) {
-  const row = el.parentElement;
-  row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  chipState[field] = el.dataset.val;
-
-  // Callback date toggle
-  if (field === 'callStatus') {
-    document.getElementById('callback-date-wrap').style.display = el.dataset.val === 'Callback' ? '' : 'none';
-    // DNC handling
-    if (el.dataset.val === 'DNC') {
-      const phone = document.getElementById('phone').value.trim();
-      if (phone && !dncList.includes(phone)) {
-        dncList.push(phone);
-        localStorage.setItem('axivia_dnc_v1', JSON.stringify(dncList));
-        showToast('Number added to DNC list', 'info');
-      }
-    }
-  }
-  updateScore();
+function saveSetup(){
+  CONFIG.agentName = document.getElementById('setup-name').value.trim();
+  const url = document.getElementById('setup-url').value.trim();
+  if(url) CONFIG.sheetUrl = url;
+  saveConfig();
+  updateAgentPill();
+  updateSheetBadge();
+  closeOverlay('setup-modal');
+  showToast('Settings saved','t-green');
 }
-
-function clearChips(field) {
-  const el = document.getElementById(field + '-chips');
-  if (el) el.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  delete chipState[field];
+function updateAgentPill(){
+  const name = currentAgent ? currentAgent.name : (CONFIG.agentName||'Agent');
+  document.getElementById('agent-pill').textContent = name + ' ▾';
 }
-
-// ─── CALLER SCORE ────────────────────────────────────
-function pickCaller(val) {
-  callerScore = val;
-  document.querySelectorAll('.caller-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.val) === val));
-  updateScore();
-}
-
-// ─── SCORING ─────────────────────────────────────────
-function calcScore() {
-  let score = 0;
-  if (currentMode === 'SELLER') {
-    const owned = chipState.ownedBy;
-    if (owned === 'Owner' || owned === 'Co-Owner') score++;
-    if (chipState.propType) score++;
-    const intent = chipState.sellerIntent;
-    if (intent === 'Sell' || intent === 'Rent Out') score++;
-    const tl = chipState.sellerTimeline;
-    if (tl === 'under1month' || tl === '1-3 months') score++;
-    if (document.getElementById('sellerBudget').value.trim()) score++;
-    const fin = chipState.sellerFinancing;
-    if (fin === 'Bank Pre-Approved' || fin === 'Self / Cash') score++;
+function updateSheetBadge(){
+  const el = document.getElementById('sheet-badge');
+  if(CONFIG.sheetUrl && CONFIG.sheetUrl.includes('script.google.com')){
+    el.className='hdr-pill sheet-ok'; el.textContent='✓ Sheet';
   } else {
-    if (chipState.purpose) score++;
-    if (chipState.buyerPropPref) score++;
-    const intent = chipState.buyerIntent;
-    if (intent === 'Buy' || intent === 'Invest') score++;
-    const tl = chipState.buyerTimeline;
-    if (tl === 'under1month' || tl === '1-3 months') score++;
-    if (document.getElementById('buyerBudget').value.trim()) score++;
-    const fin = chipState.buyerFinancing;
-    if (fin === 'Bank Pre-Approved' || fin === 'Self / Cash') score++;
-  }
-  // Shared caller score points
-  if (callerScore >= 1) score++;
-  if (callerScore >= 2) score++;
-  if (callerScore >= 3) score++;
-  // Next action
-  const na = chipState.nextAction;
-  if (na && na !== 'No Action Needed') score++;
-  return score;
-}
-
-function getTier(score) {
-  if (score >= 8) return { label: 'HOT \uD83D\uDD25', cls: 'hot', color: 'var(--green)' };
-  if (score >= 5) return { label: 'WARM', cls: 'warm', color: 'var(--gold)' };
-  if (score >= 3) return { label: 'COLD', cls: 'cold', color: 'var(--orange)' };
-  return { label: 'TRACE', cls: 'trace', color: 'var(--red)' };
-}
-
-function updateScore() {
-  const score = calcScore();
-  const tier = getTier(score);
-  const pct = (score / 10) * 100;
-  document.getElementById('score-num').textContent = score;
-  document.getElementById('score-num').style.color = tier.color;
-  document.getElementById('score-fill').style.width = pct + '%';
-  document.getElementById('score-fill').style.background = tier.color;
-  document.getElementById('score-tier').textContent = tier.label;
-  document.getElementById('score-tier').style.color = tier.color;
-}
-
-// ─── PHONE CHECKS ────────────────────────────────────
-function checkPhone() {
-  const phone = document.getElementById('phone').value.trim();
-  const isDnc = dncList.includes(phone);
-  const isDup = logs.some(l => l.phone === phone);
-  document.getElementById('dnc-warning').style.display = isDnc ? '' : 'none';
-  document.getElementById('dup-warning').style.display = isDup ? '' : 'none';
-}
-
-function dialPhone() {
-  const phone = document.getElementById('phone').value.trim();
-  if (phone) window.location.href = 'tel:' + phone;
-}
-
-function whatsappPhone() {
-  const phone = document.getElementById('phone').value.trim();
-  if (phone) {
-    const num = phone.replace(/[^0-9]/g, '');
-    window.open('https://wa.me/' + num, '_blank');
+    el.className='hdr-pill sheet-warn'; el.textContent='⚠ Sheet';
   }
 }
 
-// ─── CALL TIMER ──────────────────────────────────────
-function toggleTimer() {
-  if (callTimerInterval) {
-    // Stop
-    clearInterval(callTimerInterval);
-    callTimerInterval = null;
-    const elapsed = (Date.now() - callStartTime) / 60000;
-    document.getElementById('duration').value = elapsed.toFixed(1);
-    document.getElementById('timer-start').innerHTML = '&#9654;';
+// ═══════════════════════════════════════════════════════════════
+// OVERLAYS
+// ═══════════════════════════════════════════════════════════════
+function openOverlay(id){ document.getElementById(id).classList.add('open'); }
+function closeOverlay(id,e){
+  if(!e||e.target===document.getElementById(id))
+    document.getElementById(id).classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════
+function showToast(msg, cls='t-green'){
+  const c=document.getElementById('toasts');
+  const t=document.createElement('div');
+  t.className=`toast ${cls}`;t.textContent=msg;
+  c.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); },3000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODE
+// ═══════════════════════════════════════════════════════════════
+function setMode(m){
+  mode = m;
+  document.getElementById('btn-seller').className = 'mode-btn' + (m==='SELLER'?' active-seller':'');
+  document.getElementById('btn-buyer').className  = 'mode-btn' + (m==='BUYER'?' active-buyer':'');
+  document.getElementById('seller-section').style.display = m==='SELLER'?'block':'none';
+  document.getElementById('buyer-section').style.display  = m==='BUYER'?'block':'none';
+  document.getElementById('save-wrap').style.display      = activeView==='form'?'block':'none';
+  resetFormFields();
+  autoScore();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VIEW
+// ═══════════════════════════════════════════════════════════════
+function switchView(v){
+  activeView = v;
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById(v+'-view').classList.add('active');
+  document.getElementById('nav-'+v).classList.add('active');
+  document.getElementById('score-bar').style.display = v==='form'?'flex':'none';
+  document.getElementById('save-wrap').style.display  = v==='form'?'block':'none';
+  document.getElementById('page-scroll').scrollTop = 0;
+  if(v==='log'){ renderLog(); renderCallbacks(); }
+  if(v==='analytics') renderAnalytics();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATUS CHIPS
+// ═══════════════════════════════════════════════════════════════
+function buildChips(){
+  const row = document.getElementById('status-chips');
+  row.innerHTML = STATUSES.map(s=>{
+    const on = s.val===activeStatus;
+    return `<button type="button" class="chip"
+      style="color:${on?s.color:s.color+'88'};border-color:${on?s.color:s.color+'33'};background:${on?s.color+'18':'transparent'}"
+      onclick="setStatus('${s.val}')">${H(s.label)}</button>`;
+  }).join('');
+}
+function setStatus(v){
+  activeStatus=v;
+  buildChips();
+  document.getElementById('cb-date-wrap').style.display = v==='Callback'?'block':'none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PHONE
+// ═══════════════════════════════════════════════════════════════
+function onPhoneInput(val){
+  const d=val.replace(/\D/g,'');
+  document.getElementById('dial-btn').href = d?`tel:${val}`:'#';
+  document.getElementById('wa-btn').href   = d?`https://wa.me/${d}`:'#';
+  checkDupDNC();
+}
+function checkDupDNC(){
+  const p = norm(document.getElementById('f-phone').value||'');
+  document.getElementById('dnc-warn').style.display = (p&&dncSet.has(p))?'block':'none';
+  document.getElementById('dup-warn').style.display = (p&&!dncSet.has(p)&&logs.some(l=>norm(l.phone||'')==p))?'block':'none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// OWNERSHIP — reveal co-owner field
+// ═══════════════════════════════════════════════════════════════
+function onOwnershipChange(){
+  const v = document.getElementById('f-owned-by').value;
+  document.getElementById('coowner-reveal').style.display = v==='Co-Owner'?'block':'none';
+  autoScore();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROPERTY TYPE — dynamic specification fields
+// ═══════════════════════════════════════════════════════════════
+function onPropTypeChange(){
+  const v = document.getElementById('f-prop-type').value;
+  // hide all
+  ['pf-apartment','pf-house','pf-plot','pf-commercial','pf-other'].forEach(id=>{
+    document.getElementById(id).classList.remove('show');
+  });
+  if(['Apartment','Penthouse'].includes(v)) document.getElementById('pf-apartment').classList.add('show');
+  else if(['Independent House','Villa','Row House'].includes(v)) document.getElementById('pf-house').classList.add('show');
+  else if(['Residential Plot','Agricultural Land','Leased Land'].includes(v)) document.getElementById('pf-plot').classList.add('show');
+  else if(['Shop / Retail','Office Space','Commercial Building'].includes(v)) document.getElementById('pf-commercial').classList.add('show');
+  else if(v) document.getElementById('pf-other').classList.add('show');
+  autoScore();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CALLER SCORE
+// ═══════════════════════════════════════════════════════════════
+function setCallerScore(v){
+  callerScore=v;
+  document.querySelectorAll('.cq-btn').forEach(b=>{
+    b.classList.toggle('on', parseInt(b.dataset.v)===v);
+  });
+  autoScore();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUTO SCORE
+// ═══════════════════════════════════════════════════════════════
+function autoScore(){
+  if(mode==='SELLER'){
+    const ownedBy    = document.getElementById('f-owned-by')?.value||'';
+    const propType   = document.getElementById('f-prop-type')?.value||'';
+    const intent     = document.getElementById('f-intent')?.value||'';
+    const budget     = (document.getElementById('f-budget')?.value||'').trim();
+    const pin        = (document.getElementById('f-location-pin')?.value||'').trim();
+    const source     = document.getElementById('f-source')?.value||'';
+    const nextAction = document.getElementById('f-next-action')?.value||'';
+
+    chk.isOwner       = ['Owner','Co-Owner'].includes(ownedBy);
+    chk.hasPropType   = propType!=='';
+    chk.hasIntent     = ['Sell','Rent Out','Sell or Rent'].includes(intent);
+    chk.hasBudget     = budget.length>0;
+    chk.hasLocationPin= pin.length>0;
+    chk.hasSource     = source!=='';
+    chk.hasNextAction = nextAction!==''&&nextAction!=='No Action Needed';
   } else {
-    // Start
-    callStartTime = Date.now();
-    document.getElementById('timer-start').innerHTML = '&#9632;';
-    callTimerInterval = setInterval(() => {
-      const secs = Math.floor((Date.now() - callStartTime) / 1000);
-      const m = Math.floor(secs / 60);
-      const s = secs % 60;
-      document.getElementById('timer-display').textContent = m + ':' + String(s).padStart(2, '0');
-    }, 1000);
+    const purpose    = document.getElementById('f-purpose')?.value||'';
+    const propPref   = document.getElementById('f-prop-pref')?.value||'';
+    const intent     = document.getElementById('f-buyer-intent')?.value||'';
+    const budgetMin  = (document.getElementById('f-budget-min')?.value||'').trim();
+    const budgetMax  = (document.getElementById('f-budget-max')?.value||'').trim();
+    const financing  = document.getElementById('f-financing')?.value||'';
+    const localities = (document.getElementById('f-pref-localities')?.value||'').trim();
+    const nextAction = document.getElementById('f-buyer-next-action')?.value||'';
+
+    chk.hasPurpose    = purpose!=='';
+    chk.hasPropPref   = propPref!=='';
+    chk.hasIntent     = ['Buy','Invest'].includes(intent);
+    chk.hasBudget     = budgetMin.length>0 && budgetMax.length>0;
+    chk.hasFinancing  = ['Bank Pre-Approved','Self / Cash'].includes(financing);
+    chk.hasLocalities = localities.length>0;
+    chk.hasNextAction = nextAction!==''&&nextAction!=='No Action Needed';
+  }
+
+  chk.callerQ1 = callerScore>=1;
+  chk.callerQ2 = callerScore>=2;
+  chk.callerQ3 = callerScore===3;
+
+  const groups = currentGroups();
+  const score = groups.filter(g=>chk[g.key]).length;
+  const ti = tierInfo(score);
+
+  document.getElementById('sb-num').textContent  = score;
+  document.getElementById('sb-num').style.color  = ti.color;
+  document.getElementById('sb-fill').style.width = Math.min(score/10*100,100)+'%';
+  document.getElementById('sb-fill').style.background = ti.color;
+  document.getElementById('sb-tier').textContent = ti.label;
+  document.getElementById('sb-tier').style.color = ti.color;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════════════════
+function timerToggle(){
+  if(timerRunning){
+    clearInterval(timerInterval); timerRunning=false;
+    document.getElementById('timer-btn').textContent='▶';
+    document.getElementById('f-duration').value=(timerSec/60).toFixed(1);
+  } else {
+    const start=Date.now()-timerSec*1000;
+    timerInterval=setInterval(()=>{ timerSec=Math.floor((Date.now()-start)/1000); updateTimerDisp(); },500);
+    timerRunning=true;
+    document.getElementById('timer-btn').textContent='⏹';
   }
 }
-
-function resetTimer() {
-  clearInterval(callTimerInterval);
-  callTimerInterval = null;
-  callStartTime = null;
-  document.getElementById('timer-display').textContent = '0:00';
-  document.getElementById('timer-start').innerHTML = '&#9654;';
-  document.getElementById('duration').value = '';
+function timerReset(){
+  clearInterval(timerInterval); timerRunning=false; timerSec=0;
+  document.getElementById('timer-btn').textContent='▶';
+  updateTimerDisp();
+}
+function updateTimerDisp(){
+  const m=Math.floor(timerSec/60).toString().padStart(2,'0');
+  const s=(timerSec%60).toString().padStart(2,'0');
+  document.getElementById('timer-disp').textContent=`${m}:${s}`;
 }
 
-// ─── SAVE ────────────────────────────────────────────
-function saveEntry() {
-  const score = calcScore();
-  const tier = getTier(score);
-  const now = new Date();
-  const entry = {
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-    no: logs.length + 1,
-    mode: currentMode,
-    date: now.toISOString().split('T')[0],
-    timestamp: now.toISOString(),
-    callStatus: chipState.callStatus || '',
-    callbackDate: document.getElementById('callbackDate').value || '',
-    fullName: document.getElementById('fullName').value.trim(),
-    phone: document.getElementById('phone').value.trim(),
-    altPhone: document.getElementById('altPhone').value.trim(),
-    source: chipState.source || '',
-    locality: document.getElementById('locality').value.trim(),
-    nextAction: chipState.nextAction || '',
-    broker: chipState.broker || '',
-    callerScore: callerScore,
-    notes: document.getElementById('notes').value.trim(),
-    duration: document.getElementById('duration').value || '',
-    score: score,
-    tier: tier.label.replace(' \uD83D\uDD25', ''),
-    agent: config.agentName || ''
+// ═══════════════════════════════════════════════════════════════
+// SHEET SYNC
+// ═══════════════════════════════════════════════════════════════
+async function postToSheet(entry){
+  const url = CONFIG.sheetUrl||SHEET_URL;
+  if(!url){ showToast('⚠ No sheet linked','t-gold'); return; }
+  try{
+    await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(entry)});
+    showToast(`✓ Synced — ${entry.name||'Lead'} · ${entry.score}/10 · ${entry.tier}`,'t-green');
+  }catch(e){ showToast('✗ Sheet sync failed','t-red'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SAVE CALL
+// ═══════════════════════════════════════════════════════════════
+function saveCall(){
+  const name  = (document.getElementById('f-name')?.value||'').trim();
+  const phone = (document.getElementById('f-phone')?.value||'').trim();
+  if(!name&&!phone){ showToast('Enter name or phone to save','t-gold'); return; }
+
+  const groups = currentGroups();
+  const score  = groups.filter(g=>chk[g.key]).length;
+  const ti     = tierInfo(score);
+  const now    = new Date();
+
+  const base = {
+    no: callNo,
+    mode,
+    sheetTab: mode==='SELLER'?'Sellers':'Buyers',
+    action: 'new',
+    date:   now.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
+    time:   now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+    agent:  currentAgent ? `${currentAgent.name} (${currentAgent.code})` : CONFIG.agentName,
+    status: activeStatus,
+    name, phone,
+    altPhone:     (document.getElementById('f-alt-phone')?.value||'').trim(),
+    locality:     (document.getElementById('f-locality')?.value||'').trim(),
+    nbhd:         (document.getElementById('f-nbhd')?.value||'').trim(),
+    source:       document.getElementById('f-source')?.value||'',
+    broker:       document.getElementById('f-broker')?.value||'',
+    nextAction:   mode==='SELLER'?(document.getElementById('f-next-action')?.value||''):(document.getElementById('f-buyer-next-action')?.value||''),
+    callerScore,
+    callbackDate: document.getElementById('f-callback-date')?.value||'',
+    duration:     document.getElementById('f-duration')?.value||'',
+    notes:        (document.getElementById('f-notes')?.value||'').trim(),
+    score, tier: ti.tier,
+    dnc: activeStatus==='DNC',
+    chk: {...chk}
   };
 
-  if (currentMode === 'SELLER') {
-    entry.sheetTab = 'Sellers';
-    entry.ownedBy = chipState.ownedBy || '';
-    entry.occupiedBy = chipState.occupiedBy || '';
-    entry.propType = chipState.propType || '';
-    entry.size = document.getElementById('size').value.trim();
-    entry.neighborhood = document.getElementById('neighborhood').value.trim();
-    entry.intent = chipState.sellerIntent || '';
-    entry.timeline = chipState.sellerTimeline || '';
-    entry.budget = document.getElementById('sellerBudget').value.trim();
-    entry.financing = chipState.sellerFinancing || '';
-  } else {
-    entry.sheetTab = 'Buyers';
-    entry.purpose = chipState.purpose || '';
-    entry.currentSituation = chipState.currentSit || '';
-    entry.propPref = chipState.buyerPropPref || '';
-    entry.prefLocalities = document.getElementById('prefLocalities').value.trim();
-    entry.bhk = document.getElementById('bhk').value.trim();
-    entry.intent = chipState.buyerIntent || '';
-    entry.timeline = chipState.buyerTimeline || '';
-    entry.budget = document.getElementById('buyerBudget').value.trim();
-    entry.financing = chipState.buyerFinancing || '';
-  }
-
-  logs.push(entry);
-  localStorage.setItem('axivia_logs_v5', JSON.stringify(logs));
-
-  // Sheet sync
-  syncToSheet(Object.assign({}, entry, { action: 'new' }));
-
-  // UI feedback
-  const btn = document.getElementById('save-btn');
-  btn.classList.add('saved');
-  btn.textContent = '\u2713 Saved!';
-  setTimeout(() => {
-    btn.classList.remove('saved');
-    btn.textContent = 'Save Call';
-  }, 1200);
-
-  resetForm();
-  updateScore();
-}
-
-// ─── SHEET SYNC ──────────────────────────────────────
-function syncToSheet(entry) {
-  const url = config.sheetUrl || SHEET_URL;
-  if (!url) return;
-  try {
-    fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(entry)
-    }).then(() => {
-      showToast('\u2713 Saved to sheet', 'success');
-    }).catch(() => {
-      showToast('\u2717 Sheet sync failed', 'error');
+  // Seller-specific fields
+  if(mode==='SELLER'){
+    Object.assign(base,{
+      ownedBy:     document.getElementById('f-owned-by')?.value||'',
+      coOwnerName: (document.getElementById('f-coowner-name')?.value||'').trim(),
+      occupiedBy:  document.getElementById('f-occupied-by')?.value||'',
+      propType:    document.getElementById('f-prop-type')?.value||'',
+      locationPin: (document.getElementById('f-location-pin')?.value||'').trim(),
+      intent:      document.getElementById('f-intent')?.value||'',
+      budget:      (document.getElementById('f-budget')?.value||'').trim(),
+      urgency:     document.getElementById('f-urgency')?.value||'',
+      // Dynamic spec fields
+      carpetArea:  (document.getElementById('f-carpet')?.value||'').trim(),
+      builtupArea: (document.getElementById('f-buildup')?.value||'').trim(),
+      superBuiltup:(document.getElementById('f-superbuildup')?.value||'').trim(),
+      parking:     (document.getElementById('f-parking-apt')?.value||document.getElementById('f-parking-house')?.value||'').trim(),
+      floor:       (document.getElementById('f-floor')?.value||'').trim(),
+      maintenance: (document.getElementById('f-maintenance')?.value||'').trim(),
+      bhk:         (document.getElementById('f-bhk')?.value||document.getElementById('f-house-bhk')?.value||'').trim(),
+      plotArea:    (document.getElementById('f-plot-area')?.value||document.getElementById('f-plot-total')?.value||'').trim(),
+      dimensions:  (document.getElementById('f-dimensions')?.value||'').trim(),
+      frontage:    (document.getElementById('f-frontage')?.value||'').trim(),
+      orientation: document.getElementById('f-orientation')?.value||'',
+      cornerPlot:  document.getElementById('f-corner')?.value||'',
     });
-  } catch (e) {
-    showToast('\u2717 Sheet sync failed', 'error');
   }
+
+  // Buyer-specific fields
+  if(mode==='BUYER'){
+    Object.assign(base,{
+      purpose:        document.getElementById('f-purpose')?.value||'',
+      propPref:       document.getElementById('f-prop-pref')?.value||'',
+      buyerBhk:       (document.getElementById('f-buyer-bhk')?.value||'').trim(),
+      prefLocalities: (document.getElementById('f-pref-localities')?.value||'').trim(),
+      budgetMin:      (document.getElementById('f-budget-min')?.value||'').trim(),
+      budgetMax:      (document.getElementById('f-budget-max')?.value||'').trim(),
+      financing:      document.getElementById('f-financing')?.value||'',
+      livingSituation:document.getElementById('f-living-situation')?.value||'',
+      buyerIntent:    document.getElementById('f-buyer-intent')?.value||'',
+      trigger:        document.getElementById('f-trigger')?.value||'',
+      shownBefore:    document.getElementById('f-shown-before')?.value||'',
+      siteVisit:      document.getElementById('f-site-visit')?.value||'',
+    });
+  }
+
+  if(activeStatus==='DNC'&&phone){ dncSet.add(norm(phone)); saveDNC(); }
+  logs.unshift(base);
+  persistLogs();
+  sinceExport(); callNo++;
+  document.getElementById('call-badge').textContent=`Call #${callNo}`;
+
+  const btn=document.getElementById('save-btn');
+  const lbl=document.getElementById('save-label');
+  btn.classList.add('saved'); lbl.textContent='✓ Saved!';
+  setTimeout(()=>{ btn.classList.remove('saved'); lbl.textContent='Save & Next Call'; },1400);
+
+  postToSheet(base);
+  timerReset();
+  resetFormFields();
 }
 
-// ─── TOAST ───────────────────────────────────────────
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'show ' + (type || 'info');
-  setTimeout(() => { t.className = ''; }, 3000);
+let _exportCount = 0;
+function sinceExport(){ _exportCount++; }
+
+// ═══════════════════════════════════════════════════════════════
+// RESET FORM
+// ═══════════════════════════════════════════════════════════════
+function resetFormFields(){
+  const textIds = ['f-name','f-phone','f-alt-phone','f-locality','f-nbhd','f-location-pin',
+    'f-coowner-name','f-budget','f-notes','f-duration','f-callback-date',
+    'f-carpet','f-buildup','f-superbuildup','f-parking-apt','f-floor','f-maintenance','f-bhk',
+    'f-plot-area','f-house-buildup','f-floors','f-parking-house','f-house-bhk',
+    'f-plot-total','f-dimensions','f-frontage','f-comm-carpet','f-comm-floor',
+    'f-comm-building','f-comm-maint','f-other-area','f-other-usage',
+    'f-buyer-bhk','f-pref-localities','f-budget-min','f-budget-max'];
+  textIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+
+  const selIds = ['f-source','f-broker','f-owned-by','f-occupied-by','f-prop-type',
+    'f-intent','f-next-action','f-urgency','f-orientation','f-corner',
+    'f-purpose','f-prop-pref','f-financing','f-living-situation',
+    'f-buyer-intent','f-trigger','f-shown-before','f-site-visit','f-buyer-next-action'];
+  selIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+
+  // Reset dynamic fields
+  ['pf-apartment','pf-house','pf-plot','pf-commercial','pf-other'].forEach(id=>{
+    document.getElementById(id).classList.remove('show');
+  });
+  document.getElementById('coowner-reveal').style.display='none';
+  document.getElementById('cb-date-wrap').style.display='none';
+  document.getElementById('dnc-warn').style.display='none';
+  document.getElementById('dup-warn').style.display='none';
+  document.getElementById('match-results').style.display='none';
+
+  callerScore=0; setCallerScore(0);
+  chk={}; currentGroups().forEach(g=>chk[g.key]=false);
+  activeStatus='Completed'; buildChips();
+  autoScore();
+  onPhoneInput('');
+  document.getElementById('page-scroll').scrollTop=0;
 }
 
-// ─── RESET FORM ──────────────────────────────────────
-function resetForm() {
-  // Clear text inputs
-  ['fullName','phone','altPhone','locality','size','neighborhood','sellerBudget',
-   'prefLocalities','bhk','buyerBudget','notes','duration','callbackDate'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
+// ═══════════════════════════════════════════════════════════════
+// PERSIST
+// ═══════════════════════════════════════════════════════════════
+function persistLogs(){ try{localStorage.setItem(LS_LOGS,JSON.stringify({logs,callNo}));}catch(e){} }
+function loadLogs(){
+  try{
+    const r=localStorage.getItem(LS_LOGS);
+    if(r){ const p=JSON.parse(r); if(p.logs) logs=p.logs; if(p.callNo) callNo=p.callNo; }
+  }catch(e){}
+  document.getElementById('call-badge').textContent=`Call #${callNo}`;
+}
+function saveDNC(){ try{localStorage.setItem(LS_DNC,JSON.stringify([...dncSet]));}catch(e){} }
+function loadDNC(){ try{const r=localStorage.getItem(LS_DNC);if(r)dncSet=new Set(JSON.parse(r));}catch(e){} }
+function clearLogs(){
+  if(!confirm('Clear all logs? This cannot be undone.')) return;
+  logs=[]; callNo=1; persistLogs();
+  document.getElementById('call-badge').textContent='Call #1';
+  renderLog(); showToast('All logs cleared','t-gold');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOG RENDER
+// ═══════════════════════════════════════════════════════════════
+function renderLog(){
+  const q = (document.getElementById('log-search')?.value||'').toLowerCase();
+  const counts={ALL:logs.length,SELLER:0,BUYER:0,HOT:0,WARM:0,COLD:0,TRACE:0};
+  logs.forEach(e=>{
+    if(e.mode==='SELLER') counts.SELLER++;
+    if(e.mode==='BUYER')  counts.BUYER++;
+    if(counts[e.tier]!==undefined) counts[e.tier]++;
   });
 
-  // Clear all chips
-  ['callstatus','source','ownedBy','occupiedBy','propType','sellerIntent','sellerTimeline',
-   'sellerFinancing','purpose','currentSit','buyerPropPref','buyerIntent','buyerTimeline',
-   'buyerFinancing','nextAction','broker'].forEach(field => {
-    const row = document.getElementById(field + '-chips');
-    if (row) row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  });
-  Object.keys(chipState).forEach(k => delete chipState[k]);
-
-  // Reset caller score
-  callerScore = 0;
-  document.querySelectorAll('.caller-btn').forEach(b => b.classList.remove('active'));
-
-  // Reset timer
-  resetTimer();
-
-  // Hide warnings
-  document.getElementById('dnc-warning').style.display = 'none';
-  document.getElementById('dup-warning').style.display = 'none';
-  document.getElementById('callback-date-wrap').style.display = 'none';
-
-  // Scroll to top
-  document.getElementById('page-scroll').scrollTop = 0;
-}
-
-// ─── LOG VIEW ────────────────────────────────────────
-function setFilter(filter, el) {
-  currentFilter = filter;
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  if (el) el.classList.add('active');
-  renderLogs();
-}
-
-function renderLogs() {
-  const search = (document.getElementById('log-search-input').value || '').toLowerCase();
-  let filtered = logs.slice().reverse();
-
-  if (currentFilter !== 'ALL') {
-    if (currentFilter === 'SELLER' || currentFilter === 'BUYER') {
-      filtered = filtered.filter(l => l.mode === currentFilter);
-    } else {
-      filtered = filtered.filter(l => l.tier === currentFilter);
-    }
-  }
-
-  if (search) {
-    filtered = filtered.filter(l =>
-      (l.fullName || '').toLowerCase().includes(search) ||
-      (l.phone || '').includes(search) ||
-      (l.locality || '').toLowerCase().includes(search)
-    );
-  }
-
-  // Callbacks banner
-  const today = new Date().toISOString().split('T')[0];
-  const callbacks = logs.filter(l => l.callbackDate && l.callbackDate <= today);
-  const banner = document.getElementById('callbacks-banner');
-  if (callbacks.length > 0) {
-    banner.textContent = '\uD83D\uDD14 ' + callbacks.length + ' callback(s) due today or overdue';
-    banner.style.display = '';
-  } else {
-    banner.style.display = 'none';
-  }
-
-  const container = document.getElementById('log-list');
-  if (filtered.length === 0) {
-    container.innerHTML = '<div class="log-empty">No entries found</div>';
-    return;
-  }
-
-  container.innerHTML = filtered.map((l, vi) => {
-    const realIdx = logs.indexOf(l);
-    const tierCls = (l.tier || 'TRACE').toLowerCase();
-    const modeCls = (l.mode || 'SELLER').toLowerCase();
-    return '<div class="log-card" data-idx="' + realIdx + '" onclick="toggleLogCard(this)">' +
-      '<div class="log-card-top">' +
-        '<span class="log-tier ' + tierCls + '">' + (l.tier || 'TRACE') + '</span>' +
-        '<span class="log-name">' + esc(l.fullName || 'No Name') + '</span>' +
-        '<span class="log-score">' + (l.score || 0) + '/10</span>' +
-        '<span class="log-mode ' + modeCls + '">' + (l.mode || '') + '</span>' +
-      '</div>' +
-      '<div class="log-phone">' + esc(l.phone || '') + (l.locality ? ' \u2022 ' + esc(l.locality) : '') + '</div>' +
-      '<div class="log-detail">' +
-        buildDetailGrid(l) +
-        (l.notes ? '<div class="log-notes">' + esc(l.notes) + '</div>' : '') +
-        '<div class="log-actions">' +
-          '<div class="log-action-btn edit" onclick="event.stopPropagation();openEdit(' + realIdx + ')">Edit</div>' +
-          '<div class="log-action-btn delete" onclick="event.stopPropagation();deleteEntry(' + realIdx + ')">Delete</div>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function buildDetailGrid(l) {
-  const pairs = [];
-  if (l.date) pairs.push(['Date', l.date]);
-  if (l.callStatus) pairs.push(['Status', l.callStatus]);
-  if (l.source) pairs.push(['Source', l.source]);
-  if (l.intent) pairs.push(['Intent', l.intent]);
-  if (l.timeline) pairs.push(['Timeline', l.timeline]);
-  if (l.budget) pairs.push(['Budget', l.budget]);
-  if (l.financing) pairs.push(['Financing', l.financing]);
-  if (l.nextAction) pairs.push(['Next Action', l.nextAction]);
-  if (l.broker) pairs.push(['Broker', l.broker]);
-  if (l.callerScore !== undefined) pairs.push(['Caller Q', l.callerScore + '/3']);
-  if (l.duration) pairs.push(['Duration', l.duration + ' min']);
-  if (l.agent) pairs.push(['Agent', l.agent]);
-  // Mode-specific
-  if (l.mode === 'SELLER') {
-    if (l.ownedBy) pairs.push(['Owned By', l.ownedBy]);
-    if (l.propType) pairs.push(['Property', l.propType]);
-    if (l.size) pairs.push(['Size', l.size + ' sq.ft']);
-    if (l.neighborhood) pairs.push(['Neighborhood', l.neighborhood]);
-    if (l.occupiedBy) pairs.push(['Occupied', l.occupiedBy]);
-  } else {
-    if (l.purpose) pairs.push(['Purpose', l.purpose]);
-    if (l.propPref) pairs.push(['Prop Pref', l.propPref]);
-    if (l.bhk) pairs.push(['BHK', l.bhk]);
-    if (l.prefLocalities) pairs.push(['Pref Areas', l.prefLocalities]);
-    if (l.currentSituation) pairs.push(['Situation', l.currentSituation]);
-  }
-  return '<div class="detail-grid">' + pairs.map(p =>
-    '<div><span class="detail-key">' + p[0] + '</span><br><span class="detail-val">' + esc(String(p[1])) + '</span></div>'
-  ).join('') + '</div>';
-}
-
-function toggleLogCard(card) {
-  card.classList.toggle('expanded');
-}
-
-function deleteEntry(idx) {
-  if (!confirm('Delete this entry?')) return;
-  logs.splice(idx, 1);
-  localStorage.setItem('axivia_logs_v5', JSON.stringify(logs));
-  renderLogs();
-  showToast('Entry deleted', 'info');
-}
-
-// ─── EDIT ────────────────────────────────────────────
-function openEdit(idx) {
-  editingIndex = idx;
-  const entry = logs[idx];
-  const fields = document.getElementById('edit-fields');
-  const editableFields = [
-    { key: 'fullName', label: 'Full Name', type: 'text' },
-    { key: 'phone', label: 'Phone', type: 'tel' },
-    { key: 'locality', label: 'Locality', type: 'text' },
-    { key: 'intent', label: 'Intent', type: 'text' },
-    { key: 'timeline', label: 'Timeline', type: 'text' },
-    { key: 'budget', label: 'Budget', type: 'text' },
-    { key: 'financing', label: 'Financing', type: 'text' },
-    { key: 'nextAction', label: 'Next Action', type: 'text' },
-    { key: 'notes', label: 'Notes', type: 'textarea' },
-  ];
-
-  fields.innerHTML = editableFields.map(f => {
-    const val = entry[f.key] || '';
-    if (f.type === 'textarea') {
-      return '<div class="form-group"><div class="form-label">' + f.label + '</div>' +
-        '<textarea class="form-input" id="edit-' + f.key + '" rows="3">' + esc(val) + '</textarea></div>';
-    }
-    return '<div class="form-group"><div class="form-label">' + f.label + '</div>' +
-      '<input type="' + f.type + '" class="form-input" id="edit-' + f.key + '" value="' + esc(val) + '"></div>';
-  }).join('');
-
-  document.getElementById('edit-modal').classList.add('show');
-}
-
-function closeEdit() {
-  document.getElementById('edit-modal').classList.remove('show');
-  editingIndex = -1;
-}
-
-function saveEdit() {
-  if (editingIndex < 0) return;
-  const entry = logs[editingIndex];
-  ['fullName','phone','locality','intent','timeline','budget','financing','nextAction','notes'].forEach(key => {
-    const el = document.getElementById('edit-' + key);
-    if (el) entry[key] = el.value.trim();
-  });
-
-  // Recalculate score
-  entry.score = calcScoreForEntry(entry);
-  entry.tier = getTierLabel(entry.score);
-
-  logs[editingIndex] = entry;
-  localStorage.setItem('axivia_logs_v5', JSON.stringify(logs));
-
-  // Sync update
-  syncToSheet(Object.assign({}, entry, { action: 'update' }));
-
-  closeEdit();
-  renderLogs();
-  showToast('Entry updated', 'success');
-}
-
-function calcScoreForEntry(e) {
-  let s = 0;
-  if (e.mode === 'SELLER') {
-    if (e.ownedBy === 'Owner' || e.ownedBy === 'Co-Owner') s++;
-    if (e.propType) s++;
-    if (e.intent === 'Sell' || e.intent === 'Rent Out') s++;
-    if (e.timeline === 'under1month' || e.timeline === '1-3 months') s++;
-    if (e.budget) s++;
-    if (e.financing === 'Bank Pre-Approved' || e.financing === 'Self / Cash') s++;
-  } else {
-    if (e.purpose) s++;
-    if (e.propPref) s++;
-    if (e.intent === 'Buy' || e.intent === 'Invest') s++;
-    if (e.timeline === 'under1month' || e.timeline === '1-3 months') s++;
-    if (e.budget) s++;
-    if (e.financing === 'Bank Pre-Approved' || e.financing === 'Self / Cash') s++;
-  }
-  const cs = e.callerScore || 0;
-  if (cs >= 1) s++;
-  if (cs >= 2) s++;
-  if (cs >= 3) s++;
-  if (e.nextAction && e.nextAction !== 'No Action Needed') s++;
-  return s;
-}
-
-function getTierLabel(score) {
-  if (score >= 8) return 'HOT';
-  if (score >= 5) return 'WARM';
-  if (score >= 3) return 'COLD';
-  return 'TRACE';
-}
-
-// ─── CSV EXPORT ──────────────────────────────────────
-function exportCSV() {
-  if (logs.length === 0) { showToast('No entries to export', 'info'); return; }
-  const allKeys = new Set();
-  logs.forEach(l => Object.keys(l).forEach(k => allKeys.add(k)));
-  const keys = Array.from(allKeys);
-  const csvRows = [keys.join(',')];
-  logs.forEach(l => {
-    csvRows.push(keys.map(k => {
-      let v = String(l[k] || '');
-      if (v.includes(',') || v.includes('"') || v.includes('\n')) {
-        v = '"' + v.replace(/"/g, '""') + '"';
-      }
-      return v;
-    }).join(','));
-  });
-  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'axivia_export_' + new Date().toISOString().split('T')[0] + '.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('CSV exported', 'success');
-}
-
-function clearAllLogs() {
-  if (!confirm('Clear ALL entries? This cannot be undone.')) return;
-  logs = [];
-  localStorage.setItem('axivia_logs_v5', '[]');
-  renderLogs();
-  showToast('All entries cleared', 'info');
-}
-
-// ─── ANALYTICS ───────────────────────────────────────
-function renderAnalytics() {
-  const sellers = logs.filter(l => l.mode === 'SELLER');
-  const buyers = logs.filter(l => l.mode === 'BUYER');
-  const hot = logs.filter(l => l.tier === 'HOT').length;
-
-  // Stats
-  document.getElementById('stat-grid').innerHTML = [
-    { val: logs.length, label: 'Total Calls', color: 'var(--text)' },
-    { val: sellers.length, label: 'Sellers', color: 'var(--blue)' },
-    { val: buyers.length, label: 'Buyers', color: 'var(--purple)' },
-    { val: hot, label: 'HOT Leads', color: 'var(--green)' },
-  ].map(s =>
-    '<div class="stat-card"><div class="stat-val" style="color:' + s.color + '">' + s.val + '</div>' +
-    '<div class="stat-label">' + s.label + '</div></div>'
+  const filters=document.getElementById('filters');
+  if(filters) filters.innerHTML=['ALL','SELLER','BUYER','HOT','WARM','COLD','TRACE'].map(f=>
+    `<div class="fc${logFilter===f?' on':''}" onclick="setFilter('${f}')">${f} <span style="color:var(--text4);font-weight:400">${counts[f]}</span></div>`
   ).join('');
 
-  // Charts
-  let chartsHtml = '';
+  let filtered=logs.filter(e=>{
+    if(logFilter==='SELLER'&&e.mode!=='SELLER') return false;
+    if(logFilter==='BUYER'&&e.mode!=='BUYER')   return false;
+    if(['HOT','WARM','COLD','TRACE'].includes(logFilter)&&e.tier!==logFilter) return false;
+    if(!q) return true;
+    return (e.name||'').toLowerCase().includes(q)||(e.phone||'').includes(q)||(e.locality||'').toLowerCase().includes(q);
+  });
 
-  // Tier split - Sellers
-  chartsHtml += buildBarChart('Seller Tiers', tierCounts(sellers), [
-    { key: 'HOT', color: 'var(--green)' },
-    { key: 'WARM', color: 'var(--gold)' },
-    { key: 'COLD', color: 'var(--orange)' },
-    { key: 'TRACE', color: 'var(--red)' },
-  ]);
+  const list=document.getElementById('log-list');
+  if(!filtered.length){
+    list.innerHTML=`<div class="empty"><div class="empty-icon">📭</div><div>No entries found</div></div>`;return;
+  }
 
-  // Tier split - Buyers
-  chartsHtml += buildBarChart('Buyer Tiers', tierCounts(buyers), [
-    { key: 'HOT', color: 'var(--green)' },
-    { key: 'WARM', color: 'var(--gold)' },
-    { key: 'COLD', color: 'var(--orange)' },
-    { key: 'TRACE', color: 'var(--red)' },
-  ]);
+  list.innerHTML=filtered.map(e=>{
+    const ri=logs.indexOf(e);
+    const ti=tierInfo(e.score||0);
+    const modePill=e.mode==='SELLER'
+      ?`<span class="mode-pill seller-pill">SELLER</span>`
+      :`<span class="mode-pill buyer-pill">BUYER</span>`;
+    const detail = e.mode==='SELLER'
+      ? (e.propType||'')+(e.locality?` · ${e.locality}`:'')
+      : (e.prefLocalities||e.locality||'')+(e.budgetMin?` · ${e.budgetMin}–${e.budgetMax}`:'');
+    return `<div class="lc" id="lc-${ri}">
+      <div class="lc-h" onclick="toggleCard(${ri})">
+        <div class="lc-tier" style="background:${ti.color}18;color:${ti.color}">${H(e.tier||'TRACE')}</div>
+        <div class="lc-info">
+          <div class="lc-name">${H(e.name||'Unknown')}</div>
+          <div class="lc-meta">${modePill}${H(e.phone||'—')}${detail?` · ${H(detail)}`:''}
+          </div>
+        </div>
+        <div class="lc-score" style="color:${ti.color}">${e.score||0}</div>
+      </div>
+      <div class="lc-body">
+        <div class="lc-f"><div class="lc-fl">Status</div><div class="lc-fv">${H(e.status||'—')}</div></div>
+        <div class="lc-f"><div class="lc-fl">Date</div><div class="lc-fv">${H(e.date||'—')}</div></div>
+        ${e.mode==='SELLER'?`
+          <div class="lc-f"><div class="lc-fl">Owned By</div><div class="lc-fv">${H(e.ownedBy||'—')}</div></div>
+          <div class="lc-f"><div class="lc-fl">Property</div><div class="lc-fv">${H(e.propType||'—')}</div></div>
+          <div class="lc-f"><div class="lc-fl">Intent</div><div class="lc-fv">${H(e.intent||'—')}</div></div>
+          <div class="lc-f"><div class="lc-fl">Asking Price</div><div class="lc-fv">${H(e.budget||'—')}</div></div>
+        `:`
+          <div class="lc-f"><div class="lc-fl">Purpose</div><div class="lc-fv">${H(e.purpose||'—')}</div></div>
+          <div class="lc-f"><div class="lc-fl">Property Pref.</div><div class="lc-fv">${H(e.propPref||'—')}</div></div>
+          <div class="lc-f"><div class="lc-fl">Budget</div><div class="lc-fv">${H((e.budgetMin||'')+(e.budgetMax?'–'+e.budgetMax:''))}</div></div>
+          <div class="lc-f"><div class="lc-fl">Financing</div><div class="lc-fv">${H(e.financing||'—')}</div></div>
+        `}
+        <div class="lc-f"><div class="lc-fl">Next Action</div><div class="lc-fv">${H(e.nextAction||'—')}</div></div>
+        <div class="lc-f"><div class="lc-fl">Caller Score</div><div class="lc-fv">${e.callerScore||0}/3</div></div>
+        ${e.notes?`<div class="lc-f" style="grid-column:span 2"><div class="lc-fl">Notes</div><div class="lc-fv">${H(e.notes)}</div></div>`:''}
+        <div class="lc-acts">
+          <button class="lc-ab" onclick="event.stopPropagation();openEdit(${ri})">✏ Edit</button>
+          <button class="lc-ab del" onclick="event.stopPropagation();deleteEntry(${ri})">🗑 Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function setFilter(f){ logFilter=f; renderLog(); }
+function toggleCard(idx){ document.getElementById('lc-'+idx)?.classList.toggle('open'); }
+function deleteEntry(idx){
+  if(!confirm('Delete this entry?')) return;
+  logs.splice(idx,1); persistLogs(); renderLog(); showToast('Deleted','t-gold');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CALLBACKS
+// ═══════════════════════════════════════════════════════════════
+function renderCallbacks(){
+  const due=logs.filter(l=>l.callbackDate&&l.callbackDate<=todayStr()&&l.status==='Callback');
+  const banner=document.getElementById('cb-banner');
+  const list=document.getElementById('cb-list');
+  if(!banner||!list) return;
+  if(!due.length){ banner.style.display='none'; return; }
+  banner.style.display='block';
+  list.innerHTML=due.map(l=>`<div class="cb-item">
+    <div style="flex:1;font-size:12px;font-weight:700">${H(l.name||'Unknown')}</div>
+    <div style="font-size:12px;color:var(--text3)">${H(l.phone||'')}</div>
+  </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EDIT
+// ═══════════════════════════════════════════════════════════════
+function openEdit(idx){
+  editIdx=idx; const e=logs[idx];
+  document.getElementById('e-name').value       = e.name||'';
+  document.getElementById('e-phone').value      = e.phone||'';
+  document.getElementById('e-alt-phone').value  = e.altPhone||'';
+  document.getElementById('e-locality').value   = e.locality||'';
+  document.getElementById('e-budget').value     = e.budget||e.budgetMin||'';
+  document.getElementById('e-next-action').value= e.nextAction||'';
+  document.getElementById('e-notes').value      = e.notes||'';
+  openOverlay('edit-modal');
+}
+function saveEdit(){
+  if(editIdx===null) return;
+  const e=logs[editIdx];
+  e.name=document.getElementById('e-name').value.trim();
+  e.phone=document.getElementById('e-phone').value.trim();
+  e.altPhone=document.getElementById('e-alt-phone').value.trim();
+  e.locality=document.getElementById('e-locality').value.trim();
+  e.budget=document.getElementById('e-budget').value.trim();
+  e.nextAction=document.getElementById('e-next-action').value;
+  e.notes=document.getElementById('e-notes').value.trim();
+  if(e.chk){
+    const grps=e.mode==='SELLER'?SELLER_GROUPS:BUYER_GROUPS;
+    e.score=grps.filter(g=>e.chk[g.key]).length;
+    e.tier=tierInfo(e.score).tier;
+  }
+  persistLogs(); renderLog();
+  closeOverlay('edit-modal');
+  showToast('Updated — syncing…','t-blue');
+  postToSheet({...e,action:'update'});
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BUYER MATCH ENGINE
+// ═══════════════════════════════════════════════════════════════
+async function findMatches(){
+  const propPref  = document.getElementById('f-prop-pref')?.value||'';
+  const localities= (document.getElementById('f-pref-localities')?.value||'').trim().toLowerCase();
+  const budgetMin = (document.getElementById('f-budget-min')?.value||'').trim();
+  const budgetMax = (document.getElementById('f-budget-max')?.value||'').trim();
+
+  if(!propPref&&!localities){ showToast('Add property preference or locality to match','t-gold'); return; }
+
+  // First save the buyer entry
+  saveCall();
+
+  // Then query the sheet
+  const btn = document.querySelector('[onclick="findMatches()"]');
+  btn.textContent = '⏳ Searching…';
+
+  // Search local logs for matching sellers (offline match)
+  const sellers = logs.filter(l=>l.mode==='SELLER');
+  const locArr  = localities.split(',').map(s=>s.trim()).filter(Boolean);
+
+  const scored = sellers.map(s=>{
+    let pts=0;
+    if(propPref&&s.propType&&s.propType.toLowerCase().includes(propPref.toLowerCase())) pts++;
+    if(locArr.length && locArr.some(loc=>
+      (s.locality||'').toLowerCase().includes(loc)||
+      (s.nbhd||'').toLowerCase().includes(loc)
+    )) pts++;
+    if(pts>0) pts++; // bonus for any match
+    return {s,pts};
+  }).filter(r=>r.pts>0).sort((a,b)=>b.pts-a.pts).slice(0,8);
+
+  btn.textContent = '🔍 Find Matching Sellers';
+
+  const res = document.getElementById('match-results');
+  const lbl = document.getElementById('match-label');
+  const lst = document.getElementById('match-list');
+
+  if(!scored.length){
+    lbl.textContent='No matching sellers found in current database';
+    lst.innerHTML='<div style="font-size:12px;color:var(--text3);padding:10px 0">Try broadening locality preference or property type.</div>';
+    res.style.display='block'; return;
+  }
+
+  lbl.textContent=`${scored.length} match${scored.length>1?'es':''} found`;
+  lst.innerHTML=scored.map(({s,pts})=>{
+    const strong=pts>=3;
+    const ti=tierInfo(s.score||0);
+    return `<div class="match-card ${strong?'strong':'partial'}">
+      <div class="match-type ${strong?'s':'p'}">${strong?'✦ Strong Match':'◆ Partial Match'}</div>
+      <div class="match-name">${H(s.propType||'Property')} — ${H(s.locality||'Unknown locality')}</div>
+      <div class="match-detail">
+        ${s.budget?`₹${H(s.budget)} · `:''}${H(s.nbhd||'')}
+        <span style="color:${ti.color};font-weight:700;margin-left:6px">${H(s.tier||'')} ${s.score||0}/10</span>
+      </div>
+      ${s.phone?`<div class="match-detail" style="margin-top:4px;color:var(--text3)">${H(s.name||'')} · ${H(s.phone||'')}</div>`:''}
+    </div>`;
+  }).join('');
+  res.style.display='block';
+
+  // Log the match query to sheet
+  postToSheet({
+    action: 'match_query',
+    sheetTab: 'Audit',
+    agent: currentAgent?`${currentAgent.name} (${currentAgent.code})`:CONFIG.agentName,
+    timestamp: new Date().toISOString(),
+    criteria: {propPref, localities, budgetMin, budgetMax},
+    resultsCount: scored.length,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════════════════════
+function exportCSV(){
+  if(!logs.length){ showToast('No entries to export','t-gold'); return; }
+  const headers=['#','Mode','Date','Time','Agent','Status','Name','Phone','Alt Phone','Locality','Nbhd',
+    'Source','Broker','Owned By','Co-Owner','Occupied By','Property Type','Location Pin',
+    'Intent / Purpose','Budget / Budget Min','Budget Max','Urgency','Next Action',
+    'Caller Score','Callback Date','Duration','Notes','Score','Tier','DNC'];
+  const rows=logs.map(e=>[
+    e.no,e.mode,e.date,e.time,e.agent||'',e.status,e.name||'',e.phone||'',e.altPhone||'',
+    e.locality||'',e.nbhd||'',e.source||'',e.broker||'',
+    e.ownedBy||e.purpose||'',e.coOwnerName||'',e.occupiedBy||'',
+    e.propType||e.propPref||'',e.locationPin||'',
+    e.intent||e.buyerIntent||'',e.budget||e.budgetMin||'',e.budgetMax||'',
+    e.urgency||e.trigger||'',e.nextAction||'',
+    e.callerScore||0,e.callbackDate||'',e.duration||'',e.notes||'',
+    e.score||0,e.tier||'',e.dnc?'Yes':'No'
+  ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+  const csv=[headers.join(','),...rows].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`axivia-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  showToast('CSV exported','t-green');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ANALYTICS
+// ═══════════════════════════════════════════════════════════════
+function renderAnalytics(){
+  const total   = logs.length;
+  const sellers = logs.filter(l=>l.mode==='SELLER').length;
+  const buyers  = logs.filter(l=>l.mode==='BUYER').length;
+  const hot     = logs.filter(l=>l.tier==='HOT').length;
+  const avgRaw  = total?(logs.reduce((s,l)=>s+(l.score||0),0)/total):0;
+  const avg     = avgRaw.toFixed(1);
+
+  document.getElementById('an-grid').innerHTML=[
+    {n:total,l:'Total Calls'},
+    {n:sellers,l:'Sellers',c:'var(--seller)'},
+    {n:buyers,l:'Buyers',c:'var(--buyer)'},
+    {n:hot,l:'HOT Leads 🔥',c:'var(--green)'},
+    {n:avg,l:'Avg Score'},
+    {n:logs.filter(l=>l.tier==='WARM').length,l:'WARM Leads',c:'var(--gold)'},
+  ].map(({n,l,c})=>`<div class="an-card"><div class="an-n"${c?` style="color:${c}"`:''}">${n}</div><div class="an-l">${l}</div></div>`).join('');
+
+  const tierData=[['HOT','#22c55e'],['WARM','#C9A84C'],['COLD','#f97316'],['TRACE','#ef4444']];
+  const maxT=Math.max(...tierData.map(([t])=>logs.filter(l=>l.tier===t).length),1);
+  const tierBars=tierData.map(([t,c])=>{
+    const n=logs.filter(l=>l.tier===t).length;
+    return `<div class="bar-row"><div class="bar-lbl"><span style="color:${c};font-weight:700">${t}</span><span style="color:var(--text3)">${n}</span></div>
+    <div class="bar-bg"><div class="bar-fill" style="width:${(n/maxT*100).toFixed(0)}%;background:${c}"></div></div></div>`;
+  }).join('');
 
   // Top localities
-  const locCounts = {};
-  logs.forEach(l => { if (l.locality) locCounts[l.locality] = (locCounts[l.locality] || 0) + 1; });
-  const topLocs = Object.entries(locCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-  if (topLocs.length > 0) {
-    chartsHtml += buildBarChart('Top 5 Localities', Object.fromEntries(topLocs),
-      topLocs.map(l => ({ key: l[0], color: 'var(--teal)' })));
-  }
+  const locCounts={};
+  logs.forEach(l=>{ const loc=(l.locality||'').trim(); if(loc) locCounts[loc]=(locCounts[loc]||0)+1; });
+  const topLoc=Object.entries(locCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxL=Math.max(...topLoc.map(([,n])=>n),1);
+  const locBars=topLoc.map(([l,n])=>`<div class="bar-row"><div class="bar-lbl"><span>${H(l)}</span><span style="color:var(--text3)">${n}</span></div>
+    <div class="bar-bg"><div class="bar-fill" style="width:${(n/maxL*100).toFixed(0)}%;background:var(--blue)"></div></div></div>`).join('');
 
-  // Intent breakdown
-  const intentCounts = {};
-  logs.forEach(l => { if (l.intent) intentCounts[l.intent] = (intentCounts[l.intent] || 0) + 1; });
-  if (Object.keys(intentCounts).length > 0) {
-    chartsHtml += buildBarChart('Intent Breakdown', intentCounts,
-      Object.keys(intentCounts).map(k => ({ key: k, color: 'var(--purple)' })));
-  }
+  // Source split
+  const srcCounts={};
+  logs.forEach(l=>{ const s=l.source||'Unknown'; srcCounts[s]=(srcCounts[s]||0)+1; });
+  const topSrc=Object.entries(srcCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxS=Math.max(...topSrc.map(([,n])=>n),1);
+  const srcBars=topSrc.map(([s,n])=>`<div class="bar-row"><div class="bar-lbl"><span>${H(s)}</span><span style="color:var(--text3)">${n}</span></div>
+    <div class="bar-bg"><div class="bar-fill" style="width:${(n/maxS*100).toFixed(0)}%;background:var(--purple)"></div></div></div>`).join('');
 
-  document.getElementById('charts-container').innerHTML = chartsHtml;
+  document.getElementById('an-body').innerHTML=`
+    <div class="an-section"><div class="an-sh">Tier Split</div>${tierBars}</div>
+    <div class="an-section"><div class="an-sh">Top Localities</div>${topLoc.length?locBars:'<div style="color:var(--text3);font-size:12px">No data yet</div>'}</div>
+    <div class="an-section"><div class="an-sh">Lead Source Attribution</div>${topSrc.length?srcBars:'<div style="color:var(--text3);font-size:12px">No data yet</div>'}</div>`;
 }
 
-function tierCounts(arr) {
-  const c = { HOT: 0, WARM: 0, COLD: 0, TRACE: 0 };
-  arr.forEach(l => { c[l.tier || 'TRACE']++; });
-  return c;
-}
-
-function buildBarChart(title, data, bars) {
-  const max = Math.max(1, ...Object.values(data));
-  let html = '<div class="chart-section"><div class="chart-title">' + title + '</div>';
-  bars.forEach(b => {
-    const val = data[b.key] || 0;
-    const pct = (val / max) * 100;
-    html += '<div class="h-bar">' +
-      '<span class="h-bar-label">' + esc(b.key) + '</span>' +
-      '<div class="h-bar-track"><div class="h-bar-fill" style="width:' + pct + '%;background:' + b.color + '"></div></div>' +
-      '<span class="h-bar-val">' + val + '</span></div>';
-  });
-  html += '</div>';
-  return html;
-}
-
-// ─── SETUP MODAL ─────────────────────────────────────
-function openSetup() {
-  document.getElementById('setup-agent').value = config.agentName || '';
-  document.getElementById('setup-sheet').value = config.sheetUrl || SHEET_URL;
-  document.getElementById('setup-modal').classList.add('show');
-}
-
-function closeSetup() {
-  document.getElementById('setup-modal').classList.remove('show');
-}
-
-function saveSetup() {
-  config.agentName = document.getElementById('setup-agent').value.trim();
-  config.sheetUrl = document.getElementById('setup-sheet').value.trim();
-  localStorage.setItem('axivia_config_v1', JSON.stringify(config));
-  updateSheetBadge();
-  updateAgentPill();
-  closeSetup();
-  showToast('Setup saved', 'success');
-}
-
-function updateSheetBadge() {
-  const badge = document.getElementById('sheet-badge');
-  const url = config.sheetUrl || SHEET_URL;
-  if (url && url.includes('script.google.com')) {
-    badge.className = 'sheet-badge ok';
-    badge.innerHTML = '&#10003; Sheet';
-  } else {
-    badge.className = 'sheet-badge warn';
-    badge.innerHTML = '&#9888; Sheet';
-  }
-}
-
-function updateAgentPill() {
-  document.getElementById('agent-pill').textContent = config.agentName || 'Agent';
-}
-
-// ─── UTILS ───────────────────────────────────────────
-function esc(str) {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
-
-// ─── PASSIVE TOUCH FIX ──────────────────────────────
-document.addEventListener('touchstart', function(){}, { passive: true });
-
-// ─── CLOSE MODALS ON OVERLAY CLICK ──────────────────
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', function(e) {
-    if (e.target === m) {
-      m.classList.remove('show');
-    }
-  });
+// ═══════════════════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'&&activeView==='form') saveCall();
 });
 
-// ─── SERVICE WORKER ──────────────────────────────────
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
+// Android click fix
+document.addEventListener('touchstart',()=>{},{passive:true});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+function init(){
+  loadConfig();
+  loadDNC();
+  loadLogs();
+  buildChips();
+  updateSheetBadge();
+  updateAgentPill();
+  setMode('SELLER');
 }
 
-// ─── BOOT ────────────────────────────────────────────
-init();
-updateScore();
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
