@@ -426,10 +426,10 @@ body{
   <div class="auth-input-wrap">
     <input type="text" id="auth-input" placeholder="e.g. 0001"
       maxlength="8" autocomplete="off" autocorrect="off" spellcheck="false"
-      onkeydown="if(event.key==='Enter')attemptLogin()">
+      autocapitalize="none" inputmode="text">
   </div>
   <div class="auth-error" id="auth-error">&nbsp;</div>
-  <button class="auth-btn" onclick="attemptLogin()">Enter</button>
+  <button class="auth-btn" type="button" onclick="attemptLogin()" ontouchend="event.preventDefault();attemptLogin()">Enter</button>
 </div>
 
 <!-- ═══════════ APP ═══════════ -->
@@ -1158,7 +1158,7 @@ const EMPLOYEE_CODES = {
 // ═══════════════════════════════════════════════════════════════
 // SHEET
 // ═══════════════════════════════════════════════════════════════
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbyTuNGrrqy2QzFquaEFrvLr4_CEJsvpTsHyf_RGCYPXdu8-p290jxofIhnUkEAy86zQ/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzbPTvjZpL83XucYxovxZYUjKtuJSlz_H5lfqHJj5QQ5TlNmm3zRoS_WJp-Y1x7_mdcdw/exec";
 
 // ═══════════════════════════════════════════════════════════════
 // SCORING GROUPS
@@ -1273,10 +1273,7 @@ function resetInactivity(){
   inactivityTimer = setTimeout(lockApp, 15 * 60 * 1000); // 15 min
 }
 
-// Enter key on auth
-document.getElementById('auth-input').addEventListener('keydown', e=>{
-  if(e.key==='Enter') attemptLogin();
-});
+// Enter key on auth — handled by input addEventListener only
 
 // ═══════════════════════════════════════════════════════════════
 // CONFIG
@@ -1997,3 +1994,4 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
+
