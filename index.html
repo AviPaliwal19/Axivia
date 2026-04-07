@@ -10,6 +10,8 @@
 <meta name="format-detection" content="telephone=no">
 <title>Axivia — Field App</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
@@ -157,8 +159,12 @@ body{
 
 /* SAVE WRAP */
 #save-wrap{
-  flex-shrink:0;padding:10px 14px 6px;
-  background:linear-gradient(to bottom,transparent,var(--bg) 35%);
+  position:fixed;
+  bottom:calc(var(--nav-h) + var(--safe-bottom));
+  left:0;right:0;
+  padding:10px 14px 6px;
+  background:linear-gradient(to bottom,transparent 0%,var(--bg) 40%);
+  z-index:60;
 }
 #save-btn{
   width:100%;height:54px;border-radius:14px;border:none;
@@ -196,7 +202,7 @@ body{
 /* ═══════════════════════════════════════════
    FORM VIEW
 ═══════════════════════════════════════════ */
-#form-view{padding:10px 13px 100px}
+#form-view{padding:10px 13px 200px}
 
 /* CARDS */
 .card{
@@ -477,8 +483,25 @@ body{
     <!-- ═══ FORM VIEW ═══ -->
     <div class="view active" id="form-view">
 
+      <!-- LAST SAVED STRIP -->
+      <div id="last-saved-strip" style="display:none;background:#22c55e10;border:1px solid #22c55e33;border-radius:10px;padding:8px 14px;margin-top:6px;margin-bottom:0;display:none;align-items:center;gap:8px">
+        <span style="font-size:14px">✓</span>
+        <span id="last-saved-text" style="font-size:12px;color:var(--green);font-weight:600;flex:1"></span>
+        <span id="last-saved-tier" style="font-size:11px;font-weight:800"></span>
+      </div>
+
+      <!-- CALLBACKS DUE BANNER -->
+      <div id="form-cb-banner" style="display:none;background:#5B9BD512;border:1px solid #5B9BD540;border-radius:12px;margin-top:6px;margin-bottom:0;overflow:hidden">
+        <div onclick="toggleFormCallbacks()" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer">
+          <span style="font-size:16px">📅</span>
+          <span style="flex:1;font-size:13px;font-weight:700;color:var(--blue)" id="form-cb-count">0 Callbacks Due</span>
+          <span id="form-cb-chevron" style="font-size:12px;color:var(--text3)">▼</span>
+        </div>
+        <div id="form-cb-list" style="display:none;border-top:1px solid #5B9BD530;padding:8px 14px 10px"></div>
+      </div>
+
       <!-- CALL STATUS -->
-      <div class="card" style="margin-top:6px">
+      <div class="card" style="margin-top:8px">
         <div class="card-head">
           <div class="c-dot" style="background:var(--green)"></div>
           <div class="c-title">Call Status</div>
@@ -1042,10 +1065,7 @@ body{
           <div class="field">
             <textarea id="f-notes" rows="3" placeholder="Key observations, objections, next steps…"></textarea>
           </div>
-          <div class="field">
-            <label>Duration (mins)</label>
-            <input type="text" id="f-duration" placeholder="e.g. 4.5" inputmode="decimal">
-          </div>
+
         </div>
       </div>
 
@@ -1081,7 +1101,7 @@ body{
     <button id="save-btn" onclick="saveCall()">
       <span id="save-label">Save &amp; Next Call</span>
     </button>
-    <div class="save-hint">or Ctrl + Enter</div>
+
   </div>
 
   <!-- BOTTOM NAV -->
@@ -1150,7 +1170,7 @@ body{
 // Format: "CODE": "Employee Name"
 // ═══════════════════════════════════════════════════════════════
 const EMPLOYEE_CODES = {
-  "0001": "Jagdeep",
+  "0001": "Caller 1",
   "0002": "Caller 2",
   "ADMIN": "Avi Paliwal",
 };
@@ -1211,6 +1231,7 @@ let callerScore = 0;
 let dncSet = new Set();
 let editIdx = null;
 let logFilter = "ALL";
+let agentFilter = "ALL";
 let activeView = "form";
 let timerInterval = null, timerSec = 0, timerRunning = false;
 let inactivityTimer = null;
@@ -1558,7 +1579,7 @@ function saveCall(){
     nextAction:   mode==='SELLER'?(document.getElementById('f-next-action')?.value||''):(document.getElementById('f-buyer-next-action')?.value||''),
     callerScore,
     callbackDate: document.getElementById('f-callback-date')?.value||'',
-    duration:     document.getElementById('f-duration')?.value||'',
+    duration: (timerSec/60).toFixed(1),
     notes:        (document.getElementById('f-notes')?.value||'').trim(),
     score, tier: ti.tier,
     dnc: activeStatus==='DNC',
@@ -1620,6 +1641,17 @@ function saveCall(){
   const lbl=document.getElementById('save-label');
   btn.classList.add('saved'); lbl.textContent='✓ Saved!';
   setTimeout(()=>{ btn.classList.remove('saved'); lbl.textContent='Save & Next Call'; },1400);
+  // Show last saved strip
+  const strip=document.getElementById('last-saved-strip');
+  const stripText=document.getElementById('last-saved-text');
+  const stripTier=document.getElementById('last-saved-tier');
+  if(strip&&stripText&&stripTier){
+    stripText.textContent=`${name||'Lead'} · ${score}/10`;
+    stripTier.textContent=ti.tier;
+    stripTier.style.color=ti.color;
+    strip.style.display='flex';
+    setTimeout(()=>{ strip.style.display='none'; },6000);
+  }
 
   postToSheet(base);
   timerReset();
@@ -1634,7 +1666,7 @@ function sinceExport(){ _exportCount++; }
 // ═══════════════════════════════════════════════════════════════
 function resetFormFields(){
   const textIds = ['f-name','f-phone','f-alt-phone','f-locality','f-nbhd','f-location-pin',
-    'f-coowner-name','f-budget','f-notes','f-duration','f-callback-date',
+    'f-coowner-name','f-budget','f-notes','f-callback-date',
     'f-carpet','f-buildup','f-superbuildup','f-parking-apt','f-floor','f-maintenance','f-bhk',
     'f-plot-area','f-house-buildup','f-floors','f-parking-house','f-house-bhk',
     'f-plot-total','f-dimensions','f-frontage','f-comm-carpet','f-comm-floor',
@@ -1698,15 +1730,22 @@ function renderLog(){
     if(counts[e.tier]!==undefined) counts[e.tier]++;
   });
 
+  // Agent list for filter
+  const agents = [...new Set(logs.map(e=>(e.agent||'').split(' (')[0]).filter(Boolean))];
   const filters=document.getElementById('filters');
-  if(filters) filters.innerHTML=['ALL','SELLER','BUYER','HOT','WARM','COLD','TRACE'].map(f=>
-    `<div class="fc${logFilter===f?' on':''}" onclick="setFilter('${f}')">${f} <span style="color:var(--text4);font-weight:400">${counts[f]}</span></div>`
-  ).join('');
+  if(filters) filters.innerHTML=
+    ['ALL','SELLER','BUYER','HOT','WARM','COLD','TRACE'].map(f=>
+      `<div class="fc${logFilter===f?' on':''}" onclick="setFilter('${f}')">${f} <span style="color:var(--text4);font-weight:400">${counts[f]}</span></div>`
+    ).join('')+
+    (agents.length>1 ? agents.map(a=>
+      `<div class="fc${agentFilter===a?' on':''}" onclick="setAgentFilter('${a}')" style="${agentFilter===a?'border-color:var(--blue);color:var(--blue);background:#5B9BD510':''}">${a}</div>`
+    ).join('') : '');
 
   let filtered=logs.filter(e=>{
     if(logFilter==='SELLER'&&e.mode!=='SELLER') return false;
     if(logFilter==='BUYER'&&e.mode!=='BUYER')   return false;
     if(['HOT','WARM','COLD','TRACE'].includes(logFilter)&&e.tier!==logFilter) return false;
+    if(agentFilter!=='ALL'&&!(e.agent||'').startsWith(agentFilter)) return false;
     if(!q) return true;
     return (e.name||'').toLowerCase().includes(q)||(e.phone||'').includes(q)||(e.locality||'').toLowerCase().includes(q);
   });
@@ -1754,13 +1793,15 @@ function renderLog(){
         ${e.notes?`<div class="lc-f" style="grid-column:span 2"><div class="lc-fl">Notes</div><div class="lc-fv">${H(e.notes)}</div></div>`:''}
         <div class="lc-acts">
           <button class="lc-ab" onclick="event.stopPropagation();openEdit(${ri})">✏ Edit</button>
-          <button class="lc-ab del" onclick="event.stopPropagation();deleteEntry(${ri})">🗑 Delete</button>
+          ${e.phone?`<a class="lc-ab" href="tel:${H(e.phone)}" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;text-decoration:none">📞 Call</a>`:''}
+          <button class="lc-ab del" onclick="event.stopPropagation();deleteEntry(${ri})">🗑</button>
         </div>
       </div>
     </div>`;
   }).join('');
 }
 function setFilter(f){ logFilter=f; renderLog(); }
+function setAgentFilter(a){ agentFilter=agentFilter===a?'ALL':a; renderLog(); }
 function toggleCard(idx){ document.getElementById('lc-'+idx)?.classList.toggle('open'); }
 function deleteEntry(idx){
   if(!confirm('Delete this entry?')) return;
@@ -1780,7 +1821,33 @@ function renderCallbacks(){
   list.innerHTML=due.map(l=>`<div class="cb-item">
     <div style="flex:1;font-size:12px;font-weight:700">${H(l.name||'Unknown')}</div>
     <div style="font-size:12px;color:var(--text3)">${H(l.phone||'')}</div>
+    ${l.phone?`<a href="tel:${H(l.phone)}" onclick="event.stopPropagation()" style="font-size:18px;text-decoration:none">📞</a>`:''}
   </div>`).join('');
+}
+
+// Form view callbacks banner
+let formCbExpanded = false;
+function renderCallbacksBanner(){
+  const due=logs.filter(l=>l.callbackDate&&l.callbackDate<=todayStr()&&l.status==='Callback');
+  const banner=document.getElementById('form-cb-banner');
+  const count=document.getElementById('form-cb-count');
+  const list=document.getElementById('form-cb-list');
+  if(!banner) return;
+  if(!due.length){ banner.style.display='none'; return; }
+  banner.style.display='block';
+  count.textContent=`${due.length} Callback${due.length>1?'s':''} Due`;
+  list.innerHTML=due.map(l=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #5B9BD520">
+    <div style="flex:1;font-size:13px;font-weight:700;color:var(--text)">${H(l.name||'Unknown')}</div>
+    <div style="font-size:12px;color:var(--text3)">${H(l.phone||'')}</div>
+    ${l.phone?`<a href="tel:${H(l.phone)}" style="font-size:18px;text-decoration:none">📞</a>`:''}
+  </div>`).join('');
+}
+function toggleFormCallbacks(){
+  formCbExpanded=!formCbExpanded;
+  const list=document.getElementById('form-cb-list');
+  const chev=document.getElementById('form-cb-chevron');
+  if(list) list.style.display=formCbExpanded?'block':'none';
+  if(chev) chev.textContent=formCbExpanded?'▲':'▼';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1988,10 +2055,11 @@ function init(){
   updateSheetBadge();
   updateAgentPill();
   setMode('SELLER');
+  autoScore();
+  renderCallbacksBanner();
 }
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
-
