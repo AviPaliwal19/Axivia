@@ -1,10 +1,10 @@
-{
+
   "name": "Axivia Field App",
   "short_name": "Axivia",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0A0A0F",
-  "theme_color": "#0A0A0F",
+  "theme_color": "#C9A84C",
   "orientation": "portrait",
   "icons": [
     {
