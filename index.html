@@ -714,7 +714,18 @@ body{
                 <div class="field"><label>No. of Floors</label><input type="text" id="f-floors" placeholder="e.g. G+2" inputmode="numeric"></div>
                 <div class="field"><label>Car Parking Spaces</label><input type="text" id="f-parking-house" placeholder="e.g. 2" inputmode="numeric"></div>
               </div>
-              <div class="field"><label>BHK / Configuration</label><input type="text" id="f-house-bhk" placeholder="e.g. 4BHK"></div>
+              <div class="r2">
+                <div class="field"><label>BHK / Configuration</label><input type="text" id="f-house-bhk" placeholder="e.g. 4BHK"></div>
+                <div class="field"><label>Orientation</label>
+                  <div class="sel">
+                    <select id="f-house-orientation">
+                      <option value="">— Select —</option>
+                      <option>North</option><option>South</option><option>East</option><option>West</option>
+                      <option>North-East</option><option>North-West</option><option>South-East</option><option>South-West</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- PLOT / LAND fields -->
@@ -1143,20 +1154,7 @@ body{
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-handle"></div>
     <div class="sheet-title">✏ Edit Entry</div>
-    <div class="field"><label>Name</label><input type="text" id="e-name"></div>
-    <div class="field"><label>Phone</label><input type="tel" id="e-phone"></div>
-    <div class="field"><label>Alt Phone</label><input type="tel" id="e-alt-phone"></div>
-    <div class="field"><label>Locality</label><input type="text" id="e-locality"></div>
-    <div class="field"><label>Budget / Asking Price</label><input type="text" id="e-budget"></div>
-    <div class="field"><label>Next Action</label>
-      <div class="sel"><select id="e-next-action">
-        <option value="">— Select —</option>
-        <option>Book Site Visit</option><option>Book Meeting</option>
-        <option>Send WhatsApp</option><option>Schedule Callback</option>
-        <option>No Action Needed</option>
-      </select></div>
-    </div>
-    <div class="field"><label>Notes</label><textarea id="e-notes" rows="3"></textarea></div>
+    <div id="edit-fields-dynamic"></div>
     <div class="m-actions">
       <button class="m-btn m-secondary" onclick="closeOverlay('edit-modal')">Cancel</button>
       <button class="m-btn m-primary" onclick="saveEdit()">Save &amp; Sync</button>
@@ -1608,7 +1606,7 @@ function saveCall(){
       plotArea:    (document.getElementById('f-plot-area')?.value||document.getElementById('f-plot-total')?.value||'').trim(),
       dimensions:  (document.getElementById('f-dimensions')?.value||'').trim(),
       frontage:    (document.getElementById('f-frontage')?.value||'').trim(),
-      orientation: document.getElementById('f-orientation')?.value||'',
+      orientation: document.getElementById('f-orientation')?.value||document.getElementById('f-house-orientation')?.value||'',
       cornerPlot:  document.getElementById('f-corner')?.value||'',
     });
   }
@@ -1855,25 +1853,65 @@ function toggleFormCallbacks(){
 // ═══════════════════════════════════════════════════════════════
 function openEdit(idx){
   editIdx=idx; const e=logs[idx];
-  document.getElementById('e-name').value       = e.name||'';
-  document.getElementById('e-phone').value      = e.phone||'';
-  document.getElementById('e-alt-phone').value  = e.altPhone||'';
-  document.getElementById('e-locality').value   = e.locality||'';
-  document.getElementById('e-budget').value     = e.budget||e.budgetMin||'';
-  document.getElementById('e-next-action').value= e.nextAction||'';
-  document.getElementById('e-notes').value      = e.notes||'';
+  const isSeller = e.mode==='SELLER';
+  const fields = [
+    { key:'name', label:'Name', type:'text' },
+    { key:'phone', label:'Phone', type:'tel' },
+    { key:'altPhone', label:'Alt Phone', type:'tel' },
+    { key:'source', label:'Source', type:'text' },
+    { key:'broker', label:'Broker', type:'text' },
+    { key:'locality', label:'Locality', type:'text' },
+    { key:'nbhd', label:'Neighbourhood', type:'text' },
+    // Seller
+    { key:'ownedBy', label:'Owned By', type:'text', show:isSeller },
+    { key:'coOwnerName', label:'Co-Owner Name', type:'text', show:isSeller },
+    { key:'occupiedBy', label:'Occupied By', type:'text', show:isSeller },
+    { key:'propType', label:'Property Type', type:'text', show:isSeller },
+    { key:'locationPin', label:'Location Pin', type:'text', show:isSeller },
+    { key:'intent', label:'Intent', type:'text', show:isSeller },
+    { key:'budget', label:'Budget / Asking Price', type:'text', show:isSeller },
+    { key:'urgency', label:'Urgency', type:'text', show:isSeller },
+    { key:'orientation', label:'Orientation', type:'text', show:isSeller },
+    { key:'bhk', label:'BHK / Config', type:'text', show:isSeller },
+    { key:'plotArea', label:'Plot Area', type:'text', show:isSeller },
+    { key:'builtupArea', label:'Built-up Area', type:'text', show:isSeller },
+    { key:'parking', label:'Parking', type:'text', show:isSeller },
+    // Buyer
+    { key:'purpose', label:'Purpose', type:'text', show:!isSeller },
+    { key:'livingSituation', label:'Current Situation', type:'text', show:!isSeller },
+    { key:'propPref', label:'Property Preference', type:'text', show:!isSeller },
+    { key:'buyerBhk', label:'BHK Preference', type:'text', show:!isSeller },
+    { key:'prefLocalities', label:'Preferred Localities', type:'text', show:!isSeller },
+    { key:'buyerIntent', label:'Intent', type:'text', show:!isSeller },
+    { key:'budgetMin', label:'Budget Min', type:'text', show:!isSeller },
+    { key:'budgetMax', label:'Budget Max', type:'text', show:!isSeller },
+    { key:'financing', label:'Financing', type:'text', show:!isSeller },
+    { key:'trigger', label:'Purchase Trigger', type:'text', show:!isSeller },
+    { key:'siteVisit', label:'Site Visit', type:'text', show:!isSeller },
+    // Common
+    { key:'nextAction', label:'Next Action', type:'select', opts:['','Book Site Visit','Book Meeting','Send WhatsApp','Schedule Callback','No Action Needed'] },
+    { key:'callbackDate', label:'Callback Date', type:'date' },
+    { key:'callerScore', label:'Caller Score (0–5)', type:'number' },
+    { key:'notes', label:'Notes', type:'textarea' },
+  ].filter(f => f.show===undefined || f.show);
+
+  const container = document.getElementById('edit-fields-dynamic');
+  container.innerHTML = fields.map(f => {
+    const val = e[f.key]!=null ? e[f.key] : '';
+    if(f.type==='textarea') return '<div class="field"><label>'+f.label+'</label><textarea id="e-'+f.key+'" rows="3">'+H(val)+'</textarea></div>';
+    if(f.type==='select') return '<div class="field"><label>'+f.label+'</label><div class="sel"><select id="e-'+f.key+'">'+f.opts.map(o=>'<option value="'+H(o)+'"'+(o===val?' selected':'')+'>'+( o||'— Select —')+'</option>').join('')+'</select></div></div>';
+    return '<div class="field"><label>'+f.label+'</label><input type="'+f.type+'" id="e-'+f.key+'" value="'+H(val)+'"></div>';
+  }).join('');
   openOverlay('edit-modal');
 }
 function saveEdit(){
   if(editIdx===null) return;
   const e=logs[editIdx];
-  e.name=document.getElementById('e-name').value.trim();
-  e.phone=document.getElementById('e-phone').value.trim();
-  e.altPhone=document.getElementById('e-alt-phone').value.trim();
-  e.locality=document.getElementById('e-locality').value.trim();
-  e.budget=document.getElementById('e-budget').value.trim();
-  e.nextAction=document.getElementById('e-next-action').value;
-  e.notes=document.getElementById('e-notes').value.trim();
+  document.querySelectorAll('#edit-fields-dynamic [id^="e-"]').forEach(el=>{
+    const key=el.id.substring(2);
+    e[key]=el.value.trim();
+  });
+  if(e.callerScore!==undefined) e.callerScore=parseInt(e.callerScore)||0;
   if(e.chk){
     const grps=e.mode==='SELLER'?SELLER_GROUPS:BUYER_GROUPS;
     e.score=grps.filter(g=>e.chk[g.key]).length;
