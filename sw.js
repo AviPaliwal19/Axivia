@@ -1,4 +1,4 @@
-const CACHE_NAME = 'axivia-v2';
+const CACHE_NAME = 'axivia-v3';
 const URLS_TO_CACHE = [
   './',
   './index.html',
