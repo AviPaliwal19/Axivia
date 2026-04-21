@@ -1491,10 +1491,36 @@ function onPhoneInput(val){
 }
 function checkDupDNC(){
   const p = norm(document.getElementById('f-phone').value||'');
+  const dupEl = document.getElementById('dup-warn');
   document.getElementById('dnc-warn').style.display = (p&&dncSet.has(p))?'block':'none';
-  // Duplicate: phone match alone is sufficient — same number = same person
-  const isDup = p && !dncSet.has(p) && logs.some(l => norm(l.phone||'') === p);
-  document.getElementById('dup-warn').style.display = isDup ? 'block' : 'none';
+
+  if (!p || dncSet.has(p)) { dupEl.style.display='none'; return; }
+
+  // 1 — Instant local check (today's session)
+  if (logs.some(l => norm(l.phone||'') === p)) {
+    dupEl.innerHTML = '⚠ Duplicate — this number is already in today\'s log. Verify before saving.';
+    dupEl.style.display = 'block';
+    return;
+  }
+
+  // 2 — Async sheet check (historical data across all days)
+  dupEl.style.display = 'none';
+  if (p.length < 8) return; // wait until number is long enough
+  clearTimeout(window._dupTimer);
+  window._dupTimer = setTimeout(() => {
+    fetch(`${SHEET_URL}?action=checkPhone&phone=${encodeURIComponent(p)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.found) {
+          const who  = data.name ? `${data.name}` : 'This number';
+          const when = data.date ? ` on ${data.date}` : '';
+          const tab  = data.tab  ? ` (${data.tab})`  : '';
+          dupEl.innerHTML = `⚠ Duplicate — ${who} was already logged${when}${tab}. Verify before saving.`;
+          dupEl.style.display = 'block';
+        }
+      })
+      .catch(() => {}); // sheet unreachable — fail silently
+  }, 700); // debounce: fires 700ms after user stops typing
 }
 
 function toggleFollowupDate(selectId, wrapId){
