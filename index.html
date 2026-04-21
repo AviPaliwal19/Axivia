@@ -1345,6 +1345,8 @@ function attemptLogin(){
     updateAgentPill();
     startInactivityTimer();
     showToast(`Welcome, ${name}`,'t-gold');
+    requestNotifPermission();
+    checkCallbacksInApp();
   } else {
     const err = document.getElementById('auth-error');
     err.textContent = 'Incorrect employee code. Try again.';
@@ -1803,7 +1805,10 @@ function resetFormFields(){
 // ═══════════════════════════════════════════════════════════════
 // PERSIST
 // ═══════════════════════════════════════════════════════════════
-function persistLogs(){ try{localStorage.setItem(LS_LOGS,JSON.stringify({logs,callNo}));}catch(e){} }
+function persistLogs(){
+  try{ localStorage.setItem(LS_LOGS,JSON.stringify({logs,callNo})); }catch(e){}
+  syncCallbacksToSW();
+}
 function loadLogs(){
   try{
     const r=localStorage.getItem(LS_LOGS);
@@ -2203,6 +2208,95 @@ function init(){
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ═══════════════════════════════════════════════════════════════
+// SERVICE WORKER REGISTRATION + PUSH NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════════
+let swReg = null;
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    swReg = reg;
+    // Register periodic background sync (Chrome Android, installed PWA)
+    if ('periodicSync' in reg) {
+      navigator.permissions.query({ name: 'periodic-background-sync' }).then(status => {
+        if (status.state === 'granted') {
+          reg.periodicSync.register('axivia-callback-check', { minInterval: 4 * 60 * 60 * 1000 })
+            .catch(() => {}); // min 4 hours
+        }
+      }).catch(() => {});
+    }
+  }).catch(() => {});
+}
+
+// Build the list of upcoming callbacks from logs and send to SW via IDB
+function syncCallbacksToSW() {
+  if (!swReg || !swReg.active) return;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const upcoming = logs.filter(l => {
+    const d = l.callbackDate || l.followupDate;
+    if (!d) return false;
+    return new Date(d) >= today;
+  }).map(l => ({
+    id:           l.no || l.id || Math.random(),
+    name:         l.name || '',
+    phone:        l.phone || '',
+    callbackDate: l.callbackDate || '',
+    followupDate: l.followupDate || '',
+  }));
+  swReg.active.postMessage({ type: 'SYNC_CALLBACKS', callbacks: upcoming });
+}
+
+// Request notification permission after login
+async function requestNotifPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    syncCallbacksToSW();
+    return;
+  }
+  if (Notification.permission !== 'denied') {
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      syncCallbacksToSW();
+      showToast('🔔 Notifications enabled for callbacks','t-green');
+    }
+  }
+}
+
+// In-app check: show banner if callbacks are due today or tomorrow
+function checkCallbacksInApp() {
+  if (!logs || !logs.length) return;
+  const today = new Date().toISOString().split('T')[0];
+  const tmr   = new Date(); tmr.setDate(tmr.getDate()+1);
+  const tomorrowStr = tmr.toISOString().split('T')[0];
+
+  const dueToday = logs.filter(l => {
+    const d = l.callbackDate || l.followupDate;
+    return d && (d === today);
+  });
+  const dueTomorrow = logs.filter(l => {
+    const d = l.callbackDate || l.followupDate;
+    return d && (d === tomorrowStr);
+  });
+
+  if (dueToday.length) {
+    showToast(`📞 ${dueToday.length} callback${dueToday.length>1?'s':''} due TODAY`, 't-gold');
+    // Also fire a local notification if permission granted
+    if (Notification.permission === 'granted' && swReg?.active) {
+      swReg.active.postMessage({ type: 'CHECK_NOW' });
+    }
+  } else if (dueTomorrow.length) {
+    showToast(`📅 ${dueTomorrow.length} callback${dueTomorrow.length>1?'s':''} due tomorrow`, 't-blue');
+  }
+}
+
+// Also check when the tab regains focus (user switches back to app)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && document.getElementById('app')?.style.display !== 'none') {
+    checkCallbacksInApp();
+  }
+});
 </script>
 </body>
 </html>
