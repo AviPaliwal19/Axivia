@@ -562,7 +562,7 @@ body{
         </div>
         <div class="card-body">
           <div class="warn warn-dnc" id="dnc-warn">🚫 Do Not Call — this number is on the DNC list</div>
-          <div class="warn warn-dup" id="dup-warn">⚠ Possible Duplicate — phone + 2 or more fields match an existing entry</div>
+          <div class="warn warn-dup" id="dup-warn">⚠ Duplicate — this number is already in the log. Verify before saving.</div>
           <div class="chips" id="status-chips"></div>
           <div id="cb-date-wrap">
             <div class="field" style="margin-top:10px">
@@ -1492,24 +1492,9 @@ function onPhoneInput(val){
 function checkDupDNC(){
   const p = norm(document.getElementById('f-phone').value||'');
   document.getElementById('dnc-warn').style.display = (p&&dncSet.has(p))?'block':'none';
-  if(p && !dncSet.has(p)){
-    const name = (document.getElementById('f-name')?.value||'').trim().toLowerCase();
-    const locality = (document.getElementById('f-locality')?.value||'').trim().toLowerCase();
-    const budget = (document.getElementById('f-budget')?.value||document.getElementById('f-budget-min')?.value||'').trim().toLowerCase();
-    const propType = (document.getElementById('f-prop-type')?.value||'').trim().toLowerCase();
-    const isDup = logs.some(l=>{
-      if(norm(l.phone||'')!==p) return false;
-      let matches=1; // phone matched = 1
-      if(name && (l.name||'').toLowerCase()===name) matches++;
-      if(locality && (l.locality||'').toLowerCase()===locality) matches++;
-      if(budget && ((l.budget||l.budgetMin||'').toLowerCase()===budget)) matches++;
-      if(propType && (l.propType||'').toLowerCase()===propType) matches++;
-      return matches>=3;
-    });
-    document.getElementById('dup-warn').style.display = isDup?'block':'none';
-  } else if(!p){
-    document.getElementById('dup-warn').style.display='none';
-  }
+  // Duplicate: phone match alone is sufficient — same number = same person
+  const isDup = p && !dncSet.has(p) && logs.some(l => norm(l.phone||'') === p);
+  document.getElementById('dup-warn').style.display = isDup ? 'block' : 'none';
 }
 
 function toggleFollowupDate(selectId, wrapId){
