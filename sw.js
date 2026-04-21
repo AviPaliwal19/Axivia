@@ -1,4 +1,4 @@
-const CACHE_NAME = 'axivia-v4';
+const CACHE_NAME = 'axivia-v5';
 const URLS_TO_CACHE = [
   './',
   './index.html',
@@ -25,6 +25,12 @@ self.addEventListener('activate', e => {
         keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
+      .then(() => {
+        // Tell all open tabs to reload so they get the new version immediately
+        return self.clients.matchAll({ type: 'window' }).then(clients => {
+          clients.forEach(c => c.postMessage({ type: 'SW_UPDATED' }));
+        });
+      })
   );
 });
 
