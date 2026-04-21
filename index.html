@@ -562,7 +562,7 @@ body{
         </div>
         <div class="card-body">
           <div class="warn warn-dnc" id="dnc-warn">🚫 Do Not Call — this number is on the DNC list</div>
-          <div class="warn warn-dup" id="dup-warn">⚠ Duplicate — this number is already in the log</div>
+          <div class="warn warn-dup" id="dup-warn">⚠ Possible Duplicate — phone + 2 or more fields match an existing entry</div>
           <div class="chips" id="status-chips"></div>
           <div id="cb-date-wrap">
             <div class="field" style="margin-top:10px">
@@ -754,7 +754,18 @@ body{
                 <div class="field"><label>Floor Number</label><input type="text" id="f-floor" placeholder="e.g. 4th" inputmode="numeric"></div>
                 <div class="field"><label>Maintenance (₹/mo)</label><input type="text" id="f-maintenance" placeholder="e.g. 3,500" inputmode="decimal"></div>
               </div>
-              <div class="field"><label>BHK / Configuration</label><input type="text" id="f-bhk" placeholder="e.g. 3BHK + Study"></div>
+              <div class="r2">
+                <div class="field"><label>BHK / Configuration</label><input type="text" id="f-bhk" placeholder="e.g. 3BHK + Study"></div>
+                <div class="field"><label>Orientation</label>
+                  <div class="sel">
+                    <select id="f-apt-orientation">
+                      <option value="">— Select —</option>
+                      <option>North</option><option>South</option><option>East</option><option>West</option>
+                      <option>North-East</option><option>North-West</option><option>South-East</option><option>South-West</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- HOUSE / VILLA fields -->
@@ -870,7 +881,7 @@ body{
               <div class="field">
                 <label>Next Action<span class="star">★</span></label>
                 <div class="sel">
-                  <select id="f-next-action" onchange="autoScore()">
+                  <select id="f-next-action" onchange="autoScore();toggleFollowupDate('f-next-action','seller-followup-wrap')">
                     <option value="">— Select —</option>
                     <option value="Book Site Visit">Book Site Visit</option>
                     <option value="Book Meeting">Book Meeting</option>
@@ -891,6 +902,12 @@ body{
                     <option value="No Urgency">No Urgency</option>
                   </select>
                 </div>
+              </div>
+            </div>
+            <div id="seller-followup-wrap" style="display:none;margin-top:4px">
+              <div class="field">
+                <label>📅 Follow-up Date</label>
+                <input type="date" id="f-seller-followup">
               </div>
             </div>
           </div>
@@ -1057,7 +1074,7 @@ body{
               <div class="field">
                 <label>Next Action<span class="star">★</span></label>
                 <div class="sel">
-                  <select id="f-buyer-next-action" onchange="autoScore()">
+                  <select id="f-buyer-next-action" onchange="autoScore();toggleFollowupDate('f-buyer-next-action','buyer-followup-wrap')">
                     <option value="">— Select —</option>
                     <option value="Book Site Visit">Book Site Visit</option>
                     <option value="Book Meeting">Book Meeting</option>
@@ -1066,6 +1083,12 @@ body{
                     <option value="No Action Needed">No Action Needed</option>
                   </select>
                 </div>
+              </div>
+            </div>
+            <div id="buyer-followup-wrap" style="display:none;margin-top:4px">
+              <div class="field">
+                <label>📅 Follow-up Date</label>
+                <input type="date" id="f-buyer-followup">
               </div>
             </div>
           </div>
@@ -1467,7 +1490,30 @@ function onPhoneInput(val){
 function checkDupDNC(){
   const p = norm(document.getElementById('f-phone').value||'');
   document.getElementById('dnc-warn').style.display = (p&&dncSet.has(p))?'block':'none';
-  document.getElementById('dup-warn').style.display = (p&&!dncSet.has(p)&&logs.some(l=>norm(l.phone||'')==p))?'block':'none';
+  if(p && !dncSet.has(p)){
+    const name = (document.getElementById('f-name')?.value||'').trim().toLowerCase();
+    const locality = (document.getElementById('f-locality')?.value||'').trim().toLowerCase();
+    const budget = (document.getElementById('f-budget')?.value||document.getElementById('f-budget-min')?.value||'').trim().toLowerCase();
+    const propType = (document.getElementById('f-prop-type')?.value||'').trim().toLowerCase();
+    const isDup = logs.some(l=>{
+      if(norm(l.phone||'')!==p) return false;
+      let matches=1; // phone matched = 1
+      if(name && (l.name||'').toLowerCase()===name) matches++;
+      if(locality && (l.locality||'').toLowerCase()===locality) matches++;
+      if(budget && ((l.budget||l.budgetMin||'').toLowerCase()===budget)) matches++;
+      if(propType && (l.propType||'').toLowerCase()===propType) matches++;
+      return matches>=3;
+    });
+    document.getElementById('dup-warn').style.display = isDup?'block':'none';
+  } else if(!p){
+    document.getElementById('dup-warn').style.display='none';
+  }
+}
+
+function toggleFollowupDate(selectId, wrapId){
+  const val = document.getElementById(selectId)?.value;
+  const wrap = document.getElementById(wrapId);
+  if(wrap) wrap.style.display = val==='Schedule Callback'?'block':'none';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1660,8 +1706,9 @@ function saveCall(){
       plotArea:    (document.getElementById('f-plot-area')?.value||document.getElementById('f-plot-total')?.value||'').trim(),
       dimensions:  (document.getElementById('f-dimensions')?.value||'').trim(),
       frontage:    (document.getElementById('f-frontage')?.value||'').trim(),
-      orientation: document.getElementById('f-orientation')?.value||document.getElementById('f-house-orientation')?.value||'',
+      orientation: document.getElementById('f-orientation')?.value||document.getElementById('f-house-orientation')?.value||document.getElementById('f-apt-orientation')?.value||'',
       cornerPlot:  document.getElementById('f-corner')?.value||'',
+      followupDate:(document.getElementById('f-seller-followup')?.value||''),
     });
   }
 
@@ -1680,6 +1727,7 @@ function saveCall(){
       trigger:        document.getElementById('f-trigger')?.value||'',
       shownBefore:    document.getElementById('f-shown-before')?.value||'',
       siteVisit:      document.getElementById('f-site-visit')?.value||'',
+      followupDate:   (document.getElementById('f-buyer-followup')?.value||''),
     });
   }
 
@@ -1718,7 +1766,7 @@ function sinceExport(){ _exportCount++; }
 // ═══════════════════════════════════════════════════════════════
 function resetFormFields(){
   const textIds = ['f-name','f-phone','f-alt-phone','f-locality','f-nbhd','f-location-pin',
-    'f-coowner-name','f-budget','f-notes','f-callback-date',
+    'f-coowner-name','f-budget','f-notes','f-callback-date','f-seller-followup','f-buyer-followup',
     'f-carpet','f-buildup','f-superbuildup','f-parking-apt','f-floor','f-maintenance','f-bhk',
     'f-plot-area','f-house-buildup','f-floors','f-parking-house','f-house-bhk',
     'f-plot-total','f-dimensions','f-frontage','f-comm-carpet','f-comm-floor',
@@ -1727,7 +1775,7 @@ function resetFormFields(){
   textIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
 
   const selIds = ['f-source','f-broker','f-owned-by','f-occupied-by','f-prop-type',
-    'f-intent','f-next-action','f-urgency','f-orientation','f-corner',
+    'f-intent','f-next-action','f-urgency','f-orientation','f-corner','f-apt-orientation','f-house-orientation',
     'f-purpose','f-prop-pref','f-financing','f-living-situation',
     'f-buyer-intent','f-trigger','f-shown-before','f-site-visit','f-buyer-next-action'];
   selIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
@@ -1740,6 +1788,8 @@ function resetFormFields(){
   document.getElementById('cb-date-wrap').style.display='none';
   document.getElementById('dnc-warn').style.display='none';
   document.getElementById('dup-warn').style.display='none';
+  document.getElementById('seller-followup-wrap').style.display='none';
+  document.getElementById('buyer-followup-wrap').style.display='none';
   document.getElementById('match-results').style.display='none';
 
   callerScore=0; setCallerScore(0);
@@ -1841,6 +1891,7 @@ function renderLog(){
           <div class="lc-f"><div class="lc-fl">Financing</div><div class="lc-fv">${H(e.financing||'—')}</div></div>
         `}
         <div class="lc-f"><div class="lc-fl">Next Action</div><div class="lc-fv">${H(e.nextAction||'—')}</div></div>
+        ${e.followupDate?`<div class="lc-f"><div class="lc-fl">📅 Follow-up</div><div class="lc-fv">${H(e.followupDate)}</div></div>`:''}
         <div class="lc-f"><div class="lc-fl">Caller Score</div><div class="lc-fv">${e.callerScore||0}/3</div></div>
         ${e.notes?`<div class="lc-f" style="grid-column:span 2"><div class="lc-fl">Notes</div><div class="lc-fv">${H(e.notes)}</div></div>`:''}
         <div class="lc-acts">
