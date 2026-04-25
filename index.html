@@ -1167,6 +1167,9 @@ body{
             <div id="match-results">
               <div style="font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:8px" id="match-label"></div>
               <div id="match-list"></div>
+              <button id="download-matches-btn" onclick="downloadMatches()" style="display:none;width:100%;height:44px;border-radius:11px;border:1.5px solid var(--blue);background:#5B9BD512;color:var(--blue);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.4px;margin-top:10px">
+                📥 Download Match Report
+              </button>
             </div>
           </div>
         </div>
@@ -1939,6 +1942,9 @@ function resetFormFields(){
   document.getElementById('seller-followup-wrap').style.display='none';
   document.getElementById('buyer-followup-wrap').style.display='none';
   document.getElementById('match-results').style.display='none';
+  const _dlMatch = document.getElementById('download-matches-btn');
+  if(_dlMatch) _dlMatch.style.display='none';
+  _lastMatchData = null;
   const phEl = document.getElementById('f-phone');
   if(phEl) phEl.classList.remove('phone-err');
 
@@ -2375,6 +2381,8 @@ function saveEdit(){
 // ═══════════════════════════════════════════════════════════════
 // BUYER MATCH ENGINE — no longer auto-saves
 // ═══════════════════════════════════════════════════════════════
+let _lastMatchData = null;
+
 async function findMatches(){
   const propPref  = document.getElementById('f-prop-pref')?.value||'';
   const localities= (document.getElementById('f-pref-localities')?.value||'').trim().toLowerCase();
@@ -2410,9 +2418,13 @@ async function findMatches(){
   const lbl = document.getElementById('match-label');
   const lst = document.getElementById('match-list');
 
+  const dlBtn = document.getElementById('download-matches-btn');
+
   if(!scored.length){
     lbl.textContent='No matching sellers found';
     lst.innerHTML='<div style="font-size:12px;color:var(--text3);padding:10px 0">Try broadening locality preference or property type.</div>';
+    if(dlBtn) dlBtn.style.display='none';
+    _lastMatchData = null;
     res.style.display='block'; return;
   }
 
@@ -2432,6 +2444,28 @@ async function findMatches(){
   }).join('');
   res.style.display='block';
 
+  // Stash buyer snapshot + matches for the download report
+  _lastMatchData = {
+    generatedAt: new Date().toISOString(),
+    agent: currentAgent ? `${currentAgent.name} (${currentAgent.code})` : (CONFIG.agentName||''),
+    buyer: {
+      name:        document.getElementById('f-name')?.value || '',
+      phone:       document.getElementById('f-phone')?.value || '',
+      altPhone:    document.getElementById('f-alt-phone')?.value || '',
+      source:      document.getElementById('f-source')?.value || '',
+      propPref,
+      localities:  document.getElementById('f-pref-localities')?.value || '',
+      bhk:         document.getElementById('f-buyer-bhk')?.value || '',
+      budgetMin,
+      budgetMax,
+      intent:      document.getElementById('f-buyer-intent')?.value || '',
+      trigger:     document.getElementById('f-trigger')?.value || '',
+      notes:       document.getElementById('f-notes')?.value || '',
+    },
+    matches: scored.map(({s,pts}) => ({...s, _matchPts: pts, _strong: pts>=3})),
+  };
+  if(dlBtn) dlBtn.style.display='block';
+
   // Audit
   postToSheet({
     action: 'match_query',
@@ -2441,6 +2475,174 @@ async function findMatches(){
     criteria: {propPref, localities, budgetMin, budgetMax},
     resultsCount: scored.length,
   });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DOWNLOAD MATCH REPORT — buyer brief + matched listings (HTML)
+// ═══════════════════════════════════════════════════════════════
+function downloadMatches(){
+  if(!_lastMatchData || !_lastMatchData.matches?.length){
+    showToast('No matches to download','t-gold'); return;
+  }
+  const d = _lastMatchData;
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmt = v => v ? esc(v) : '<span style="color:#aaa">—</span>';
+  const date = new Date(d.generatedAt);
+  const dateStr = date.toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
+
+  const buyerRows = [
+    ['Name',           d.buyer.name],
+    ['Phone',          d.buyer.phone],
+    ['Alt. Phone',     d.buyer.altPhone],
+    ['Source',         d.buyer.source],
+    ['Property Pref.', d.buyer.propPref],
+    ['Localities',     d.buyer.localities],
+    ['BHK',            d.buyer.bhk],
+    ['Budget',         (d.buyer.budgetMin||d.buyer.budgetMax) ? `₹${d.buyer.budgetMin||'?'} – ₹${d.buyer.budgetMax||'?'}` : ''],
+    ['Intent',         d.buyer.intent],
+    ['Trigger',        d.buyer.trigger],
+    ['Notes',          d.buyer.notes],
+  ].filter(([,v]) => v && String(v).trim()).map(([k,v]) =>
+    `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`
+  ).join('');
+
+  const matchCards = d.matches.map((s,i) => {
+    const fields = [
+      ['Owner',          s.name],
+      ['Phone',          s.phone],
+      ['Alt. Phone',     s.altPhone],
+      ['Property Type',  s.propType],
+      ['Locality',       s.locality],
+      ['Neighbourhood',  s.nbhd],
+      ['Asking Price',   s.budget ? `₹${s.budget}` : ''],
+      ['BHK',            s.bhk],
+      ['Carpet Area',    s.carpetArea],
+      ['Built-up Area',  s.builtupArea],
+      ['Super Built-up', s.superBuiltup],
+      ['Plot Area',      s.plotArea],
+      ['Dimensions',     s.dimensions],
+      ['Frontage',       s.frontage],
+      ['Road Width',     s.roadWidth],
+      ['Floor',          s.floor],
+      ['Parking',        s.parking],
+      ['Maintenance',    s.maintenance],
+      ['Owned By',       s.ownedBy],
+      ['Co-Owner',       s.coOwnerName],
+      ['Occupied By',    s.occupiedBy],
+      ['Location Pin',   s.locationPin],
+      ['Source',         s.source],
+      ['Broker',         s.broker],
+      ['Logged On',      s.date],
+      ['Notes',          s.notes],
+    ].filter(([,v]) => v && String(v).trim());
+
+    const rows = fields.map(([k,v]) => {
+      let val = esc(v);
+      if(k==='Phone' && v) val = `<a href="tel:${esc(v)}">${val}</a>`;
+      if(k==='Location Pin' && /^https?:/i.test(v)) val = `<a href="${esc(v)}" target="_blank">Open map</a>`;
+      return `<tr><th>${esc(k)}</th><td>${val}</td></tr>`;
+    }).join('');
+
+    const tierColor = s.tier==='HOT' ? '#22c55e' : s.tier==='WARM' ? '#C9A84C' : s.tier==='COLD' ? '#fb923c' : '#ef4444';
+    return `
+      <section class="listing ${s._strong?'strong':'partial'}">
+        <header>
+          <div class="ltag ${s._strong?'sg':'pt'}">${s._strong?'✦ STRONG MATCH':'◆ PARTIAL MATCH'}</div>
+          <h2>${i+1}. ${esc(s.propType||'Property')} — ${esc(s.locality||'Unknown locality')}</h2>
+          <div class="lmeta">
+            ${s.tier ? `<span class="tier" style="background:${tierColor}">${esc(s.tier)} · ${s.score||0}/10</span>` : ''}
+            ${s.budget ? `<span class="price">₹${esc(s.budget)}</span>` : ''}
+          </div>
+        </header>
+        <table>${rows}</table>
+      </section>`;
+  }).join('');
+
+  const filenameSlug = (d.buyer.name || d.buyer.phone || 'buyer')
+    .toString().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40) || 'buyer';
+  const filename = `axivia-matches-${filenameSlug}-${todayStr()}.html`;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Axivia · Match Report — ${esc(d.buyer.name||d.buyer.phone||'Buyer')}</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#f5f5f7;color:#0A0A0F;margin:0;padding:24px;line-height:1.5}
+.wrap{max-width:880px;margin:0 auto}
+.hdr{background:linear-gradient(135deg,#0A0A0F,#1a1a25);color:#fff;border-radius:14px;padding:22px 26px;margin-bottom:18px}
+.hdr .brand{font-size:11px;letter-spacing:3px;color:#C9A84C;font-weight:700;text-transform:uppercase}
+.hdr h1{margin:6px 0 4px;font-size:22px;font-weight:800;letter-spacing:-.3px}
+.hdr .sub{font-size:13px;color:#aaa}
+.card{background:#fff;border-radius:12px;padding:18px 22px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.card h3{margin:0 0 12px;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:#666;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:7px 10px;vertical-align:top;border-bottom:1px solid #eee}
+th{font-weight:600;color:#555;width:38%;background:#fafafa}
+td{color:#1a1a25}
+td a{color:#5B9BD5;text-decoration:none;font-weight:600}
+td a:hover{text-decoration:underline}
+.summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.summary .pill{background:#0A0A0F;color:#fff;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px}
+.summary .pill.gold{background:#C9A84C;color:#0A0A0F}
+.summary .pill.blue{background:#5B9BD5}
+.listing{background:#fff;border-radius:12px;margin-bottom:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:4px solid transparent}
+.listing.strong{border-left-color:#22c55e}
+.listing.partial{border-left-color:#C9A84C}
+.listing header{padding:16px 22px 12px;border-bottom:1px solid #eee}
+.listing h2{margin:6px 0 0;font-size:17px;font-weight:800;letter-spacing:-.2px}
+.ltag{font-size:10px;letter-spacing:1.5px;font-weight:800}
+.ltag.sg{color:#22c55e}
+.ltag.pt{color:#C9A84C}
+.lmeta{margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tier{color:#fff;padding:3px 10px;border-radius:14px;font-size:10.5px;font-weight:800;letter-spacing:.4px}
+.price{color:#C9A84C;font-weight:800;font-size:14px}
+.listing table{padding:0}
+.listing table th,.listing table td{padding:8px 22px}
+.listing table th{background:transparent;border-bottom:1px solid #f1f1f1}
+.listing table td{border-bottom:1px solid #f1f1f1}
+.foot{text-align:center;color:#999;font-size:11px;padding:16px;letter-spacing:.4px}
+@media print{
+  body{background:#fff;padding:0}
+  .listing,.card,.hdr{box-shadow:none;border:1px solid #ddd}
+  .listing{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="brand">AXIVIA · Match Report</div>
+    <h1>${esc(d.buyer.name||'Buyer')}${d.buyer.phone?` · ${esc(d.buyer.phone)}`:''}</h1>
+    <div class="sub">Generated ${esc(dateStr)}${d.agent?` by ${esc(d.agent)}`:''}</div>
+    <div class="summary">
+      <span class="pill gold">${d.matches.length} listing${d.matches.length>1?'s':''}</span>
+      <span class="pill">${d.matches.filter(m=>m._strong).length} Strong</span>
+      <span class="pill blue">${d.matches.filter(m=>!m._strong).length} Partial</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Buyer Brief</h3>
+    <table>${buyerRows || '<tr><td>No buyer details captured.</td></tr>'}</table>
+  </div>
+
+  <h3 style="margin:18px 6px 10px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#666;font-weight:800">Matched Listings</h3>
+  ${matchCards}
+
+  <div class="foot">Axivia · Confidential · For internal use only</div>
+</div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+  showToast(`Report downloaded · ${d.matches.length} listing${d.matches.length>1?'s':''}`,'t-blue');
 }
 
 // ═══════════════════════════════════════════════════════════════
