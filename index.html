@@ -22,6 +22,7 @@
 @keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulseGlow{0%,100%{box-shadow:0 0 8px rgba(212,175,85,.15)}50%{box-shadow:0 0 24px rgba(212,175,85,.35)}}
 @keyframes floatOrb{0%,100%{transform:translate(-50%,-55%) scale(1)}50%{transform:translate(-50%,-65%) scale(1.08)}}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.5}}
 html{height:100%}
 body{
   height:100%;background:#0A0A0F;color:#E8E3DA;
@@ -156,6 +157,18 @@ body{
 .sheet-ok{color:var(--green);border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.08)}
 .sheet-warn{color:var(--gold);border-color:rgba(201,168,76,.2);background:rgba(201,168,76,.08)}
 
+/* ONLINE / OFFLINE DOT */
+.online-dot{
+  width:9px;height:9px;border-radius:50%;
+  background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.6);
+  flex-shrink:0;transition:all .4s ease;
+  animation:pulseDot 2.5s ease-in-out infinite;
+}
+.online-dot.offline{
+  background:var(--text3);box-shadow:0 0 6px rgba(110,110,133,.4);
+  animation:none;
+}
+
 /* MODE BAR */
 #mode-bar{
   height:var(--modebar-h);flex-shrink:0;
@@ -283,6 +296,7 @@ body{
 }
 .field textarea{resize:none;line-height:1.5;min-height:70px}
 .field input::placeholder,.field textarea::placeholder{color:var(--text4)}
+.field input.phone-err{border-color:var(--red)!important;box-shadow:inset 0 1px 3px rgba(0,0,0,.2),0 0 0 3px rgba(239,68,68,.12)!important}
 
 /* SELECT */
 .sel{position:relative}
@@ -348,6 +362,25 @@ body{
   font-weight:700;padding:4px 0 8px;
 }
 
+/* DRAFT BANNER */
+#draft-banner{
+  background:rgba(91,155,213,.08);border:1px solid rgba(91,155,213,.3);
+  border-radius:11px;padding:10px 14px;margin-top:6px;
+  align-items:center;gap:10px;
+}
+#draft-banner .draft-label{flex:1;font-size:12px;color:var(--blue);font-weight:600;line-height:1.4}
+#draft-banner .draft-name{color:var(--text);font-weight:700}
+.draft-btn{
+  height:32px;padding:0 12px;border-radius:8px;border:none;
+  font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;
+  letter-spacing:.4px;text-transform:uppercase;
+}
+.draft-btn-restore{background:var(--blue);color:#fff}
+.draft-btn-discard{background:transparent;color:var(--text3);border:1px solid var(--border2)}
+
+/* DISABLED FIND MATCHES */
+.btn-disabled{opacity:.4!important;cursor:not-allowed!important;filter:grayscale(.4);pointer-events:none}
+
 /* ═══════════════════════════════════════════
    LOG VIEW
 ═══════════════════════════════════════════ */
@@ -384,15 +417,27 @@ body{
 .mode-pill{font-size:9px;font-weight:800;padding:2px 7px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase}
 .seller-pill{background:rgba(201,168,76,.1);color:var(--seller)}
 .buyer-pill{background:rgba(91,155,213,.1);color:var(--buyer)}
+.dnc-pill{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
 .lc-score{font-size:24px;font-weight:900;flex-shrink:0;text-shadow:0 0 12px currentColor}
 .lc-body{display:none;padding:0 13px 12px;border-top:1px solid var(--border)}
 .lc.open .lc-body{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-top:10px}
 .lc-f{background:var(--card2);border-radius:8px;padding:8px 10px}
 .lc-fl{font-size:9px;color:var(--text4);letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px}
 .lc-fv{font-size:12px;color:var(--text2);font-weight:500;word-break:break-word}
-.lc-acts{display:flex;gap:7px;margin-top:8px;grid-column:span 2}
-.lc-ab{flex:1;height:38px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.lc-acts{display:flex;gap:7px;margin-top:8px;grid-column:span 2;flex-wrap:wrap}
+.lc-ab{flex:1;min-width:80px;height:38px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
 .lc-ab.del{color:var(--red);border-color:#ef444430}
+.lc-ab.undnc{color:var(--orange);border-color:#f9731640}
+
+/* LOAD MORE */
+.load-more-btn{
+  width:100%;height:46px;border-radius:11px;
+  border:1.5px solid var(--border2);background:var(--card);color:var(--text2);
+  font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+  margin-top:6px;transition:all .2s;letter-spacing:.4px;
+}
+.load-more-btn:active{background:var(--card2);transform:scale(.99)}
+.log-count{font-size:11px;color:var(--text4);text-align:center;padding:8px 0 4px;font-weight:600;letter-spacing:.4px}
 
 /* CALLBACKS BANNER */
 .cb-banner{background:#5B9BD510;border:1px solid #5B9BD530;border-radius:10px;padding:10px 12px;margin-bottom:11px;display:none}
@@ -439,6 +484,8 @@ body{
 .m-primary{background:linear-gradient(135deg,#C9A84C,#DDB85A);color:#0A0A0F;box-shadow:0 4px 16px rgba(201,168,76,.25)}
 .m-primary:active{transform:scale(.97)}
 .m-secondary{background:var(--card2);color:var(--text2);border:1px solid var(--border)}
+.m-danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 4px 16px rgba(239,68,68,.3)}
+.m-danger:active{transform:scale(.97)}
 
 /* TOAST */
 #toasts{
@@ -504,6 +551,7 @@ body{
       </div>
     </div>
     <div class="hdr-right">
+      <div class="online-dot" id="online-dot" title="Online"></div>
       <div class="hdr-pill" id="agent-pill" onclick="openSetup()">Agent ▾</div>
       <div class="hdr-pill sheet-warn" id="sheet-badge" onclick="openSetup()">⚠ Sheet</div>
     </div>
@@ -542,6 +590,14 @@ body{
         <span style="font-size:14px">✓</span>
         <span id="last-saved-text" style="font-size:12px;color:var(--green);font-weight:600;flex:1"></span>
         <span id="last-saved-tier" style="font-size:11px;font-weight:800"></span>
+      </div>
+
+      <!-- DRAFT RESTORE BANNER -->
+      <div id="draft-banner" style="display:none">
+        <span style="font-size:18px">📝</span>
+        <div class="draft-label">Unsaved entry from earlier — <span class="draft-name" id="draft-name"></span></div>
+        <button class="draft-btn draft-btn-restore" onclick="restoreDraft()">Restore</button>
+        <button class="draft-btn draft-btn-discard" onclick="discardDraft()">Discard</button>
       </div>
 
       <!-- CALLBACKS DUE BANNER -->
@@ -589,7 +645,7 @@ body{
             <div class="phone-row">
               <div class="field" style="margin-bottom:0">
                 <input type="tel" id="f-phone" inputmode="tel" placeholder="+91 9XXXXXXXXX"
-                  oninput="onPhoneInput(this.value)">
+                  oninput="onPhoneInput(this.value)" onblur="blurPhone()">
               </div>
               <a id="dial-btn" class="icon-btn" title="Call">📞</a>
               <a id="wa-btn" class="icon-btn" target="_blank" title="WhatsApp">💬</a>
@@ -1102,11 +1158,12 @@ body{
           </div>
           <div class="card-body">
             <div style="font-size:12px;color:var(--text3);margin-bottom:11px;line-height:1.6">
-              Fill in the buyer's property preference, locality, and budget range above — then tap <strong style="color:var(--text)">Find Matches</strong> to surface relevant listings from the seller database while still on the call.
+              Fill in the buyer's <strong style="color:var(--text)">Property Preference</strong>, <strong style="color:var(--text)">Localities</strong>, and <strong style="color:var(--text)">Budget</strong> above — then tap <strong style="color:var(--text)">Find Matches</strong> to surface relevant listings.
             </div>
-            <button onclick="findMatches()" style="width:100%;height:50px;border-radius:12px;border:1.5px solid var(--green);background:#22c55e12;color:var(--green);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.5px">
+            <button id="find-matches-btn" onclick="findMatches()" class="btn-disabled" disabled style="width:100%;height:50px;border-radius:12px;border:1.5px solid var(--green);background:#22c55e12;color:var(--green);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.5px">
               🔍 Find Matching Sellers
             </button>
+            <div id="match-hint" style="font-size:10px;color:var(--text4);text-align:center;margin-top:6px;letter-spacing:.4px">Fill required fields to enable</div>
             <div id="match-results">
               <div style="font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:8px" id="match-label"></div>
               <div id="match-list"></div>
@@ -1143,17 +1200,11 @@ body{
         <div class="card-head">
           <div class="c-dot" style="background:var(--text3)"></div>
           <div class="c-title">Call Notes</div>
-          <div style="margin-left:auto;display:flex;align-items:center;gap:7px">
-            <span id="timer-disp" style="font-size:13px;font-weight:700;color:var(--text2);font-family:monospace">00:00</span>
-            <button id="timer-btn" onclick="timerToggle()" style="background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:13px;color:var(--text2);cursor:pointer;font-family:inherit">▶</button>
-            <button onclick="timerReset()" style="background:transparent;border:none;font-size:14px;color:var(--text3);cursor:pointer">↺</button>
-          </div>
         </div>
         <div class="card-body">
           <div class="field">
             <textarea id="f-notes" rows="3" placeholder="Key observations, objections, next steps…"></textarea>
           </div>
-
         </div>
       </div>
 
@@ -1163,10 +1214,10 @@ body{
     <div class="view" id="log-view">
       <div class="log-bar">
         <div class="log-title">📋 Call Log</div>
-        <button class="log-action-btn" onclick="exportCSV()">⬇ CSV</button>
+        <button class="log-action-btn" id="csv-btn" onclick="exportCSV()">⬇ CSV</button>
         <button class="log-action-btn" style="color:var(--red);border-color:#ef444430" onclick="clearLogs()">🗑</button>
       </div>
-      <input class="log-search" id="log-search" placeholder="Search name, phone, locality…" oninput="renderLog()">
+      <input class="log-search" id="log-search" placeholder="Search name, phone, locality…" oninput="logShown=LOG_PAGE;renderLog()">
       <div class="filters" id="filters"></div>
       <div class="cb-banner" id="cb-banner">
         <div style="font-size:11px;font-weight:800;color:var(--blue);margin-bottom:6px">📅 Callbacks Due Today</div>
@@ -1189,7 +1240,6 @@ body{
     <button id="save-btn" onclick="saveCall()">
       <span id="save-label">Save &amp; Next Call</span>
     </button>
-
   </div>
 
   <!-- BOTTOM NAV -->
@@ -1216,8 +1266,8 @@ body{
     <div class="sheet-handle"></div>
     <div class="sheet-title">⚙ Settings</div>
     <div class="field"><label>Your Name</label><input type="text" id="setup-name" placeholder="e.g. Avi Paliwal"></div>
-    <div class="field" style="margin-top:9px"><label>Apps Script URL</label>
-      <input type="url" id="setup-url" placeholder="https://script.google.com/macros/s/…" style="font-size:13px">
+    <div style="font-size:11px;color:var(--text4);margin-top:12px;line-height:1.5;padding:8px 10px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.15);border-radius:8px">
+      ✓ Sheet connection is locked &amp; managed centrally.
     </div>
     <div class="m-actions">
       <button class="m-btn m-secondary" onclick="closeOverlay('setup-modal')">Cancel</button>
@@ -1239,10 +1289,22 @@ body{
   </div>
 </div>
 
+<!-- CONFIRM MODAL -->
+<div class="overlay" id="confirm-modal" onclick="closeOverlay('confirm-modal',event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="confirm-title">Confirm</div>
+    <div id="confirm-body" style="font-size:13px;color:var(--text2);margin-bottom:6px;line-height:1.6"></div>
+    <div class="m-actions">
+      <button class="m-btn m-secondary" onclick="closeOverlay('confirm-modal')">Cancel</button>
+      <button class="m-btn m-danger" id="confirm-ok" onclick="doConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════════════════
 // EMPLOYEE CODES — edit this object to add / remove employees
-// Format: "CODE": "Employee Name"
 // ═══════════════════════════════════════════════════════════════
 const EMPLOYEE_CODES = {
   "0001": "JAGDEEP",
@@ -1251,7 +1313,7 @@ const EMPLOYEE_CODES = {
 };
 
 // ═══════════════════════════════════════════════════════════════
-// SHEET
+// SHEET — hardcoded; not editable from Settings UI
 // ═══════════════════════════════════════════════════════════════
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbyTCE3s4OByrsZjpH3Sm9sW7IRyUL8wwi3MtGuBtUqcgcNzlpfNHQBTbd1S36zgGzycXA/exec";
 
@@ -1259,29 +1321,29 @@ const SHEET_URL = "https://script.google.com/macros/s/AKfycbyTCE3s4OByrsZjpH3Sm9
 // SCORING GROUPS
 // ═══════════════════════════════════════════════════════════════
 const SELLER_GROUPS = [
-  { key:"isOwner",      n:1,  label:"Confirmed owner",           rule:"Owner or Co-Owner selected" },
-  { key:"hasPropType",  n:2,  label:"Property type established", rule:"Any property type selected" },
-  { key:"hasIntent",    n:3,  label:"Active sell intent",        rule:"Sell / Rent Out confirmed" },
-  { key:"hasBudget",    n:4,  label:"Asking price stated",       rule:"Any figure entered" },
-  { key:"hasLocationPin",n:5, label:"Location pin provided",     rule:"Google Maps link pasted" },
-  { key:"hasSource",    n:6,  label:"Lead source identified",    rule:"Source field set" },
-  { key:"hasNextAction",n:7,  label:"Follow-up agreed",          rule:"Next action set (not No Action)" },
-  { key:"callerQ1",     n:8,  label:"Caller quality — pt 1",     rule:"Caller score ≥ 1" },
-  { key:"callerQ2",     n:9,  label:"Caller quality — pt 2",     rule:"Caller score ≥ 2" },
-  { key:"callerQ3",     n:10, label:"Caller quality — pt 3",     rule:"Caller score = 3" },
+  { key:"isOwner",       n:1,  label:"Confirmed owner" },
+  { key:"hasPropType",   n:2,  label:"Property type established" },
+  { key:"hasIntent",     n:3,  label:"Active sell intent" },
+  { key:"hasBudget",     n:4,  label:"Asking price stated" },
+  { key:"hasLocationPin",n:5,  label:"Location pin provided" },
+  { key:"hasSource",     n:6,  label:"Lead source identified" },
+  { key:"hasNextAction", n:7,  label:"Follow-up agreed" },
+  { key:"callerQ1",      n:8,  label:"Caller quality — pt 1" },
+  { key:"callerQ2",      n:9,  label:"Caller quality — pt 2" },
+  { key:"callerQ3",      n:10, label:"Caller quality — pt 3" },
 ];
 
 const BUYER_GROUPS = [
-  { key:"hasPurpose",   n:1,  label:"Purchase purpose confirmed",rule:"Purpose field set" },
-  { key:"hasPropPref",  n:2,  label:"Property type preference",  rule:"Property preference selected" },
-  { key:"hasIntent",    n:3,  label:"Active buy intent",         rule:"Buy / Invest confirmed" },
-  { key:"hasBudget",    n:4,  label:"Budget range stated",       rule:"Both min and max entered" },
-  { key:"hasFinancing", n:5,  label:"Financing arranged",        rule:"Pre-approved or Self/Cash" },
-  { key:"hasLocalities",n:6,  label:"Locality preference stated",rule:"At least one locality entered" },
-  { key:"hasNextAction",n:7,  label:"Follow-up agreed",          rule:"Next action set (not No Action)" },
-  { key:"callerQ1",     n:8,  label:"Caller quality — pt 1",     rule:"Caller score ≥ 1" },
-  { key:"callerQ2",     n:9,  label:"Caller quality — pt 2",     rule:"Caller score ≥ 2" },
-  { key:"callerQ3",     n:10, label:"Caller quality — pt 3",     rule:"Caller score = 3" },
+  { key:"hasPurpose",    n:1,  label:"Purchase purpose confirmed" },
+  { key:"hasPropPref",   n:2,  label:"Property type preference" },
+  { key:"hasIntent",     n:3,  label:"Active buy intent" },
+  { key:"hasBudget",     n:4,  label:"Budget range stated" },
+  { key:"hasFinancing",  n:5,  label:"Financing arranged" },
+  { key:"hasLocalities", n:6,  label:"Locality preference stated" },
+  { key:"hasNextAction", n:7,  label:"Follow-up agreed" },
+  { key:"callerQ1",      n:8,  label:"Caller quality — pt 1" },
+  { key:"callerQ2",      n:9,  label:"Caller quality — pt 2" },
+  { key:"callerQ3",      n:10, label:"Caller quality — pt 3" },
 ];
 
 const STATUSES = [
@@ -1308,12 +1370,21 @@ let editIdx = null;
 let logFilter = "ALL";
 let agentFilter = "ALL";
 let activeView = "form";
-let timerInterval = null, timerSec = 0, timerRunning = false;
 let inactivityTimer = null;
+
+// Pagination + filtered cache
+const LOG_PAGE = 50;
+let logShown   = LOG_PAGE;
+let _filteredLogs = [];
+
+// Confirm + draft
+let _confirmCallback = null;
+let _draftTimer      = null;
 
 const LS_LOGS   = "axivia_logs_v5";
 const LS_DNC    = "axivia_dnc_v1";
 const LS_CONFIG = "axivia_config_v1";
+const LS_DRAFT  = "axivia_draft_v1";
 
 let CONFIG = { agentName: "", sheetUrl: SHEET_URL };
 
@@ -1321,7 +1392,14 @@ let CONFIG = { agentName: "", sheetUrl: SHEET_URL };
 // HELPERS
 // ═══════════════════════════════════════════════════════════════
 function H(s){ return String(s||'').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function norm(p){ return p.replace(/[\s\-().+]/g,""); }
+function norm(p){ return String(p||'').replace(/[\s\-().+]/g,""); }
+function stripPhone(v){ return String(v||'').replace(/^\+?91[\s\-]*/,'').replace(/[\s\-().]/g,''); }
+function sanitize(s){
+  s = String(s||'');
+  s = s.replace(/[<>]/g,'');               // strip HTML tags
+  if(/^[=+\-@]/.test(s)) s = "'" + s;       // formula-injection guard for sheets
+  return s.trim();
+}
 function tierInfo(s){
   if(s>=8) return{color:"#22c55e",tier:"HOT",label:"HOT 🔥"};
   if(s>=5) return{color:"#C9A84C",tier:"WARM",label:"WARM"};
@@ -1347,6 +1425,7 @@ function attemptLogin(){
     showToast(`Welcome, ${name}`,'t-gold');
     requestNotifPermission();
     checkCallbacksInApp();
+    checkDraft();
   } else {
     const err = document.getElementById('auth-error');
     err.textContent = 'Incorrect employee code. Try again.';
@@ -1371,30 +1450,25 @@ function resetInactivity(){
   inactivityTimer = setTimeout(lockApp, 15 * 60 * 1000); // 15 min
 }
 
-// Enter key on auth — handled by input addEventListener only
-
 // ═══════════════════════════════════════════════════════════════
-// CONFIG
+// CONFIG (Sheet URL hardcoded; only agent name editable)
 // ═══════════════════════════════════════════════════════════════
 function loadConfig(){
   try{
     const r = localStorage.getItem(LS_CONFIG);
-    if(r){ const s=JSON.parse(r); CONFIG.agentName=s.agentName||""; if(s.sheetUrl) CONFIG.sheetUrl=s.sheetUrl; }
+    if(r){ const s=JSON.parse(r); CONFIG.agentName=s.agentName||""; }
   }catch(e){}
+  CONFIG.sheetUrl = SHEET_URL;
 }
-function saveConfig(){ try{localStorage.setItem(LS_CONFIG,JSON.stringify(CONFIG));}catch(e){} }
+function saveConfig(){ try{localStorage.setItem(LS_CONFIG,JSON.stringify({agentName:CONFIG.agentName}));}catch(e){} }
 function openSetup(){
   document.getElementById('setup-name').value = CONFIG.agentName||'';
-  document.getElementById('setup-url').value  = CONFIG.sheetUrl||'';
   openOverlay('setup-modal');
 }
 function saveSetup(){
-  CONFIG.agentName = document.getElementById('setup-name').value.trim();
-  const url = document.getElementById('setup-url').value.trim();
-  if(url) CONFIG.sheetUrl = url;
+  CONFIG.agentName = sanitize(document.getElementById('setup-name').value);
   saveConfig();
   updateAgentPill();
-  updateSheetBadge();
   closeOverlay('setup-modal');
   showToast('Settings saved','t-green');
 }
@@ -1404,10 +1478,26 @@ function updateAgentPill(){
 }
 function updateSheetBadge(){
   const el = document.getElementById('sheet-badge');
-  if(CONFIG.sheetUrl && CONFIG.sheetUrl.includes('script.google.com')){
+  if(!el) return;
+  if(SHEET_URL && SHEET_URL.includes('script.google.com')){
     el.className='hdr-pill sheet-ok'; el.textContent='✓ Sheet';
   } else {
     el.className='hdr-pill sheet-warn'; el.textContent='⚠ Sheet';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ONLINE / OFFLINE INDICATOR
+// ═══════════════════════════════════════════════════════════════
+function updateOnlineDot(){
+  const dot = document.getElementById('online-dot');
+  if(!dot) return;
+  if(navigator.onLine){
+    dot.classList.remove('offline');
+    dot.title = 'Online — entries sync to sheet';
+  } else {
+    dot.classList.add('offline');
+    dot.title = 'Offline — entries save locally only';
   }
 }
 
@@ -1418,6 +1508,23 @@ function openOverlay(id){ document.getElementById(id).classList.add('open'); }
 function closeOverlay(id,e){
   if(!e||e.target===document.getElementById(id))
     document.getElementById(id).classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CUSTOM CONFIRM MODAL
+// ═══════════════════════════════════════════════════════════════
+function showConfirm(title, body, onConfirm, okLabel){
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-body').textContent  = body;
+  document.getElementById('confirm-ok').textContent    = okLabel || 'Confirm';
+  _confirmCallback = onConfirm;
+  openOverlay('confirm-modal');
+}
+function doConfirm(){
+  closeOverlay('confirm-modal');
+  const cb = _confirmCallback;
+  _confirmCallback = null;
+  if(typeof cb === 'function') setTimeout(cb, 100);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1458,7 +1565,7 @@ function switchView(v){
   document.getElementById('score-bar').style.display = v==='form'?'flex':'none';
   document.getElementById('save-wrap').style.display  = v==='form'?'block':'none';
   document.getElementById('page-scroll').scrollTop = 0;
-  if(v==='log'){ renderLog(); renderCallbacks(); }
+  if(v==='log'){ logShown=LOG_PAGE; renderLog(); renderCallbacks(); }
   if(v==='analytics') renderAnalytics();
 }
 
@@ -1478,6 +1585,7 @@ function setStatus(v){
   activeStatus=v;
   buildChips();
   document.getElementById('cb-date-wrap').style.display = v==='Callback'?'block':'none';
+  scheduleDraftSave();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1487,6 +1595,25 @@ function onPhoneInput(val){
   const d=val.replace(/\D/g,'');
   document.getElementById('dial-btn').href = d?`tel:${val}`:'#';
   document.getElementById('wa-btn').href   = d?`https://wa.me/${d}`:'#';
+  document.getElementById('f-phone').classList.remove('phone-err');
+  checkDupDNC();
+}
+function blurPhone(){
+  const el = document.getElementById('f-phone');
+  if(!el) return;
+  const raw = (el.value||'').trim();
+  if(!raw) return;
+  const cleaned = stripPhone(raw);
+  // Only auto-replace if cleaned form differs (preserves user formatting attempts otherwise)
+  if(cleaned && cleaned !== raw){
+    el.value = cleaned;
+  }
+  // Highlight if non-10-digit (allow 10–13 digit international too, but standard is 10)
+  if(cleaned && !/^\d{10}$/.test(cleaned)){
+    el.classList.add('phone-err');
+  } else {
+    el.classList.remove('phone-err');
+  }
   checkDupDNC();
 }
 function checkDupDNC(){
@@ -1505,7 +1632,7 @@ function checkDupDNC(){
 
   // 2 — Async sheet check (historical data across all days)
   dupEl.style.display = 'none';
-  if (p.length < 8) return; // wait until number is long enough
+  if (p.length < 8) return;
   clearTimeout(window._dupTimer);
   window._dupTimer = setTimeout(() => {
     fetch(`${SHEET_URL}?action=checkPhone&phone=${encodeURIComponent(p)}`)
@@ -1519,8 +1646,8 @@ function checkDupDNC(){
           dupEl.style.display = 'block';
         }
       })
-      .catch(() => {}); // sheet unreachable — fail silently
-  }, 700); // debounce: fires 700ms after user stops typing
+      .catch(() => {});
+  }, 700);
 }
 
 function toggleFollowupDate(selectId, wrapId){
@@ -1543,7 +1670,6 @@ function onOwnershipChange(){
 // ═══════════════════════════════════════════════════════════════
 function onPropTypeChange(){
   const v = document.getElementById('f-prop-type').value;
-  // hide all
   ['pf-apartment','pf-house','pf-plot','pf-commercial','pf-other'].forEach(id=>{
     document.getElementById(id).classList.remove('show');
   });
@@ -1564,6 +1690,7 @@ function setCallerScore(v){
     b.classList.toggle('on', parseInt(b.dataset.v)===v);
   });
   autoScore();
+  scheduleDraftSave();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1619,53 +1746,62 @@ function autoScore(){
   document.getElementById('sb-fill').style.background = ti.color;
   document.getElementById('sb-tier').textContent = ti.label;
   document.getElementById('sb-tier').style.color = ti.color;
+
+  updateMatchBtnState();
 }
 
 // ═══════════════════════════════════════════════════════════════
-// TIMER
+// FIND MATCHES — disable until required fields populated
 // ═══════════════════════════════════════════════════════════════
-function timerToggle(){
-  if(timerRunning){
-    clearInterval(timerInterval); timerRunning=false;
-    document.getElementById('timer-btn').textContent='▶';
-    document.getElementById('f-duration').value=(timerSec/60).toFixed(1);
-  } else {
-    const start=Date.now()-timerSec*1000;
-    timerInterval=setInterval(()=>{ timerSec=Math.floor((Date.now()-start)/1000); updateTimerDisp(); },500);
-    timerRunning=true;
-    document.getElementById('timer-btn').textContent='⏹';
-  }
-}
-function timerReset(){
-  clearInterval(timerInterval); timerRunning=false; timerSec=0;
-  document.getElementById('timer-btn').textContent='▶';
-  updateTimerDisp();
-}
-function updateTimerDisp(){
-  const m=Math.floor(timerSec/60).toString().padStart(2,'0');
-  const s=(timerSec%60).toString().padStart(2,'0');
-  document.getElementById('timer-disp').textContent=`${m}:${s}`;
+function updateMatchBtnState(){
+  const btn = document.getElementById('find-matches-btn');
+  const hint= document.getElementById('match-hint');
+  if(!btn) return;
+  const propPref   = document.getElementById('f-prop-pref')?.value||'';
+  const budgetMin  = (document.getElementById('f-budget-min')?.value||'').trim();
+  const budgetMax  = (document.getElementById('f-budget-max')?.value||'').trim();
+  const localities = (document.getElementById('f-pref-localities')?.value||'').trim();
+  const ready = !!(propPref && (budgetMin || budgetMax) && localities);
+  btn.disabled = !ready;
+  btn.classList.toggle('btn-disabled', !ready);
+  if(hint) hint.style.display = ready ? 'none' : 'block';
 }
 
 // ═══════════════════════════════════════════════════════════════
 // SHEET SYNC
 // ═══════════════════════════════════════════════════════════════
 async function postToSheet(entry){
-  const url = CONFIG.sheetUrl||SHEET_URL;
+  const url = SHEET_URL;
   if(!url){ showToast('⚠ No sheet linked','t-gold'); return; }
   try{
     await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(entry)});
-    showToast(`✓ Synced — ${entry.name||'Lead'} · ${entry.score}/10 · ${entry.tier}`,'t-green');
+    if(navigator.onLine){
+      showToast(`✓ Synced — ${entry.name||'Lead'} · ${entry.score||0}/10 · ${entry.tier||''}`,'t-green');
+    } else {
+      showToast('⚠ Saved locally — will not sync until online','t-gold');
+    }
   }catch(e){ showToast('✗ Sheet sync failed','t-red'); }
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SAVE CALL
+// SAVE CALL — with phone validation + sanitization
 // ═══════════════════════════════════════════════════════════════
 function saveCall(){
-  const name  = (document.getElementById('f-name')?.value||'').trim();
-  const phone = (document.getElementById('f-phone')?.value||'').trim();
-  if(!name&&!phone){ showToast('Enter name or phone to save','t-gold'); return; }
+  const nameRaw  = document.getElementById('f-name')?.value||'';
+  const phoneRaw = document.getElementById('f-phone')?.value||'';
+  const name     = sanitize(nameRaw);
+  const phoneEl  = document.getElementById('f-phone');
+  const phone    = phoneRaw ? stripPhone(phoneRaw) : '';
+
+  if(!name && !phone){ showToast('Enter name or phone to save','t-gold'); return; }
+
+  // Phone validation — must be 10 digits if entered
+  if(phone && !/^\d{10}$/.test(phone)){
+    if(phoneEl){ phoneEl.classList.add('phone-err'); phoneEl.focus(); }
+    showToast('Phone must be 10 digits','t-red');
+    return;
+  }
+  if(phoneEl) phoneEl.classList.remove('phone-err');
 
   const groups = currentGroups();
   const score  = groups.filter(g=>chk[g.key]).length;
@@ -1681,17 +1817,17 @@ function saveCall(){
     time:   now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
     agent:  currentAgent ? `${currentAgent.name} (${currentAgent.code})` : CONFIG.agentName,
     status: activeStatus,
-    name, phone,
-    altPhone:     (document.getElementById('f-alt-phone')?.value||'').trim(),
-    locality:     (document.getElementById('f-locality')?.value||'').trim(),
-    nbhd:         (document.getElementById('f-nbhd')?.value||'').trim(),
+    name,
+    phone,
+    altPhone:     sanitize(document.getElementById('f-alt-phone')?.value||''),
+    locality:     sanitize(document.getElementById('f-locality')?.value||''),
+    nbhd:         sanitize(document.getElementById('f-nbhd')?.value||''),
     source:       document.getElementById('f-source')?.value||'',
     broker:       document.getElementById('f-broker')?.value||'',
     nextAction:   mode==='SELLER'?(document.getElementById('f-next-action')?.value||''):(document.getElementById('f-buyer-next-action')?.value||''),
     callerScore,
     callbackDate: document.getElementById('f-callback-date')?.value||'',
-    duration: (timerSec/60).toFixed(1),
-    notes:        (document.getElementById('f-notes')?.value||'').trim(),
+    notes:        sanitize(document.getElementById('f-notes')?.value||''),
     score, tier: ti.tier,
     dnc: activeStatus==='DNC',
     chk: {...chk}
@@ -1701,27 +1837,27 @@ function saveCall(){
   if(mode==='SELLER'){
     Object.assign(base,{
       ownedBy:     document.getElementById('f-owned-by')?.value||'',
-      coOwnerName: (document.getElementById('f-coowner-name')?.value||'').trim(),
+      coOwnerName: sanitize(document.getElementById('f-coowner-name')?.value||''),
       occupiedBy:  document.getElementById('f-occupied-by')?.value||'',
       propType:    document.getElementById('f-prop-type')?.value||'',
-      locationPin: (document.getElementById('f-location-pin')?.value||'').trim(),
+      locationPin: sanitize(document.getElementById('f-location-pin')?.value||''),
       intent:      document.getElementById('f-intent')?.value||'',
-      budget:      (document.getElementById('f-budget')?.value||'').trim(),
+      budget:      sanitize(document.getElementById('f-budget')?.value||''),
       urgency:     document.getElementById('f-urgency')?.value||'',
-      // Dynamic spec fields
-      carpetArea:  (document.getElementById('f-carpet')?.value||'').trim(),
-      builtupArea: (document.getElementById('f-buildup')?.value||'').trim(),
-      superBuiltup:(document.getElementById('f-superbuildup')?.value||'').trim(),
-      parking:     (document.getElementById('f-parking-apt')?.value||document.getElementById('f-parking-house')?.value||'').trim(),
-      floor:       (document.getElementById('f-floor')?.value||'').trim(),
-      maintenance: (document.getElementById('f-maintenance')?.value||'').trim(),
-      bhk:         (document.getElementById('f-bhk')?.value||document.getElementById('f-house-bhk')?.value||'').trim(),
-      plotArea:    (document.getElementById('f-plot-area')?.value||document.getElementById('f-plot-total')?.value||'').trim(),
-      dimensions:  (document.getElementById('f-dimensions')?.value||'').trim(),
-      frontage:    (document.getElementById('f-frontage')?.value||'').trim(),
+      carpetArea:  sanitize(document.getElementById('f-carpet')?.value||''),
+      builtupArea: sanitize(document.getElementById('f-buildup')?.value||document.getElementById('f-house-buildup')?.value||''),
+      superBuiltup:sanitize(document.getElementById('f-superbuildup')?.value||''),
+      parking:     sanitize(document.getElementById('f-parking-apt')?.value||document.getElementById('f-parking-house')?.value||''),
+      floor:       sanitize(document.getElementById('f-floor')?.value||document.getElementById('f-floors')?.value||''),
+      maintenance: sanitize(document.getElementById('f-maintenance')?.value||''),
+      bhk:         sanitize(document.getElementById('f-bhk')?.value||document.getElementById('f-house-bhk')?.value||''),
+      plotArea:    sanitize(document.getElementById('f-plot-area')?.value||document.getElementById('f-plot-total')?.value||''),
+      dimensions:  sanitize(document.getElementById('f-dimensions')?.value||''),
+      frontage:    sanitize(document.getElementById('f-frontage')?.value||''),
+      roadWidth:   sanitize(document.getElementById('f-road-width')?.value||''),
       orientation: document.getElementById('f-orientation')?.value||document.getElementById('f-house-orientation')?.value||document.getElementById('f-apt-orientation')?.value||'',
       cornerPlot:  document.getElementById('f-corner')?.value||'',
-      followupDate:(document.getElementById('f-seller-followup')?.value||''),
+      followupDate:document.getElementById('f-seller-followup')?.value||'',
     });
   }
 
@@ -1730,31 +1866,32 @@ function saveCall(){
     Object.assign(base,{
       purpose:        document.getElementById('f-purpose')?.value||'',
       propPref:       document.getElementById('f-prop-pref')?.value||'',
-      buyerBhk:       (document.getElementById('f-buyer-bhk')?.value||'').trim(),
-      prefLocalities: (document.getElementById('f-pref-localities')?.value||'').trim(),
-      budgetMin:      (document.getElementById('f-budget-min')?.value||'').trim(),
-      budgetMax:      (document.getElementById('f-budget-max')?.value||'').trim(),
+      buyerBhk:       sanitize(document.getElementById('f-buyer-bhk')?.value||''),
+      prefLocalities: sanitize(document.getElementById('f-pref-localities')?.value||''),
+      budgetMin:      sanitize(document.getElementById('f-budget-min')?.value||''),
+      budgetMax:      sanitize(document.getElementById('f-budget-max')?.value||''),
       financing:      document.getElementById('f-financing')?.value||'',
       livingSituation:document.getElementById('f-living-situation')?.value||'',
       buyerIntent:    document.getElementById('f-buyer-intent')?.value||'',
       trigger:        document.getElementById('f-trigger')?.value||'',
       shownBefore:    document.getElementById('f-shown-before')?.value||'',
       siteVisit:      document.getElementById('f-site-visit')?.value||'',
-      followupDate:   (document.getElementById('f-buyer-followup')?.value||''),
+      followupDate:   document.getElementById('f-buyer-followup')?.value||'',
     });
   }
 
   if(activeStatus==='DNC'&&phone){ dncSet.add(norm(phone)); saveDNC(); }
   logs.unshift(base);
   persistLogs();
-  sinceExport(); callNo++;
+  callNo++;
   document.getElementById('call-badge').textContent=`Call #${callNo}`;
 
   const btn=document.getElementById('save-btn');
   const lbl=document.getElementById('save-label');
   btn.classList.add('saved'); lbl.textContent='✓ Saved!';
   setTimeout(()=>{ btn.classList.remove('saved'); lbl.textContent='Save & Next Call'; },1400);
-  // Show last saved strip
+
+  // Last saved strip
   const strip=document.getElementById('last-saved-strip');
   const stripText=document.getElementById('last-saved-text');
   const stripTier=document.getElementById('last-saved-tier');
@@ -1767,33 +1904,31 @@ function saveCall(){
   }
 
   postToSheet(base);
-  timerReset();
+  clearDraft();          // saved successfully → discard any draft
   resetFormFields();
 }
 
-let _exportCount = 0;
-function sinceExport(){ _exportCount++; }
-
 // ═══════════════════════════════════════════════════════════════
-// RESET FORM
+// RESET FORM — includes f-road-width fix
 // ═══════════════════════════════════════════════════════════════
 function resetFormFields(){
   const textIds = ['f-name','f-phone','f-alt-phone','f-locality','f-nbhd','f-location-pin',
     'f-coowner-name','f-budget','f-notes','f-callback-date','f-seller-followup','f-buyer-followup',
     'f-carpet','f-buildup','f-superbuildup','f-parking-apt','f-floor','f-maintenance','f-bhk',
     'f-plot-area','f-house-buildup','f-floors','f-parking-house','f-house-bhk',
-    'f-plot-total','f-dimensions','f-frontage','f-comm-carpet','f-comm-floor',
-    'f-comm-building','f-comm-maint','f-other-area','f-other-usage',
+    'f-plot-total','f-dimensions','f-frontage','f-road-width',
+    'f-comm-carpet','f-comm-floor','f-comm-building','f-comm-maint',
+    'f-other-area','f-other-usage',
     'f-buyer-bhk','f-pref-localities','f-budget-min','f-budget-max'];
   textIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
 
   const selIds = ['f-source','f-broker','f-owned-by','f-occupied-by','f-prop-type',
-    'f-intent','f-next-action','f-urgency','f-orientation','f-corner','f-apt-orientation','f-house-orientation',
+    'f-intent','f-next-action','f-urgency','f-orientation','f-corner',
+    'f-apt-orientation','f-house-orientation',
     'f-purpose','f-prop-pref','f-financing','f-living-situation',
     'f-buyer-intent','f-trigger','f-shown-before','f-site-visit','f-buyer-next-action'];
   selIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
 
-  // Reset dynamic fields
   ['pf-apartment','pf-house','pf-plot','pf-commercial','pf-other'].forEach(id=>{
     document.getElementById(id).classList.remove('show');
   });
@@ -1804,6 +1939,8 @@ function resetFormFields(){
   document.getElementById('seller-followup-wrap').style.display='none';
   document.getElementById('buyer-followup-wrap').style.display='none';
   document.getElementById('match-results').style.display='none';
+  const phEl = document.getElementById('f-phone');
+  if(phEl) phEl.classList.remove('phone-err');
 
   callerScore=0; setCallerScore(0);
   chk={}; currentGroups().forEach(g=>chk[g.key]=false);
@@ -1829,15 +1966,102 @@ function loadLogs(){
 }
 function saveDNC(){ try{localStorage.setItem(LS_DNC,JSON.stringify([...dncSet]));}catch(e){} }
 function loadDNC(){ try{const r=localStorage.getItem(LS_DNC);if(r)dncSet=new Set(JSON.parse(r));}catch(e){} }
+
 function clearLogs(){
-  if(!confirm('Clear all logs? This cannot be undone.')) return;
-  logs=[]; callNo=1; persistLogs();
-  document.getElementById('call-badge').textContent='Call #1';
-  renderLog(); showToast('All logs cleared','t-gold');
+  showConfirm(
+    'Clear All Logs?',
+    'This permanently deletes every entry on this device. Cannot be undone. Sheet entries are NOT affected.',
+    ()=>{
+      logs=[]; callNo=1; persistLogs();
+      document.getElementById('call-badge').textContent='Call #1';
+      logShown=LOG_PAGE; renderLog();
+      showToast('All logs cleared','t-gold');
+    },
+    'Clear All'
+  );
 }
 
 // ═══════════════════════════════════════════════════════════════
-// LOG RENDER
+// AUTOSAVE DRAFT
+// ═══════════════════════════════════════════════════════════════
+function readFormSnapshot(){
+  const snap = { mode, activeStatus, callerScore };
+  const ids = ['f-name','f-phone','f-alt-phone','f-locality','f-nbhd','f-location-pin',
+    'f-coowner-name','f-budget','f-notes','f-callback-date','f-seller-followup','f-buyer-followup',
+    'f-carpet','f-buildup','f-superbuildup','f-parking-apt','f-floor','f-maintenance','f-bhk',
+    'f-plot-area','f-house-buildup','f-floors','f-parking-house','f-house-bhk',
+    'f-plot-total','f-dimensions','f-frontage','f-road-width',
+    'f-comm-carpet','f-comm-floor','f-comm-building','f-comm-maint',
+    'f-other-area','f-other-usage',
+    'f-buyer-bhk','f-pref-localities','f-budget-min','f-budget-max',
+    'f-source','f-broker','f-owned-by','f-occupied-by','f-prop-type',
+    'f-intent','f-next-action','f-urgency','f-orientation','f-corner',
+    'f-apt-orientation','f-house-orientation',
+    'f-purpose','f-prop-pref','f-financing','f-living-situation',
+    'f-buyer-intent','f-trigger','f-shown-before','f-site-visit','f-buyer-next-action'];
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el && el.value) snap[id]=el.value; });
+  return snap;
+}
+function saveDraft(){
+  const snap = readFormSnapshot();
+  if(!snap['f-name'] && !snap['f-phone']) return;     // only save if meaningful
+  try{ localStorage.setItem(LS_DRAFT, JSON.stringify({...snap, savedAt: Date.now()})); }catch(e){}
+}
+function clearDraft(){
+  try{ localStorage.removeItem(LS_DRAFT); }catch(e){}
+  const b = document.getElementById('draft-banner');
+  if(b) b.style.display='none';
+}
+function discardDraft(){
+  clearDraft();
+  showToast('Draft discarded','t-gold');
+}
+function checkDraft(){
+  try{
+    const r = localStorage.getItem(LS_DRAFT);
+    if(!r) return;
+    const snap = JSON.parse(r);
+    if(!snap || (!snap['f-name'] && !snap['f-phone'])) return;
+    const banner = document.getElementById('draft-banner');
+    const nameEl = document.getElementById('draft-name');
+    const label  = snap['f-name'] || snap['f-phone'] || 'unsaved entry';
+    if(nameEl) nameEl.textContent = label;
+    if(banner) banner.style.display='flex';
+  }catch(e){}
+}
+function restoreDraft(){
+  try{
+    const r = localStorage.getItem(LS_DRAFT);
+    if(!r) return;
+    const snap = JSON.parse(r);
+    if(snap.mode) setMode(snap.mode);
+    Object.keys(snap).forEach(id=>{
+      if(id.startsWith('f-')){
+        const el = document.getElementById(id);
+        if(el) el.value = snap[id];
+      }
+    });
+    if(snap.activeStatus){ activeStatus = snap.activeStatus; buildChips(); }
+    if(snap.callerScore !== undefined){ setCallerScore(parseInt(snap.callerScore)||0); }
+    onOwnershipChange();
+    onPropTypeChange();
+    toggleFollowupDate('f-next-action','seller-followup-wrap');
+    toggleFollowupDate('f-buyer-next-action','buyer-followup-wrap');
+    autoScore();
+    onPhoneInput(snap['f-phone']||'');
+    clearDraft();
+    showToast('Draft restored','t-blue');
+  }catch(e){
+    showToast('Could not restore draft','t-red');
+  }
+}
+function scheduleDraftSave(){
+  clearTimeout(_draftTimer);
+  _draftTimer = setTimeout(saveDraft, 1500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOG RENDER — with pagination, full fields, DNC controls
 // ═══════════════════════════════════════════════════════════════
 function renderLog(){
   const q = (document.getElementById('log-search')?.value||'').toLowerCase();
@@ -1848,7 +2072,6 @@ function renderLog(){
     if(counts[e.tier]!==undefined) counts[e.tier]++;
   });
 
-  // Agent list for filter
   const agents = [...new Set(logs.map(e=>(e.agent||'').split(' (')[0]).filter(Boolean))];
   const filters=document.getElementById('filters');
   if(filters) filters.innerHTML=
@@ -1856,10 +2079,10 @@ function renderLog(){
       `<div class="fc${logFilter===f?' on':''}" onclick="setFilter('${f}')">${f} <span style="color:var(--text4);font-weight:400">${counts[f]}</span></div>`
     ).join('')+
     (agents.length>1 ? agents.map(a=>
-      `<div class="fc${agentFilter===a?' on':''}" onclick="setAgentFilter('${a}')" style="${agentFilter===a?'border-color:var(--blue);color:var(--blue);background:#5B9BD510':''}">${a}</div>`
+      `<div class="fc${agentFilter===a?' on':''}" onclick="setAgentFilter('${H(a)}')" style="${agentFilter===a?'border-color:var(--blue);color:var(--blue);background:#5B9BD510':''}">${H(a)}</div>`
     ).join('') : '');
 
-  let filtered=logs.filter(e=>{
+  const filtered=logs.filter(e=>{
     if(logFilter==='SELLER'&&e.mode!=='SELLER') return false;
     if(logFilter==='BUYER'&&e.mode!=='BUYER')   return false;
     if(['HOT','WARM','COLD','TRACE'].includes(logFilter)&&e.tier!==logFilter) return false;
@@ -1868,70 +2091,143 @@ function renderLog(){
     return (e.name||'').toLowerCase().includes(q)||(e.phone||'').includes(q)||(e.locality||'').toLowerCase().includes(q);
   });
 
+  // Cache for CSV export
+  _filteredLogs = filtered;
+
+  // Update CSV button label
+  const csvBtn = document.getElementById('csv-btn');
+  if(csvBtn){
+    const filterActive = logFilter!=='ALL' || agentFilter!=='ALL' || q;
+    csvBtn.textContent = filterActive ? `⬇ CSV (${filtered.length})` : '⬇ CSV';
+  }
+
   const list=document.getElementById('log-list');
   if(!filtered.length){
     list.innerHTML=`<div class="empty"><div class="empty-icon">📭</div><div>No entries found</div></div>`;return;
   }
 
-  list.innerHTML=filtered.map(e=>{
+  // Pagination
+  const totalFiltered = filtered.length;
+  const paginated = filtered.slice(0, logShown);
+
+  list.innerHTML=paginated.map(e=>{
     const ri=logs.indexOf(e);
     const ti=tierInfo(e.score||0);
     const modePill=e.mode==='SELLER'
       ?`<span class="mode-pill seller-pill">SELLER</span>`
       :`<span class="mode-pill buyer-pill">BUYER</span>`;
+    const dncPill = e.dnc ? `<span class="mode-pill dnc-pill">DNC</span>` : '';
     const detail = e.mode==='SELLER'
       ? (e.propType||'')+(e.locality?` · ${e.locality}`:'')
       : (e.prefLocalities||e.locality||'')+(e.budgetMin?` · ${e.budgetMin}–${e.budgetMax}`:'');
+
+    // Build expanded body fields (only show if value present)
+    const fld = (label, val) => val ? `<div class="lc-f"><div class="lc-fl">${label}</div><div class="lc-fv">${H(val)}</div></div>` : '';
+
+    const sellerBody = e.mode==='SELLER' ? `
+      ${fld('Owned By', e.ownedBy)}
+      ${fld('Property', e.propType)}
+      ${fld('Locality', e.locality)}
+      ${fld('Intent', e.intent)}
+      ${fld('Asking Price', e.budget)}
+      ${fld('Urgency', e.urgency)}
+      ${fld('BHK', e.bhk)}
+      ${fld('Orientation', e.orientation)}
+    ` : '';
+
+    const buyerBody = e.mode==='BUYER' ? `
+      ${fld('Purpose', e.purpose)}
+      ${fld('Property Pref.', e.propPref)}
+      ${fld('Localities', e.prefLocalities)}
+      ${fld('Budget', (e.budgetMin||'')+(e.budgetMax?' – '+e.budgetMax:''))}
+      ${fld('Financing', e.financing)}
+      ${fld('Buyer Intent', e.buyerIntent)}
+      ${fld('Site Visit', e.siteVisit)}
+      ${fld('Trigger', e.trigger)}
+      ${fld('Living Situation', e.livingSituation)}
+    ` : '';
+
     return `<div class="lc" id="lc-${ri}">
       <div class="lc-h" onclick="toggleCard(${ri})">
         <div class="lc-tier" style="background:${ti.color}18;color:${ti.color}">${H(e.tier||'TRACE')}</div>
         <div class="lc-info">
           <div class="lc-name">${H(e.name||'Unknown')}</div>
-          <div class="lc-meta">${modePill}${H(e.phone||'—')}${detail?` · ${H(detail)}`:''}
-          </div>
+          <div class="lc-meta">${modePill}${dncPill}${H(e.phone||'—')}${detail?` · ${H(detail)}`:''}</div>
         </div>
         <div class="lc-score" style="color:${ti.color}">${e.score||0}</div>
       </div>
       <div class="lc-body">
-        <div class="lc-f"><div class="lc-fl">Status</div><div class="lc-fv">${H(e.status||'—')}</div></div>
-        <div class="lc-f"><div class="lc-fl">Date</div><div class="lc-fv">${H(e.date||'—')}</div></div>
-        ${e.mode==='SELLER'?`
-          <div class="lc-f"><div class="lc-fl">Owned By</div><div class="lc-fv">${H(e.ownedBy||'—')}</div></div>
-          <div class="lc-f"><div class="lc-fl">Property</div><div class="lc-fv">${H(e.propType||'—')}</div></div>
-          <div class="lc-f"><div class="lc-fl">Intent</div><div class="lc-fv">${H(e.intent||'—')}</div></div>
-          <div class="lc-f"><div class="lc-fl">Asking Price</div><div class="lc-fv">${H(e.budget||'—')}</div></div>
-        `:`
-          <div class="lc-f"><div class="lc-fl">Purpose</div><div class="lc-fv">${H(e.purpose||'—')}</div></div>
-          <div class="lc-f"><div class="lc-fl">Property Pref.</div><div class="lc-fv">${H(e.propPref||'—')}</div></div>
-          <div class="lc-f"><div class="lc-fl">Budget</div><div class="lc-fv">${H((e.budgetMin||'')+(e.budgetMax?'–'+e.budgetMax:''))}</div></div>
-          <div class="lc-f"><div class="lc-fl">Financing</div><div class="lc-fv">${H(e.financing||'—')}</div></div>
-        `}
-        <div class="lc-f"><div class="lc-fl">Next Action</div><div class="lc-fv">${H(e.nextAction||'—')}</div></div>
+        ${fld('Status', e.status)}
+        ${fld('Date', e.date)}
+        ${sellerBody}
+        ${buyerBody}
+        ${fld('Next Action', e.nextAction)}
         ${e.followupDate?`<div class="lc-f"><div class="lc-fl">📅 Follow-up</div><div class="lc-fv">${H(e.followupDate)}</div></div>`:''}
+        ${e.callbackDate?`<div class="lc-f"><div class="lc-fl">📞 Callback</div><div class="lc-fv">${H(e.callbackDate)}</div></div>`:''}
         <div class="lc-f"><div class="lc-fl">Caller Score</div><div class="lc-fv">${e.callerScore||0}/3</div></div>
         ${e.notes?`<div class="lc-f" style="grid-column:span 2"><div class="lc-fl">Notes</div><div class="lc-fv">${H(e.notes)}</div></div>`:''}
         <div class="lc-acts">
           <button class="lc-ab" onclick="event.stopPropagation();openEdit(${ri})">✏ Edit</button>
           ${e.phone?`<a class="lc-ab" href="tel:${H(e.phone)}" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;text-decoration:none">📞 Call</a>`:''}
+          ${e.dnc?`<button class="lc-ab undnc" onclick="event.stopPropagation();removeDNC(${ri})">⊘ Un-DNC</button>`:''}
           <button class="lc-ab del" onclick="event.stopPropagation();deleteEntry(${ri})">🗑</button>
         </div>
       </div>
     </div>`;
   }).join('');
+
+  // Append load-more button + count
+  if(totalFiltered > logShown){
+    const remaining = totalFiltered - logShown;
+    const next = Math.min(LOG_PAGE, remaining);
+    list.innerHTML += `<button class="load-more-btn" onclick="logShown+=${LOG_PAGE};renderLog()">Load ${next} more · ${remaining} hidden</button>`;
+  } else if(totalFiltered > LOG_PAGE){
+    list.innerHTML += `<div class="log-count">Showing all ${totalFiltered} entries</div>`;
+  }
 }
-function setFilter(f){ logFilter=f; renderLog(); }
-function setAgentFilter(a){ agentFilter=agentFilter===a?'ALL':a; renderLog(); }
+function setFilter(f){ logFilter=f; logShown=LOG_PAGE; renderLog(); }
+function setAgentFilter(a){ agentFilter=agentFilter===a?'ALL':a; logShown=LOG_PAGE; renderLog(); }
 function toggleCard(idx){ document.getElementById('lc-'+idx)?.classList.toggle('open'); }
 function deleteEntry(idx){
-  if(!confirm('Delete this entry?')) return;
-  logs.splice(idx,1); persistLogs(); renderLog(); showToast('Deleted','t-gold');
+  showConfirm(
+    'Delete Entry?',
+    'This permanently removes the entry from this device.',
+    ()=>{
+      logs.splice(idx,1); persistLogs(); renderLog();
+      showToast('Deleted','t-gold');
+    },
+    'Delete'
+  );
+}
+function removeDNC(idx){
+  const e = logs[idx];
+  if(!e || !e.phone) return;
+  showConfirm(
+    'Remove from DNC?',
+    `${e.name||e.phone} will be allowed to be contacted again. The entry stays in the log.`,
+    ()=>{
+      const p = norm(e.phone);
+      dncSet.delete(p);
+      saveDNC();
+      e.dnc = false;
+      // If status was DNC, fall back to Completed
+      if(e.status === 'DNC') e.status = 'Completed';
+      persistLogs();
+      renderLog();
+      showToast('Removed from DNC','t-green');
+    },
+    'Un-DNC'
+  );
 }
 
 // ═══════════════════════════════════════════════════════════════
 // CALLBACKS
 // ═══════════════════════════════════════════════════════════════
 function renderCallbacks(){
-  const due=logs.filter(l=>l.callbackDate&&l.callbackDate<=todayStr()&&l.status==='Callback');
+  const due=logs.filter(l=>{
+    const d = l.callbackDate || l.followupDate;
+    return d && d<=todayStr() && (l.status==='Callback' || l.followupDate);
+  });
   const banner=document.getElementById('cb-banner');
   const list=document.getElementById('cb-list');
   if(!banner||!list) return;
@@ -1944,10 +2240,12 @@ function renderCallbacks(){
   </div>`).join('');
 }
 
-// Form view callbacks banner
 let formCbExpanded = false;
 function renderCallbacksBanner(){
-  const due=logs.filter(l=>l.callbackDate&&l.callbackDate<=todayStr()&&l.status==='Callback');
+  const due=logs.filter(l=>{
+    const d = l.callbackDate || l.followupDate;
+    return d && d<=todayStr() && (l.status==='Callback' || l.followupDate);
+  });
   const banner=document.getElementById('form-cb-banner');
   const count=document.getElementById('form-cb-count');
   const list=document.getElementById('form-cb-list');
@@ -1970,8 +2268,34 @@ function toggleFormCallbacks(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// EDIT
+// EDIT — fixed label + score recalc
 // ═══════════════════════════════════════════════════════════════
+function recalcChk(e){
+  const c={};
+  if(e.mode==='SELLER'){
+    c.isOwner       = ['Owner','Co-Owner'].includes(e.ownedBy||'');
+    c.hasPropType   = !!(e.propType||'');
+    c.hasIntent     = ['Sell','Rent Out','Sell or Rent'].includes(e.intent||'');
+    c.hasBudget     = !!(String(e.budget||'').trim());
+    c.hasLocationPin= !!(String(e.locationPin||'').trim());
+    c.hasSource     = !!(e.source||'');
+    c.hasNextAction = !!(e.nextAction||'') && e.nextAction!=='No Action Needed';
+  } else {
+    c.hasPurpose    = !!(e.purpose||'');
+    c.hasPropPref   = !!(e.propPref||'');
+    c.hasIntent     = ['Buy','Invest'].includes(e.buyerIntent||'');
+    c.hasBudget     = !!(String(e.budgetMin||'').trim()) && !!(String(e.budgetMax||'').trim());
+    c.hasFinancing  = ['Bank Pre-Approved','Self / Cash'].includes(e.financing||'');
+    c.hasLocalities = !!(String(e.prefLocalities||'').trim());
+    c.hasNextAction = !!(e.nextAction||'') && e.nextAction!=='No Action Needed';
+  }
+  const cs = parseInt(e.callerScore)||0;
+  c.callerQ1 = cs>=1;
+  c.callerQ2 = cs>=2;
+  c.callerQ3 = cs===3;
+  return c;
+}
+
 function openEdit(idx){
   editIdx=idx; const e=logs[idx];
   const isSeller = e.mode==='SELLER';
@@ -1990,7 +2314,7 @@ function openEdit(idx){
     { key:'propType', label:'Property Type', type:'text', show:isSeller },
     { key:'locationPin', label:'Location Pin', type:'text', show:isSeller },
     { key:'intent', label:'Intent', type:'text', show:isSeller },
-    { key:'budget', label:'Budget / Asking Price', type:'text', show:isSeller },
+    { key:'budget', label:'Asking Price', type:'text', show:isSeller },
     { key:'urgency', label:'Urgency', type:'text', show:isSeller },
     { key:'orientation', label:'Orientation', type:'text', show:isSeller },
     { key:'bhk', label:'BHK / Config', type:'text', show:isSeller },
@@ -2003,7 +2327,7 @@ function openEdit(idx){
     { key:'propPref', label:'Property Preference', type:'text', show:!isSeller },
     { key:'buyerBhk', label:'BHK Preference', type:'text', show:!isSeller },
     { key:'prefLocalities', label:'Preferred Localities', type:'text', show:!isSeller },
-    { key:'buyerIntent', label:'Intent', type:'text', show:!isSeller },
+    { key:'buyerIntent', label:'Buyer Intent', type:'text', show:!isSeller },
     { key:'budgetMin', label:'Budget Min', type:'text', show:!isSeller },
     { key:'budgetMax', label:'Budget Max', type:'text', show:!isSeller },
     { key:'financing', label:'Financing', type:'text', show:!isSeller },
@@ -2012,7 +2336,8 @@ function openEdit(idx){
     // Common
     { key:'nextAction', label:'Next Action', type:'select', opts:['','Book Site Visit','Book Meeting','Send WhatsApp','Schedule Callback','No Action Needed'] },
     { key:'callbackDate', label:'Callback Date', type:'date' },
-    { key:'callerScore', label:'Caller Score (0–5)', type:'number' },
+    { key:'followupDate', label:'Follow-up Date', type:'date' },
+    { key:'callerScore', label:'Caller Score (0–3)', type:'number' },
     { key:'notes', label:'Notes', type:'textarea' },
   ].filter(f => f.show===undefined || f.show);
 
@@ -2030,22 +2355,25 @@ function saveEdit(){
   const e=logs[editIdx];
   document.querySelectorAll('#edit-fields-dynamic [id^="e-"]').forEach(el=>{
     const key=el.id.substring(2);
-    e[key]=el.value.trim();
+    e[key]=sanitize(el.value);
   });
-  if(e.callerScore!==undefined) e.callerScore=parseInt(e.callerScore)||0;
-  if(e.chk){
-    const grps=e.mode==='SELLER'?SELLER_GROUPS:BUYER_GROUPS;
-    e.score=grps.filter(g=>e.chk[g.key]).length;
-    e.tier=tierInfo(e.score).tier;
-  }
+  e.callerScore = Math.min(3, Math.max(0, parseInt(e.callerScore)||0));
+
+  // Recalculate chk + score from edited values
+  e.chk = recalcChk(e);
+  const grps = e.mode==='SELLER' ? SELLER_GROUPS : BUYER_GROUPS;
+  e.score = grps.filter(g=>e.chk[g.key]).length;
+  e.tier  = tierInfo(e.score).tier;
+
   persistLogs(); renderLog();
   closeOverlay('edit-modal');
   showToast('Updated — syncing…','t-blue');
-  postToSheet({...e,action:'update'});
+  postToSheet({...e, action:'update'});
+  editIdx = null;
 }
 
 // ═══════════════════════════════════════════════════════════════
-// BUYER MATCH ENGINE
+// BUYER MATCH ENGINE — no longer auto-saves
 // ═══════════════════════════════════════════════════════════════
 async function findMatches(){
   const propPref  = document.getElementById('f-prop-pref')?.value||'';
@@ -2053,38 +2381,37 @@ async function findMatches(){
   const budgetMin = (document.getElementById('f-budget-min')?.value||'').trim();
   const budgetMax = (document.getElementById('f-budget-max')?.value||'').trim();
 
-  if(!propPref&&!localities){ showToast('Add property preference or locality to match','t-gold'); return; }
+  if(!propPref || !localities){ showToast('Add property preference & locality','t-gold'); return; }
 
-  // First save the buyer entry
-  saveCall();
+  const btn = document.getElementById('find-matches-btn');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Searching…';
+  btn.disabled = true;
 
-  // Then query the sheet
-  const btn = document.querySelector('[onclick="findMatches()"]');
-  btn.textContent = '⏳ Searching…';
-
-  // Search local logs for matching sellers (offline match)
   const sellers = logs.filter(l=>l.mode==='SELLER');
   const locArr  = localities.split(',').map(s=>s.trim()).filter(Boolean);
 
   const scored = sellers.map(s=>{
     let pts=0;
-    if(propPref&&s.propType&&s.propType.toLowerCase().includes(propPref.toLowerCase())) pts++;
+    if(propPref && s.propType && s.propType.toLowerCase().includes(propPref.toLowerCase())) pts++;
     if(locArr.length && locArr.some(loc=>
       (s.locality||'').toLowerCase().includes(loc)||
       (s.nbhd||'').toLowerCase().includes(loc)
     )) pts++;
-    if(pts>0) pts++; // bonus for any match
+    if(pts>0) pts++; // bonus
     return {s,pts};
   }).filter(r=>r.pts>0).sort((a,b)=>b.pts-a.pts).slice(0,8);
 
-  btn.textContent = '🔍 Find Matching Sellers';
+  btn.innerHTML = orig;
+  btn.disabled = false;
+  updateMatchBtnState();
 
   const res = document.getElementById('match-results');
   const lbl = document.getElementById('match-label');
   const lst = document.getElementById('match-list');
 
   if(!scored.length){
-    lbl.textContent='No matching sellers found in current database';
+    lbl.textContent='No matching sellers found';
     lst.innerHTML='<div style="font-size:12px;color:var(--text3);padding:10px 0">Try broadening locality preference or property type.</div>';
     res.style.display='block'; return;
   }
@@ -2105,7 +2432,7 @@ async function findMatches(){
   }).join('');
   res.style.display='block';
 
-  // Log the match query to sheet
+  // Audit
   postToSheet({
     action: 'match_query',
     sheetTab: 'Audit',
@@ -2117,30 +2444,34 @@ async function findMatches(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// EXPORT CSV
+// EXPORT CSV — respects active filter
 // ═══════════════════════════════════════════════════════════════
 function exportCSV(){
-  if(!logs.length){ showToast('No entries to export','t-gold'); return; }
+  const source = (_filteredLogs && _filteredLogs.length) ? _filteredLogs : logs;
+  if(!source.length){ showToast('No entries to export','t-gold'); return; }
+
   const headers=['#','Mode','Date','Time','Agent','Status','Name','Phone','Alt Phone','Locality','Nbhd',
     'Source','Broker','Owned By','Co-Owner','Occupied By','Property Type','Location Pin',
-    'Intent / Purpose','Budget / Budget Min','Budget Max','Urgency','Next Action',
-    'Caller Score','Callback Date','Duration','Notes','Score','Tier','DNC'];
-  const rows=logs.map(e=>[
+    'Intent / Purpose','Budget / Min','Budget Max','Urgency','Next Action',
+    'Caller Score','Callback Date','Follow-up','Notes','Score','Tier','DNC'];
+  const csvCell = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
+  const rows=source.map(e=>[
     e.no,e.mode,e.date,e.time,e.agent||'',e.status,e.name||'',e.phone||'',e.altPhone||'',
     e.locality||'',e.nbhd||'',e.source||'',e.broker||'',
     e.ownedBy||e.purpose||'',e.coOwnerName||'',e.occupiedBy||'',
     e.propType||e.propPref||'',e.locationPin||'',
     e.intent||e.buyerIntent||'',e.budget||e.budgetMin||'',e.budgetMax||'',
     e.urgency||e.trigger||'',e.nextAction||'',
-    e.callerScore||0,e.callbackDate||'',e.duration||'',e.notes||'',
+    e.callerScore||0,e.callbackDate||'',e.followupDate||'',e.notes||'',
     e.score||0,e.tier||'',e.dnc?'Yes':'No'
-  ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
-  const csv=[headers.join(','),...rows].join('\n');
+  ].map(csvCell).join(','));
+  const csv=[headers.map(csvCell).join(','),...rows].join('\n');
+  const filterTag = (logFilter!=='ALL'||agentFilter!=='ALL') ? `-${logFilter}${agentFilter!=='ALL'?'-'+agentFilter.replace(/\s+/g,'_'):''}` : '';
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download=`axivia-${new Date().toISOString().split('T')[0]}.csv`;
+  a.download=`axivia${filterTag}-${todayStr()}.csv`;
   a.click();
-  showToast('CSV exported','t-green');
+  showToast(`CSV exported (${source.length})`,'t-green');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2171,7 +2502,6 @@ function renderAnalytics(){
     <div class="bar-bg"><div class="bar-fill" style="width:${(n/maxT*100).toFixed(0)}%;background:${c}"></div></div></div>`;
   }).join('');
 
-  // Top localities
   const locCounts={};
   logs.forEach(l=>{ const loc=(l.locality||'').trim(); if(loc) locCounts[loc]=(locCounts[loc]||0)+1; });
   const topLoc=Object.entries(locCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
@@ -2179,7 +2509,6 @@ function renderAnalytics(){
   const locBars=topLoc.map(([l,n])=>`<div class="bar-row"><div class="bar-lbl"><span>${H(l)}</span><span style="color:var(--text3)">${n}</span></div>
     <div class="bar-bg"><div class="bar-fill" style="width:${(n/maxL*100).toFixed(0)}%;background:var(--blue)"></div></div></div>`).join('');
 
-  // Source split
   const srcCounts={};
   logs.forEach(l=>{ const s=l.source||'Unknown'; srcCounts[s]=(srcCounts[s]||0)+1; });
   const topSrc=Object.entries(srcCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
@@ -2216,36 +2545,43 @@ function init(){
   setMode('SELLER');
   autoScore();
   renderCallbacksBanner();
+  updateOnlineDot();
+  window.addEventListener('online',  ()=>{ updateOnlineDot(); showToast('Back online — syncing','t-green'); });
+  window.addEventListener('offline', ()=>{ updateOnlineDot(); showToast('Offline — entries save locally','t-gold'); });
+
+  // Wire up draft autosave on any form input
+  const formView = document.getElementById('form-view');
+  if(formView){
+    formView.addEventListener('input',  scheduleDraftSave);
+    formView.addEventListener('change', scheduleDraftSave);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init);
 
 // ═══════════════════════════════════════════════════════════════
-// SERVICE WORKER REGISTRATION + PUSH NOTIFICATIONS
+// SERVICE WORKER + NOTIFICATIONS
 // ═══════════════════════════════════════════════════════════════
 let swReg = null;
 
 if ('serviceWorker' in navigator) {
-  // Auto-reload when a new service worker activates (delivers updated code silently)
   navigator.serviceWorker.addEventListener('message', e => {
     if (e.data?.type === 'SW_UPDATED') window.location.reload();
   });
 
   navigator.serviceWorker.register('./sw.js').then(reg => {
     swReg = reg;
-    // Register periodic background sync (Chrome Android, installed PWA)
     if ('periodicSync' in reg) {
       navigator.permissions.query({ name: 'periodic-background-sync' }).then(status => {
         if (status.state === 'granted') {
           reg.periodicSync.register('axivia-callback-check', { minInterval: 4 * 60 * 60 * 1000 })
-            .catch(() => {}); // min 4 hours
+            .catch(() => {});
         }
       }).catch(() => {});
     }
   }).catch(() => {});
 }
 
-// Build the list of upcoming callbacks from logs and send to SW via IDB
 function syncCallbacksToSW() {
   if (!swReg || !swReg.active) return;
   const today = new Date();
@@ -2255,7 +2591,7 @@ function syncCallbacksToSW() {
     if (!d) return false;
     return new Date(d) >= today;
   }).map(l => ({
-    id:           l.no || l.id || Math.random(),
+    id:           l.no || Math.random(),
     name:         l.name || '',
     phone:        l.phone || '',
     callbackDate: l.callbackDate || '',
@@ -2264,7 +2600,6 @@ function syncCallbacksToSW() {
   swReg.active.postMessage({ type: 'SYNC_CALLBACKS', callbacks: upcoming });
 }
 
-// Request notification permission after login
 async function requestNotifPermission() {
   if (!('Notification' in window)) return;
   if (Notification.permission === 'granted') {
@@ -2280,7 +2615,6 @@ async function requestNotifPermission() {
   }
 }
 
-// In-app check: show banner if callbacks are due today or tomorrow
 function checkCallbacksInApp() {
   if (!logs || !logs.length) return;
   const today = new Date().toISOString().split('T')[0];
@@ -2289,16 +2623,15 @@ function checkCallbacksInApp() {
 
   const dueToday = logs.filter(l => {
     const d = l.callbackDate || l.followupDate;
-    return d && (d === today);
+    return d && d === today;
   });
   const dueTomorrow = logs.filter(l => {
     const d = l.callbackDate || l.followupDate;
-    return d && (d === tomorrowStr);
+    return d && d === tomorrowStr;
   });
 
   if (dueToday.length) {
     showToast(`📞 ${dueToday.length} callback${dueToday.length>1?'s':''} due TODAY`, 't-gold');
-    // Also fire a local notification if permission granted
     if (Notification.permission === 'granted' && swReg?.active) {
       swReg.active.postMessage({ type: 'CHECK_NOW' });
     }
@@ -2307,10 +2640,10 @@ function checkCallbacksInApp() {
   }
 }
 
-// Also check when the tab regains focus (user switches back to app)
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && document.getElementById('app')?.style.display !== 'none') {
     checkCallbacksInApp();
+    updateOnlineDot();
   }
 });
 </script>
