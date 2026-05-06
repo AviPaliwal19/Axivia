@@ -508,6 +508,19 @@ body{
 .t-gold{color:var(--gold);border-color:#C9A84C33}
 .t-blue{color:var(--blue);border-color:#5B9BD533}
 
+/* LOCALITY TAG PICKER */
+.loc-tag-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;min-height:0}
+.loc-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(91,155,213,.12);border:1.5px solid rgba(91,155,213,.3);border-radius:20px;padding:5px 11px;font-size:12px;font-weight:700;color:var(--blue)}
+.loc-tag-x{cursor:pointer;opacity:.6;font-size:16px;line-height:1;margin-left:2px;transition:opacity .15s}.loc-tag-x:hover{opacity:1}
+
+/* DEAL STATUS + LISTING FLAG PILLS */
+.deal-closed-pill{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.deal-expired-pill{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.urgent-flag-pill{background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
+.interesting-flag-pill{background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.3)}
+.lc.deal-closed{border-left:3px solid var(--green)}
+.lc.deal-expired{border-left:3px solid var(--red);opacity:.7}
+
 /* MATCHING RESULTS */
 #match-results{display:none;margin-top:13px}
 .match-card{
@@ -777,6 +790,7 @@ body{
                   </optgroup>
                   <optgroup label="Land / Plot">
                     <option value="Residential Plot">Residential Plot</option>
+                    <option value="Commercial Plot">Commercial Plot</option>
                     <option value="Agricultural Land">Agricultural Land</option>
                     <option value="Leased Land">Leased Land</option>
                   </optgroup>
@@ -987,8 +1001,9 @@ body{
                 <select id="f-purpose" onchange="autoScore()">
                   <option value="">— Select —</option>
                   <option value="Self-Use">Self-Use / Primary Residence</option>
+                  <option value="Rent — Self Use">Rent — Looking to Rent (Self-Use)</option>
                   <option value="Investment">Investment / Capital Appreciation</option>
-                  <option value="Rental Income">Rental Income</option>
+                  <option value="Rental Income">Rental Income (Buy to Let)</option>
                   <option value="Business Use">Business Use</option>
                   <option value="Unclear">Unclear / Still Deciding</option>
                 </select>
@@ -1015,8 +1030,19 @@ body{
               </div>
             </div>
             <div class="field">
-              <label>Preferred Localities <span style="font-size:9px;color:var(--text4)">(comma separated)</span></label>
-              <input type="text" id="f-pref-localities" placeholder="e.g. Saddu, Shankar Nagar, Avanti Vihar" oninput="autoScore()">
+              <label>Preferred Localities<span class="star">★</span></label>
+              <div class="loc-tag-wrap" id="loc-tag-wrap"></div>
+              <div class="sel">
+                <select id="locality-picker" onchange="addLocalityFromPicker(this.value)">
+                  <option value="">＋ Pick from recorded localities…</option>
+                </select>
+              </div>
+              <input type="text" id="f-pref-localities" placeholder="Or type a custom locality + press Enter"
+                oninput="syncLocalityField()" style="margin-top:7px"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomLocality()}">
+              <div style="font-size:10px;color:var(--text4);margin-top:4px">Tap from list above, or type &amp; press Enter to add</div>
+              <!-- Hidden serialised value read by autoScore / findMatches / saveCall -->
+              <input type="hidden" id="f-pref-localities-val">
             </div>
           </div>
         </div>
@@ -1030,13 +1056,16 @@ body{
           <div class="card-body">
             <div class="r2">
               <div class="field">
-                <label>Budget — Minimum<span class="star">★</span></label>
+                <label id="lbl-budget-min">Budget — Minimum<span class="star">★</span></label>
                 <input type="text" id="f-budget-min" placeholder="e.g. 60L" oninput="autoScore()">
               </div>
               <div class="field">
-                <label>Budget — Maximum<span class="star">★</span></label>
+                <label id="lbl-budget-max">Budget — Maximum<span class="star">★</span></label>
                 <input type="text" id="f-budget-max" placeholder="e.g. 1.2Cr" oninput="autoScore()">
               </div>
+            </div>
+            <div id="rent-budget-hint" style="display:none;font-size:11px;color:var(--text3);background:rgba(91,155,213,.06);border:1px solid rgba(91,155,213,.15);border-radius:8px;padding:7px 11px;margin-top:2px">
+              💡 Rental mode — enter monthly rent range (e.g. Min: 12,000 / Max: 20,000). Match engine will surface sellers listing for <em>Rent Out</em>.
             </div>
             <div class="r2">
               <div class="field">
@@ -1079,10 +1108,11 @@ body{
               <div class="field">
                 <label>Buyer Intent<span class="star">★</span></label>
                 <div class="sel">
-                  <select id="f-buyer-intent" onchange="autoScore()">
+                  <select id="f-buyer-intent" onchange="autoScore();onBuyerIntentChange()">
                     <option value="">— Select —</option>
                     <option value="Buy">Actively Looking to Buy</option>
                     <option value="Invest">Looking to Invest</option>
+                    <option value="Rent">Looking to Rent</option>
                     <option value="Just Browsing">Just Browsing / No Urgency</option>
                   </select>
                 </div>
@@ -1553,6 +1583,7 @@ function setMode(m){
   document.getElementById('buyer-section').style.display  = m==='BUYER'?'block':'none';
   document.getElementById('save-wrap').style.display      = activeView==='form'?'block':'none';
   resetFormFields();
+  if(m==='BUYER') populateLocalityPicker();
   autoScore();
 }
 
@@ -1678,7 +1709,7 @@ function onPropTypeChange(){
   });
   if(['Apartment','Penthouse'].includes(v)) document.getElementById('pf-apartment').classList.add('show');
   else if(['Independent House','Villa','Row House'].includes(v)) document.getElementById('pf-house').classList.add('show');
-  else if(['Residential Plot','Agricultural Land','Leased Land'].includes(v)) document.getElementById('pf-plot').classList.add('show');
+  else if(['Residential Plot','Agricultural Land','Leased Land','Commercial Plot'].includes(v)) document.getElementById('pf-plot').classList.add('show');
   else if(['Shop / Retail','Office Space','Commercial Building'].includes(v)) document.getElementById('pf-commercial').classList.add('show');
   else if(v) document.getElementById('pf-other').classList.add('show');
   autoScore();
@@ -1723,12 +1754,12 @@ function autoScore(){
     const budgetMin  = (document.getElementById('f-budget-min')?.value||'').trim();
     const budgetMax  = (document.getElementById('f-budget-max')?.value||'').trim();
     const financing  = document.getElementById('f-financing')?.value||'';
-    const localities = (document.getElementById('f-pref-localities')?.value||'').trim();
+    const localities = getLocalityValue();
     const nextAction = document.getElementById('f-buyer-next-action')?.value||'';
 
     chk.hasPurpose    = purpose!=='';
     chk.hasPropPref   = propPref!=='';
-    chk.hasIntent     = ['Buy','Invest'].includes(intent);
+    chk.hasIntent     = ['Buy','Invest','Rent'].includes(intent);
     chk.hasBudget     = budgetMin.length>0 && budgetMax.length>0;
     chk.hasFinancing  = ['Bank Pre-Approved','Self / Cash'].includes(financing);
     chk.hasLocalities = localities.length>0;
@@ -1763,7 +1794,7 @@ function updateMatchBtnState(){
   const propPref   = document.getElementById('f-prop-pref')?.value||'';
   const budgetMin  = (document.getElementById('f-budget-min')?.value||'').trim();
   const budgetMax  = (document.getElementById('f-budget-max')?.value||'').trim();
-  const localities = (document.getElementById('f-pref-localities')?.value||'').trim();
+  const localities = getLocalityValue();
   const ready = !!(propPref && (budgetMin || budgetMax) && localities);
   btn.disabled = !ready;
   btn.classList.toggle('btn-disabled', !ready);
@@ -1870,7 +1901,7 @@ function saveCall(){
       purpose:        document.getElementById('f-purpose')?.value||'',
       propPref:       document.getElementById('f-prop-pref')?.value||'',
       buyerBhk:       sanitize(document.getElementById('f-buyer-bhk')?.value||''),
-      prefLocalities: sanitize(document.getElementById('f-pref-localities')?.value||''),
+      prefLocalities: sanitize(getLocalityValue()),
       budgetMin:      sanitize(document.getElementById('f-budget-min')?.value||''),
       budgetMax:      sanitize(document.getElementById('f-budget-max')?.value||''),
       financing:      document.getElementById('f-financing')?.value||'',
@@ -1924,6 +1955,7 @@ function resetFormFields(){
     'f-other-area','f-other-usage',
     'f-buyer-bhk','f-pref-localities','f-budget-min','f-budget-max'];
   textIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  _selectedLocalities=[]; renderLocalityTags();
 
   const selIds = ['f-source','f-broker','f-owned-by','f-occupied-by','f-prop-type',
     'f-intent','f-next-action','f-urgency','f-orientation','f-corner',
@@ -1945,6 +1977,9 @@ function resetFormFields(){
   const _dlMatch = document.getElementById('download-matches-btn');
   if(_dlMatch) _dlMatch.style.display='none';
   _lastMatchData = null;
+  const rh=document.getElementById('rent-budget-hint'); if(rh) rh.style.display='none';
+  const bmin=document.getElementById('lbl-budget-min'); if(bmin) bmin.innerHTML='Budget — Minimum<span class="star">★</span>';
+  const bmax=document.getElementById('lbl-budget-max'); if(bmax) bmax.innerHTML='Budget — Maximum<span class="star">★</span>';
   const phEl = document.getElementById('f-phone');
   if(phEl) phEl.classList.remove('phone-err');
 
@@ -2071,11 +2106,15 @@ function scheduleDraftSave(){
 // ═══════════════════════════════════════════════════════════════
 function renderLog(){
   const q = (document.getElementById('log-search')?.value||'').toLowerCase();
-  const counts={ALL:logs.length,SELLER:0,BUYER:0,HOT:0,WARM:0,COLD:0,TRACE:0};
+  const counts={ALL:logs.length,SELLER:0,BUYER:0,HOT:0,WARM:0,COLD:0,TRACE:0,CLOSED:0,EXPIRED:0,URGENT:0,INTERESTING:0};
   logs.forEach(e=>{
     if(e.mode==='SELLER') counts.SELLER++;
     if(e.mode==='BUYER')  counts.BUYER++;
     if(counts[e.tier]!==undefined) counts[e.tier]++;
+    if(e.dealStatus==='Deal Closed')   counts.CLOSED++;
+    if(e.dealStatus==='Deal Expired')  counts.EXPIRED++;
+    if(e.listingFlag==='Urgent')       counts.URGENT++;
+    if(e.listingFlag==='Interesting')  counts.INTERESTING++;
   });
 
   const agents = [...new Set(logs.map(e=>(e.agent||'').split(' (')[0]).filter(Boolean))];
@@ -2084,6 +2123,10 @@ function renderLog(){
     ['ALL','SELLER','BUYER','HOT','WARM','COLD','TRACE'].map(f=>
       `<div class="fc${logFilter===f?' on':''}" onclick="setFilter('${f}')">${f} <span style="color:var(--text4);font-weight:400">${counts[f]}</span></div>`
     ).join('')+
+    (counts.CLOSED?`<div class="fc${logFilter==='CLOSED'?' on':''}" onclick="setFilter('CLOSED')" style="${logFilter==='CLOSED'?'border-color:var(--green);color:var(--green);background:#22c55e10':''}">✅ Closed <span style="color:var(--text4);font-weight:400">${counts.CLOSED}</span></div>`:'')+
+    (counts.EXPIRED?`<div class="fc${logFilter==='EXPIRED'?' on':''}" onclick="setFilter('EXPIRED')" style="${logFilter==='EXPIRED'?'border-color:var(--red);color:var(--red);background:#ef444410':''}">☠ Expired <span style="color:var(--text4);font-weight:400">${counts.EXPIRED}</span></div>`:'')+
+    (counts.URGENT?`<div class="fc${logFilter==='URGENT'?' on':''}" onclick="setFilter('URGENT')" style="${logFilter==='URGENT'?'border-color:var(--orange);color:var(--orange);background:#f9731610':''}">🔥 Urgent <span style="color:var(--text4);font-weight:400">${counts.URGENT}</span></div>`:'')+
+    (counts.INTERESTING?`<div class="fc${logFilter==='INTERESTING'?' on':''}" onclick="setFilter('INTERESTING')" style="${logFilter==='INTERESTING'?'border-color:var(--gold);color:var(--gold);background:#C9A84C10':''}">⭐ Interesting <span style="color:var(--text4);font-weight:400">${counts.INTERESTING}</span></div>`:'')+
     (agents.length>1 ? agents.map(a=>
       `<div class="fc${agentFilter===a?' on':''}" onclick="setAgentFilter('${H(a)}')" style="${agentFilter===a?'border-color:var(--blue);color:var(--blue);background:#5B9BD510':''}">${H(a)}</div>`
     ).join('') : '');
@@ -2092,6 +2135,10 @@ function renderLog(){
     if(logFilter==='SELLER'&&e.mode!=='SELLER') return false;
     if(logFilter==='BUYER'&&e.mode!=='BUYER')   return false;
     if(['HOT','WARM','COLD','TRACE'].includes(logFilter)&&e.tier!==logFilter) return false;
+    if(logFilter==='CLOSED'&&e.dealStatus!=='Deal Closed') return false;
+    if(logFilter==='EXPIRED'&&e.dealStatus!=='Deal Expired') return false;
+    if(logFilter==='URGENT'&&e.listingFlag!=='Urgent') return false;
+    if(logFilter==='INTERESTING'&&e.listingFlag!=='Interesting') return false;
     if(agentFilter!=='ALL'&&!(e.agent||'').startsWith(agentFilter)) return false;
     if(!q) return true;
     return (e.name||'').toLowerCase().includes(q)||(e.phone||'').includes(q)||(e.locality||'').toLowerCase().includes(q);
@@ -2123,6 +2170,11 @@ function renderLog(){
       ?`<span class="mode-pill seller-pill">SELLER</span>`
       :`<span class="mode-pill buyer-pill">BUYER</span>`;
     const dncPill = e.dnc ? `<span class="mode-pill dnc-pill">DNC</span>` : '';
+    const dealPill = e.dealStatus==='Deal Closed'  ? `<span class="mode-pill deal-closed-pill">✅ Closed</span>`
+                   : e.dealStatus==='Deal Expired' ? `<span class="mode-pill deal-expired-pill">☠ Expired</span>` : '';
+    const flagPill = e.listingFlag==='Urgent'      ? `<span class="mode-pill urgent-flag-pill">🔥 Urgent</span>`
+                   : e.listingFlag==='Interesting' ? `<span class="mode-pill interesting-flag-pill">⭐ Interesting</span>` : '';
+    const dealClass = e.dealStatus==='Deal Closed' ? ' deal-closed' : e.dealStatus==='Deal Expired' ? ' deal-expired' : '';
     const detail = e.mode==='SELLER'
       ? (e.propType||'')+(e.locality?` · ${e.locality}`:'')
       : (e.prefLocalities||e.locality||'')+(e.budgetMin?` · ${e.budgetMin}–${e.budgetMax}`:'');
@@ -2153,12 +2205,12 @@ function renderLog(){
       ${fld('Living Situation', e.livingSituation)}
     ` : '';
 
-    return `<div class="lc" id="lc-${ri}">
+    return `<div class="lc${dealClass}" id="lc-${ri}">
       <div class="lc-h" onclick="toggleCard(${ri})">
         <div class="lc-tier" style="background:${ti.color}18;color:${ti.color}">${H(e.tier||'TRACE')}</div>
         <div class="lc-info">
           <div class="lc-name">${H(e.name||'Unknown')}</div>
-          <div class="lc-meta">${modePill}${dncPill}${H(e.phone||'—')}${detail?` · ${H(detail)}`:''}</div>
+          <div class="lc-meta">${modePill}${dncPill}${dealPill}${flagPill}${H(e.phone||'—')}${detail?` · ${H(detail)}`:''}</div>
         </div>
         <div class="lc-score" style="color:${ti.color}">${e.score||0}</div>
       </div>
@@ -2176,6 +2228,11 @@ function renderLog(){
           <button class="lc-ab" onclick="event.stopPropagation();openEdit(${ri})">✏ Edit</button>
           ${e.phone?`<a class="lc-ab" href="tel:${H(e.phone)}" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;text-decoration:none">📞 Call</a>`:''}
           ${e.dnc?`<button class="lc-ab undnc" onclick="event.stopPropagation();removeDNC(${ri})">⊘ Un-DNC</button>`:''}
+          ${e.mode==='SELLER'&&e.dealStatus!=='Deal Closed'?`<button class="lc-ab" style="color:var(--green);border-color:#22c55e40" onclick="event.stopPropagation();setDealStatus(${ri},'Deal Closed')">✅ Closed</button>`:''}
+          ${e.mode==='SELLER'&&e.dealStatus!=='Deal Expired'&&e.dealStatus!=='Deal Closed'?`<button class="lc-ab" style="color:var(--red);border-color:#ef444440" onclick="event.stopPropagation();setDealStatus(${ri},'Deal Expired')">☠ Expired</button>`:''}
+          ${e.mode==='SELLER'&&e.dealStatus?`<button class="lc-ab" style="color:var(--text3)" onclick="event.stopPropagation();setDealStatus(${ri},'')">↩ Reopen</button>`:''}
+          ${e.mode==='SELLER'?`<button class="lc-ab" style="color:${e.listingFlag==='Urgent'?'var(--orange)':'var(--text3)'};border-color:${e.listingFlag==='Urgent'?'#f9731640':'var(--border)'}" onclick="event.stopPropagation();toggleListingFlag(${ri},'Urgent')">🔥${e.listingFlag==='Urgent'?' Urgent':''}</button>`:''}
+          ${e.mode==='SELLER'?`<button class="lc-ab" style="color:${e.listingFlag==='Interesting'?'var(--gold)':'var(--text3)'};border-color:${e.listingFlag==='Interesting'?'#C9A84C40':'var(--border)'}" onclick="event.stopPropagation();toggleListingFlag(${ri},'Interesting')">⭐${e.listingFlag==='Interesting'?' Interesting':''}</button>`:''}
           <button class="lc-ab del" onclick="event.stopPropagation();deleteEntry(${ri})">🗑</button>
         </div>
       </div>
@@ -2289,7 +2346,7 @@ function recalcChk(e){
   } else {
     c.hasPurpose    = !!(e.purpose||'');
     c.hasPropPref   = !!(e.propPref||'');
-    c.hasIntent     = ['Buy','Invest'].includes(e.buyerIntent||'');
+    c.hasIntent     = ['Buy','Invest','Rent'].includes(e.buyerIntent||'');
     c.hasBudget     = !!(String(e.budgetMin||'').trim()) && !!(String(e.budgetMax||'').trim());
     c.hasFinancing  = ['Bank Pre-Approved','Self / Cash'].includes(e.financing||'');
     c.hasLocalities = !!(String(e.prefLocalities||'').trim());
@@ -2384,10 +2441,12 @@ function saveEdit(){
 let _lastMatchData = null;
 
 async function findMatches(){
-  const propPref  = document.getElementById('f-prop-pref')?.value||'';
-  const localities= (document.getElementById('f-pref-localities')?.value||'').trim().toLowerCase();
-  const budgetMin = (document.getElementById('f-budget-min')?.value||'').trim();
-  const budgetMax = (document.getElementById('f-budget-max')?.value||'').trim();
+  const propPref   = document.getElementById('f-prop-pref')?.value||'';
+  const localities = getLocalityValue().toLowerCase();
+  const budgetMin  = (document.getElementById('f-budget-min')?.value||'').trim();
+  const budgetMax  = (document.getElementById('f-budget-max')?.value||'').trim();
+  const buyerIntent= document.getElementById('f-buyer-intent')?.value||'';
+  const isRental   = buyerIntent === 'Rent';
 
   if(!propPref || !localities){ showToast('Add property preference & locality','t-gold'); return; }
 
@@ -2396,7 +2455,13 @@ async function findMatches(){
   btn.innerHTML = '⏳ Searching…';
   btn.disabled = true;
 
-  const sellers = logs.filter(l=>l.mode==='SELLER');
+  // Filter sellers: exclude inactive deals; match intent (rental vs purchase)
+  const sellers = logs.filter(l=>{
+    if(l.mode!=='SELLER') return false;
+    if(['Deal Closed','Deal Expired'].includes(l.dealStatus||'')) return false;
+    if(isRental) return ['Rent Out','Sell or Rent'].includes(l.intent||'');
+    return ['Sell','Sell or Rent',''].includes(l.intent||'') || !l.intent;
+  });
   const locArr  = localities.split(',').map(s=>s.trim()).filter(Boolean);
 
   const scored = sellers.map(s=>{
@@ -2406,7 +2471,10 @@ async function findMatches(){
       (s.locality||'').toLowerCase().includes(loc)||
       (s.nbhd||'').toLowerCase().includes(loc)
     )) pts++;
-    if(pts>0) pts++; // bonus
+    // Intent alignment bonus
+    if(isRental && s.intent==='Rent Out') pts++;
+    else if(!isRental && s.intent==='Sell') pts++;
+    if(pts>0) pts++; // match bonus
     return {s,pts};
   }).filter(r=>r.pts>0).sort((a,b)=>b.pts-a.pts).slice(0,8);
 
@@ -2454,7 +2522,7 @@ async function findMatches(){
       altPhone:    document.getElementById('f-alt-phone')?.value || '',
       source:      document.getElementById('f-source')?.value || '',
       propPref,
-      localities:  document.getElementById('f-pref-localities')?.value || '',
+      localities:  getLocalityValue() || '',
       bhk:         document.getElementById('f-buyer-bhk')?.value || '',
       budgetMin,
       budgetMax,
@@ -2793,6 +2861,130 @@ function renderAnalytics(){
 }
 
 // ═══════════════════════════════════════════════════════════════
+// LOCALITY TAG PICKER
+// ═══════════════════════════════════════════════════════════════
+let _selectedLocalities = [];
+
+function getLocalityValue(){
+  // Returns comma-separated string of all selected + custom localities
+  const custom = (document.getElementById('f-pref-localities')?.value||'')
+    .split(',').map(s=>s.trim()).filter(s=>s && !_selectedLocalities.includes(s));
+  return [..._selectedLocalities, ...custom].join(', ');
+}
+
+function populateLocalityPicker(){
+  // Gather unique localities from seller log entries
+  const fromLogs = [...new Set(
+    logs.filter(l=>l.mode==='SELLER'&&(l.locality||'').trim())
+        .map(l=>l.locality.trim())
+  )].sort();
+  const sel = document.getElementById('locality-picker');
+  if(!sel) return;
+  const current = _selectedLocalities;
+  sel.innerHTML = `<option value="">＋ Pick from recorded localities…</option>` +
+    fromLogs.filter(l=>!current.includes(l))
+            .map(l=>`<option value="${H(l)}">${H(l)}</option>`).join('');
+}
+
+function addLocalityFromPicker(loc){
+  if(!loc) return;
+  if(_selectedLocalities.includes(loc)){ showToast('Already added','t-gold'); }
+  else { _selectedLocalities.push(loc); }
+  renderLocalityTags();
+  populateLocalityPicker(); // refresh to remove just-added option
+  document.getElementById('locality-picker').value='';
+  autoScore();
+}
+
+function addCustomLocality(){
+  const input = document.getElementById('f-pref-localities');
+  if(!input) return;
+  const raw = input.value.trim();
+  if(!raw) return;
+  const parts = raw.split(',').map(s=>s.trim()).filter(Boolean);
+  parts.forEach(p=>{ if(!_selectedLocalities.includes(p)) _selectedLocalities.push(p); });
+  input.value='';
+  renderLocalityTags();
+  populateLocalityPicker();
+  autoScore();
+}
+
+function removeLocalityTag(loc){
+  _selectedLocalities = _selectedLocalities.filter(l=>l!==loc);
+  renderLocalityTags();
+  populateLocalityPicker();
+  autoScore();
+}
+
+function syncLocalityField(){
+  // Called on text input change — just re-run score update
+  autoScore();
+}
+
+function renderLocalityTags(){
+  const wrap = document.getElementById('loc-tag-wrap');
+  if(!wrap) return;
+  wrap.innerHTML = _selectedLocalities.map(l=>
+    `<div class="loc-tag">${H(l)}<span class="loc-tag-x" onclick="removeLocalityTag('${l.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" title="Remove">×</span></div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BUYER INTENT CHANGE — rental mode swap
+// ═══════════════════════════════════════════════════════════════
+function onBuyerIntentChange(){
+  const intent = document.getElementById('f-buyer-intent')?.value||'';
+  const isRental = intent==='Rent';
+  const hint  = document.getElementById('rent-budget-hint');
+  const bmin  = document.getElementById('lbl-budget-min');
+  const bmax  = document.getElementById('lbl-budget-max');
+  const minEl = document.getElementById('f-budget-min');
+  const maxEl = document.getElementById('f-budget-max');
+  if(hint) hint.style.display = isRental?'block':'none';
+  if(bmin) bmin.innerHTML = isRental
+    ? 'Monthly Rent — Min<span class="star">★</span>'
+    : 'Budget — Minimum<span class="star">★</span>';
+  if(bmax) bmax.innerHTML = isRental
+    ? 'Monthly Rent — Max<span class="star">★</span>'
+    : 'Budget — Maximum<span class="star">★</span>';
+  if(minEl) minEl.placeholder = isRental ? 'e.g. 12,000' : 'e.g. 60L';
+  if(maxEl) maxEl.placeholder = isRental ? 'e.g. 25,000' : 'e.g. 1.2Cr';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DEAL STATUS & LISTING FLAG
+// ═══════════════════════════════════════════════════════════════
+function setDealStatus(idx, status){
+  const e = logs[idx];
+  if(!e) return;
+  const label = status||'Open';
+  const msg   = status
+    ? `Mark "${e.name||e.phone||'entry'}" as ${status}?`
+    : `Reopen "${e.name||e.phone||'entry'}" — remove closed/expired status?`;
+  showConfirm(
+    status ? `Mark Deal ${status.replace('Deal ','')}?` : 'Reopen Listing?',
+    msg,
+    ()=>{
+      e.dealStatus = status||'';
+      persistLogs(); renderLog();
+      postToSheet({...e, action:'update'});
+      showToast(status ? `Marked as ${status}` : 'Listing reopened','t-green');
+    },
+    status ? 'Confirm' : 'Reopen'
+  );
+}
+
+function toggleListingFlag(idx, flag){
+  const e = logs[idx];
+  if(!e) return;
+  const already = e.listingFlag===flag;
+  e.listingFlag = already ? '' : flag;
+  persistLogs(); renderLog();
+  postToSheet({...e, action:'update'});
+  showToast(already ? 'Flag removed' : `Flagged as ${flag}`,'t-gold');
+}
+
+// ═══════════════════════════════════════════════════════════════
 // KEYBOARD
 // ═══════════════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
@@ -2813,6 +3005,7 @@ function init(){
   updateSheetBadge();
   updateAgentPill();
   setMode('SELLER');
+  _selectedLocalities=[];
   autoScore();
   renderCallbacksBanner();
   updateOnlineDot();
