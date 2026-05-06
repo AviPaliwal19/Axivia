@@ -1425,8 +1425,18 @@ let CONFIG = { agentName: "", sheetUrl: SHEET_URL };
 // HELPERS
 // ═══════════════════════════════════════════════════════════════
 function H(s){ return String(s||'').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function norm(p){ return String(p||'').replace(/[\s\-().+]/g,""); }
-function stripPhone(v){ return String(v||'').replace(/^\+?91[\s\-]*/,'').replace(/[\s\-().]/g,''); }
+function stripPhone(v){
+  // Remove formatting characters first
+  let s = String(v||'').replace(/[\s\-().]/g,'');
+  // Only strip the 91 country-code prefix when the result is unambiguously a full
+  // international number:  +91XXXXXXXXXX (13 chars)  or  91XXXXXXXXXX (12 digits).
+  // A plain 10-digit number like 9111111111 must NOT be touched — it starts with
+  // 9 and 1 but is already a valid Indian mobile number.
+  if(/^\+91\d{10}$/.test(s)) return s.slice(3);   // +91 + 10 digits → strip +91
+  if(/^91\d{10}$/.test(s))   return s.slice(2);    // 91  + 10 digits → strip 91
+  return s.replace(/^\+/,'');                       // any other leading + → remove
+}
+function norm(p){ return stripPhone(p); }           // normalise using same rules for consistent dup/DNC checks
 function sanitize(s){
   s = String(s||'');
   s = s.replace(/[<>]/g,'');               // strip HTML tags
