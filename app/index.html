@@ -521,6 +521,47 @@ body{
 .lc.deal-closed{border-left:3px solid var(--green)}
 .lc.deal-expired{border-left:3px solid var(--red);opacity:.7}
 
+/* WIZARD */
+#wizard-view{padding-bottom:130px}
+.wiz-prog-wrap{padding:14px 16px 0;flex-shrink:0}
+.wiz-prog-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.wiz-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+.wiz-step-info{padding:8px 16px 0;display:flex;align-items:center;justify-content:space-between}
+.wiz-step-num{font-size:11px;color:var(--text4);font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.wiz-skip-lnk{font-size:12px;color:var(--text3);font-weight:600;cursor:pointer;padding:4px 8px;border-radius:8px;border:none;background:transparent;font-family:inherit}
+.wiz-skip-lnk:active{background:var(--card2)}
+.wiz-card{padding:22px 18px 16px;animation:fadeInUp .25s ease both}
+.wiz-q{font-size:22px;font-weight:800;color:var(--text);line-height:1.3;margin-bottom:5px}
+.wiz-sub{font-size:13px;color:var(--text3);margin-bottom:18px;line-height:1.5}
+.wiz-opts{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+.wiz-opt{width:100%;padding:14px 16px;border-radius:13px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:15px;font-weight:600;text-align:left;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:10px}
+.wiz-opt.sel{border-color:var(--gold);background:rgba(201,168,76,.1);color:var(--gold)}
+.wiz-opt:active{transform:scale(.98)}
+.wiz-opt-ico{font-size:20px;flex-shrink:0;width:26px;text-align:center}
+.wiz-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.wiz-chip{padding:11px 16px;border-radius:24px;font-size:13px;font-weight:700;border:1.5px solid;cursor:pointer;transition:all .2s;font-family:inherit;background:transparent}
+.wiz-inp-wrap{margin-top:6px}
+.wiz-inp-wrap input,.wiz-inp-wrap textarea{width:100%;background:rgba(26,26,37,.6);border:2px solid rgba(37,37,53,.8);border-radius:13px;color:var(--text);font-size:18px;font-family:inherit;padding:15px 15px;outline:none;appearance:none;-webkit-appearance:none;transition:all .25s ease;display:block;margin-bottom:10px}
+.wiz-inp-wrap input:focus,.wiz-inp-wrap textarea:focus{border-color:rgba(201,168,76,.5);box-shadow:0 0 0 3px rgba(201,168,76,.06)}
+.wiz-inp-wrap textarea{resize:none;min-height:110px;line-height:1.5;font-size:16px}
+.wiz-inp-wrap input::placeholder,.wiz-inp-wrap textarea::placeholder{color:var(--text4)}
+.wiz-inp-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-bottom:5px}
+.wiz-score-row{display:flex;gap:10px;margin-top:6px}
+.wiz-score-btn{flex:1;height:66px;border-radius:13px;border:2px solid var(--border);background:var(--card);color:var(--text3);font-size:24px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .2s}
+.wiz-score-btn.on{border-color:rgba(201,168,76,.5);color:var(--gold);background:rgba(201,168,76,.08);box-shadow:0 0 14px rgba(201,168,76,.15)}
+.wiz-specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
+.wiz-spec-f{display:flex;flex-direction:column}
+.wiz-spec-lbl{font-size:10px;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.wiz-spec-inp{width:100%;background:rgba(26,26,37,.6);border:1.5px solid rgba(37,37,53,.8);border-radius:10px;color:var(--text);font-size:15px;font-family:inherit;padding:10px 12px;outline:none;appearance:none;-webkit-appearance:none}
+.wiz-spec-inp:focus{border-color:rgba(201,168,76,.45)}
+.wiz-warn{display:none;margin-top:8px;font-size:12px;font-weight:600;color:var(--red);background:#ef444410;border:1px solid #ef444433;border-radius:8px;padding:8px 12px}
+/* Wizard nav – fixed above bottom-nav */
+#wiz-nav{display:none;position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom));left:0;right:0;padding:10px 14px 6px;background:linear-gradient(to bottom,transparent 0%,var(--bg) 40%);z-index:60}
+#wiz-nav-inner{display:flex;gap:10px;align-items:center}
+.wiz-prev-btn{height:52px;width:52px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);color:var(--text3);font-size:20px;cursor:pointer;font-family:inherit;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.wiz-next-btn{flex:1;height:52px;border-radius:12px;border:none;background:linear-gradient(135deg,#C9A84C,#DDB85A,#C9A84C);color:#0A0A0F;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.5px;box-shadow:0 4px 20px rgba(201,168,76,.3)}
+.wiz-next-btn.last{background:linear-gradient(135deg,#22c55e,#34d399);color:#fff;box-shadow:0 4px 20px rgba(34,197,94,.25)}
+
 /* MATCHING RESULTS */
 #match-results{display:none;margin-top:13px}
 .match-card{
@@ -596,7 +637,7 @@ body{
   <div id="page-scroll">
 
     <!-- ═══ FORM VIEW ═══ -->
-    <div class="view active" id="form-view">
+    <div class="view" id="form-view" style="display:none">
 
       <!-- LAST SAVED STRIP -->
       <div id="last-saved-strip" style="display:none;background:#22c55e10;border:1px solid #22c55e33;border-radius:10px;padding:8px 14px;margin-top:6px;margin-bottom:0;display:none;align-items:center;gap:8px">
@@ -1243,6 +1284,18 @@ body{
 
     </div><!-- /form-view -->
 
+    <!-- ═══ WIZARD VIEW ═══ -->
+    <div class="view active" id="wizard-view">
+      <div class="wiz-prog-wrap">
+        <div class="wiz-prog-bar"><div class="wiz-prog-fill" id="wiz-prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="wiz-step-info">
+        <div class="wiz-step-num" id="wiz-step-num">Step 1</div>
+        <button class="wiz-skip-lnk" id="wiz-skip-btn" onclick="wizSkip()" style="display:none">Skip ›</button>
+      </div>
+      <div id="wiz-card" class="wiz-card"></div>
+    </div>
+
     <!-- ═══ LOG VIEW ═══ -->
     <div class="view" id="log-view">
       <div class="log-bar">
@@ -1268,8 +1321,16 @@ body{
 
   </div><!-- /page-scroll -->
 
+  <!-- WIZARD NAV -->
+  <div id="wiz-nav">
+    <div id="wiz-nav-inner">
+      <button class="wiz-prev-btn" id="wiz-prev-btn" onclick="wizPrev()" style="display:none">‹</button>
+      <button class="wiz-next-btn" id="wiz-next-btn" onclick="wizNext()">Next →</button>
+    </div>
+  </div>
+
   <!-- SAVE BUTTON -->
-  <div id="save-wrap">
+  <div id="save-wrap" style="display:none">
     <button id="save-btn" onclick="saveCall()">
       <span id="save-label">Save &amp; Next Call</span>
     </button>
@@ -1589,11 +1650,7 @@ function setMode(m){
   mode = m;
   document.getElementById('btn-seller').className = 'mode-btn' + (m==='SELLER'?' active-seller':'');
   document.getElementById('btn-buyer').className  = 'mode-btn' + (m==='BUYER'?' active-buyer':'');
-  document.getElementById('seller-section').style.display = m==='SELLER'?'block':'none';
-  document.getElementById('buyer-section').style.display  = m==='BUYER'?'block':'none';
-  document.getElementById('save-wrap').style.display      = activeView==='form'?'block':'none';
-  resetFormFields();
-  if(m==='BUYER') populateLocalityPicker();
+  if(activeView==='form'){ wizInit(); }
   autoScore();
 }
 
@@ -1604,13 +1661,17 @@ function switchView(v){
   activeView = v;
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
-  document.getElementById(v+'-view').classList.add('active');
+  // 'form' maps to 'wizard-view'
+  const viewEl = document.getElementById(v==='form'?'wizard-view':v+'-view');
+  if(viewEl) viewEl.classList.add('active');
   document.getElementById('nav-'+v).classList.add('active');
-  document.getElementById('score-bar').style.display = v==='form'?'flex':'none';
-  document.getElementById('save-wrap').style.display  = v==='form'?'block':'none';
+  document.getElementById('score-bar').style.display  = v==='form'?'flex':'none';
+  document.getElementById('save-wrap').style.display   = 'none';
+  document.getElementById('wiz-nav').style.display     = v==='form'?'block':'none';
   document.getElementById('page-scroll').scrollTop = 0;
   if(v==='log'){ logShown=LOG_PAGE; renderLog(); renderCallbacks(); }
   if(v==='analytics') renderAnalytics();
+  if(v==='form') wizInit();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1741,14 +1802,17 @@ function setCallerScore(v){
 // AUTO SCORE
 // ═══════════════════════════════════════════════════════════════
 function autoScore(){
+  // Read from _wVals in wizard mode (DOM fields may not reflect current step)
+  const gv = id => (_wVals && _wVals[id] !== undefined) ? _wVals[id] : (document.getElementById(id)?.value||'');
+
   if(mode==='SELLER'){
-    const ownedBy    = document.getElementById('f-owned-by')?.value||'';
-    const propType   = document.getElementById('f-prop-type')?.value||'';
-    const intent     = document.getElementById('f-intent')?.value||'';
-    const budget     = (document.getElementById('f-budget')?.value||'').trim();
-    const pin        = (document.getElementById('f-location-pin')?.value||'').trim();
-    const source     = document.getElementById('f-source')?.value||'';
-    const nextAction = document.getElementById('f-next-action')?.value||'';
+    const ownedBy    = gv('f-owned-by');
+    const propType   = gv('f-prop-type');
+    const intent     = gv('f-intent');
+    const budget     = gv('f-budget').trim();
+    const pin        = gv('f-location-pin').trim();
+    const source     = gv('f-source');
+    const nextAction = gv('f-next-action');
 
     chk.isOwner       = ['Owner','Co-Owner'].includes(ownedBy);
     chk.hasPropType   = propType!=='';
@@ -1758,14 +1822,14 @@ function autoScore(){
     chk.hasSource     = source!=='';
     chk.hasNextAction = nextAction!==''&&nextAction!=='No Action Needed';
   } else {
-    const purpose    = document.getElementById('f-purpose')?.value||'';
-    const propPref   = document.getElementById('f-prop-pref')?.value||'';
-    const intent     = document.getElementById('f-buyer-intent')?.value||'';
-    const budgetMin  = (document.getElementById('f-budget-min')?.value||'').trim();
-    const budgetMax  = (document.getElementById('f-budget-max')?.value||'').trim();
-    const financing  = document.getElementById('f-financing')?.value||'';
+    const purpose    = gv('f-purpose');
+    const propPref   = gv('f-prop-pref');
+    const intent     = gv('f-buyer-intent');
+    const budgetMin  = gv('f-budget-min').trim();
+    const budgetMax  = gv('f-budget-max').trim();
+    const financing  = gv('f-financing');
     const localities = getLocalityValue();
-    const nextAction = document.getElementById('f-buyer-next-action')?.value||'';
+    const nextAction = gv('f-buyer-next-action');
 
     chk.hasPurpose    = purpose!=='';
     chk.hasPropPref   = propPref!=='';
@@ -2079,6 +2143,8 @@ function checkDraft(){
     if(nameEl) nameEl.textContent = label;
     if(banner) banner.style.display='flex';
   }catch(e){}
+  // Draft restore is handled by wizard state; banner is hidden in wizard mode
+  const b = document.getElementById('draft-banner'); if(b) b.style.display='none';
 }
 function restoreDraft(){
   try{
@@ -2883,17 +2949,15 @@ function getLocalityValue(){
 }
 
 function populateLocalityPicker(){
-  // Gather unique localities from seller log entries
-  const fromLogs = [...new Set(
-    logs.filter(l=>l.mode==='SELLER'&&(l.locality||'').trim())
-        .map(l=>l.locality.trim())
-  )].sort();
+  // Merge localities from: (1) sheet fetch, (2) current session logs
+  const fromLogs = logs.filter(l=>l.mode==='SELLER'&&(l.locality||'').trim())
+                       .map(l=>l.locality.trim());
+  const merged = [...new Set([..._sheetLocalities, ...fromLogs])].sort();
   const sel = document.getElementById('locality-picker');
   if(!sel) return;
-  const current = _selectedLocalities;
   sel.innerHTML = `<option value="">＋ Pick from recorded localities…</option>` +
-    fromLogs.filter(l=>!current.includes(l))
-            .map(l=>`<option value="${H(l)}">${H(l)}</option>`).join('');
+    merged.filter(l=>!_selectedLocalities.includes(l))
+          .map(l=>`<option value="${H(l)}">${H(l)}</option>`).join('');
 }
 
 function addLocalityFromPicker(loc){
@@ -2995,6 +3059,514 @@ function toggleListingFlag(idx, flag){
 }
 
 // ═══════════════════════════════════════════════════════════════
+// WIZARD ENGINE
+// ═══════════════════════════════════════════════════════════════
+
+const SRC_OPTS = [
+  {val:'Organic — Cold Call',label:'Cold Call',ico:'📞'},
+  {val:'Organic — Walk-in',label:'Walk-in',ico:'🚶'},
+  {val:'Organic — Event',label:'Event',ico:'🎟'},
+  {val:'Broker Referred',label:'Broker Referral',ico:'🤝'},
+  {val:'Referral — Existing Client',label:'Client Referral',ico:'⭐'},
+  {val:'Digital — Social Media',label:'Social Media',ico:'📱'},
+];
+const ACT_OPTS = [
+  {val:'Book Site Visit',label:'Site Visit',ico:'📍'},
+  {val:'Book Meeting',label:'Meeting',ico:'🤝'},
+  {val:'Send WhatsApp',label:'WhatsApp',ico:'💬'},
+  {val:'Schedule Callback',label:'Callback',ico:'📞'},
+  {val:'No Action Needed',label:'No Action',ico:'✓'},
+];
+
+const SELLER_STEPS = [
+  {id:'status',   q:'How did the call go?',                              type:'chips'},
+  {id:'contact',  q:'Who are you speaking with?',    sub:'Name & phone number',           type:'contact'},
+  {id:'source',   q:'How did this lead come in?',                        type:'mcq',  fid:'f-source',      required:true,  opts:SRC_OPTS},
+  {id:'prop_type',q:'What type of property is it?',                      type:'mcq',  fid:'f-prop-type',   required:true,  opts:[
+    {val:'Apartment',label:'Apartment / Flat',ico:'🏢'},
+    {val:'Independent House',label:'Independent House',ico:'🏠'},
+    {val:'Villa',label:'Villa',ico:'🏡'},
+    {val:'Row House',label:'Row House',ico:'🏘'},
+    {val:'Penthouse',label:'Penthouse',ico:'🌆'},
+    {val:'Residential Plot',label:'Residential Plot',ico:'📐'},
+    {val:'Commercial Plot',label:'Commercial Plot',ico:'🏗'},
+    {val:'Agricultural Land',label:'Agricultural Land',ico:'🌾'},
+    {val:'Leased Land',label:'Leased Land',ico:'📜'},
+    {val:'Shop / Retail',label:'Shop / Retail',ico:'🏪'},
+    {val:'Office Space',label:'Office Space',ico:'🏬'},
+    {val:'Commercial Building',label:'Commercial Building',ico:'🏢'},
+    {val:'Godown / Storage',label:'Godown / Storage',ico:'📦'},
+    {val:'Warehouse',label:'Warehouse',ico:'🏭'},
+    {val:'Industrial',label:'Industrial',ico:'⚙'},
+    {val:'Other',label:'Other',ico:'…'},
+  ]},
+  {id:'prop_specs',q:'Property specifications',       sub:'Fill what you know — skip the rest', type:'prop_specs', optional:true},
+  {id:'location', q:'Where is the property located?', sub:'Locality, neighbourhood & Maps pin',  type:'location',  required:true},
+  {id:'ownership',q:'Who owns the property?',                            type:'mcq',  fid:'f-owned-by',    required:true,  opts:[
+    {val:'Owner',label:'Sole Owner',ico:'👤'},
+    {val:'Co-Owner',label:'Co-Owner / Joint',ico:'👥'},
+    {val:'Third Party',label:'Third Party',ico:'🔗'},
+    {val:'Unknown',label:'Unknown',ico:'❓'},
+  ]},
+  {id:'coowner',  q:"Co-owner's name?",                                  type:'text', fid:'f-coowner-name', optional:true,  ph:'Full name of co-owner',
+    showIf: ws => ws['f-owned-by']==='Co-Owner'},
+  {id:'occupied', q:'Who is currently occupying it?',                    type:'mcq',  fid:'f-occupied-by',  optional:true,  opts:[
+    {val:'Self',label:'Owner / Self',ico:'🏡'},
+    {val:'Tenant',label:'Rented Out',ico:'🔑'},
+    {val:'Vacant',label:'Vacant',ico:'🚪'},
+    {val:'Unknown',label:'Unknown',ico:'❓'},
+  ]},
+  {id:'intent',   q:"What's the seller's intent?",                       type:'mcq',  fid:'f-intent',      required:true,  opts:[
+    {val:'Sell',label:'Wants to Sell',ico:'💰'},
+    {val:'Rent Out',label:'Rent Out',ico:'🔑'},
+    {val:'Sell or Rent',label:'Sell or Rent',ico:'🔄'},
+    {val:'No Intent',label:'No Intent / Just Checking',ico:'🤷'},
+  ]},
+  {id:'budget',   q:'What is the asking price?',      sub:'e.g. 85L, 1.2Cr, 45 Lac', type:'text', fid:'f-budget', required:true, ph:'e.g. 85L'},
+  {id:'urgency',  q:'How urgently do they want to sell?',                type:'mcq',  fid:'f-urgency',     optional:true,  opts:[
+    {val:'Immediate',label:'Immediate — needs to sell now',ico:'🔥'},
+    {val:'Within 3 Months',label:'Within 3 Months',ico:'📅'},
+    {val:'Flexible',label:'Flexible',ico:'🕐'},
+    {val:'No Urgency',label:'No Urgency',ico:'😌'},
+  ]},
+  {id:'nxtact',   q:"What's the next step?",                             type:'mcq',  fid:'f-next-action', required:true,  opts:ACT_OPTS},
+  {id:'followup', q:'Set a follow-up date',                              type:'date', fid:'f-seller-followup', optional:true,
+    showIf: ws => ['Book Site Visit','Book Meeting','Schedule Callback'].includes(ws['f-next-action'])},
+  {id:'callerq',  q:'Rate the caller quality',        sub:'0 = hostile / unresponsive · 3 = excellent', type:'caller_score', optional:true},
+  {id:'notes',    q:'Any notes or observations?',     sub:'Objections, key points, next steps…', type:'textarea', fid:'f-notes', optional:true, ph:'Notes…'},
+];
+
+const BUYER_STEPS = [
+  {id:'status',   q:'How did the call go?',                              type:'chips'},
+  {id:'contact',  q:'Who are you speaking with?',    sub:'Name & phone number',           type:'contact'},
+  {id:'source',   q:'How did this lead come in?',                        type:'mcq',  fid:'f-source',     required:true, opts:SRC_OPTS},
+  {id:'purpose',  q:"What's the buyer looking for?",                     type:'mcq',  fid:'f-purpose',    required:true, opts:[
+    {val:'Self-Use',label:'Buy to Live In',ico:'🏠'},
+    {val:'Rent — Self Use',label:'Looking to Rent',ico:'🔑'},
+    {val:'Investment',label:'Investment / Capital',ico:'📈'},
+    {val:'Rental Income',label:'Buy to Let',ico:'💵'},
+    {val:'Business Use',label:'Business Use',ico:'🏢'},
+    {val:'Unclear',label:'Unclear / Deciding',ico:'🤔'},
+  ]},
+  {id:'prop_pref',q:'Property type preference?',                         type:'mcq',  fid:'f-prop-pref',  required:true, opts:[
+    {val:'Apartment',label:'Apartment / Flat',ico:'🏢'},
+    {val:'Independent House',label:'Independent House',ico:'🏠'},
+    {val:'Villa',label:'Villa',ico:'🏡'},
+    {val:'Plot',label:'Residential Plot',ico:'📐'},
+    {val:'Commercial',label:'Commercial',ico:'🏬'},
+    {val:'Any',label:'Open to Any',ico:'🔍'},
+  ]},
+  {id:'bhk',      q:'BHK or configuration?',                             type:'text', fid:'f-buyer-bhk',  optional:true, ph:'e.g. 3BHK, 2BHK+Study'},
+  {id:'locs',     q:'Which areas or localities?',    sub:'Pick from recorded or type to add new', type:'localities', required:true},
+  {id:'buyint',   q:'How actively are they looking?',                    type:'mcq',  fid:'f-buyer-intent',required:true, opts:[
+    {val:'Buy',label:'Actively Looking to Buy',ico:'🔍'},
+    {val:'Invest',label:'Looking to Invest',ico:'📈'},
+    {val:'Rent',label:'Looking to Rent',ico:'🔑'},
+    {val:'Just Browsing',label:'Just Browsing',ico:'👀'},
+  ]},
+  {id:'budget',   q:"What's the budget range?",                          type:'budget', required:true},
+  {id:'financing',q:'Financing status?',                                 type:'mcq',  fid:'f-financing',  required:true, opts:[
+    {val:'Bank Pre-Approved',label:'Bank Pre-Approved',ico:'✅'},
+    {val:'Self / Cash',label:'Self-Funded / Cash',ico:'💰'},
+    {val:'Loan In Progress',label:'Loan In Progress',ico:'⏳'},
+    {val:'Not Yet Started',label:'Not Arranged Yet',ico:'🔲'},
+  ]},
+  {id:'nxtact',   q:"What's the next step?",                             type:'mcq',  fid:'f-buyer-next-action', required:true, opts:ACT_OPTS},
+  {id:'followup', q:'Set a follow-up date',                              type:'date', fid:'f-buyer-followup', optional:true,
+    showIf: ws => ['Book Site Visit','Book Meeting','Schedule Callback'].includes(ws['f-buyer-next-action'])},
+  {id:'callerq',  q:'Rate the caller quality',        sub:'0 = hostile / unresponsive · 3 = excellent', type:'caller_score', optional:true},
+  {id:'notes',    q:'Any notes or observations?',                        type:'textarea', fid:'f-notes', optional:true, ph:'Notes…'},
+];
+
+// Wizard state
+let _wIdx  = 0;          // current step index
+let _wVals = {};         // fieldId → value collected so far
+
+function _wSteps(){ return (_wIdx, (mode==='SELLER'?SELLER_STEPS:BUYER_STEPS)).filter(s=>!s.showIf||s.showIf(_wVals)); }
+
+function wizInit(){
+  _wIdx  = 0;
+  _wVals = {};
+  _selectedLocalities = [];
+  callerScore  = 0;
+  activeStatus = 'Completed';
+  // Sync hidden form fields → clear
+  const allIds=['f-name','f-phone','f-alt-phone','f-source','f-broker','f-owned-by','f-occupied-by','f-prop-type',
+    'f-intent','f-next-action','f-urgency','f-orientation','f-corner','f-apt-orientation','f-house-orientation',
+    'f-purpose','f-prop-pref','f-financing','f-living-situation','f-buyer-intent','f-trigger','f-shown-before',
+    'f-site-visit','f-buyer-next-action','f-callback-date','f-seller-followup','f-buyer-followup',
+    'f-budget','f-budget-min','f-budget-max','f-notes','f-coowner-name','f-nbhd','f-locality',
+    'f-location-pin','f-buyer-bhk','f-pref-localities'];
+  allIds.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('save-wrap').style.display='none';
+  document.getElementById('wiz-nav').style.display='block';
+  wizRender();
+}
+
+function wizActiveSteps(){
+  return (mode==='SELLER'?SELLER_STEPS:BUYER_STEPS).filter(s=>!s.showIf||s.showIf(_wVals));
+}
+
+function wizRender(){
+  const steps = wizActiveSteps();
+  const total = steps.length;
+  const step  = steps[_wIdx];
+  if(!step) return;
+
+  // Progress
+  const pct = total>1 ? (_wIdx/(total-1)*100).toFixed(0) : 100;
+  const fill = document.getElementById('wiz-prog-fill');
+  if(fill) fill.style.width = pct+'%';
+
+  const num = document.getElementById('wiz-step-num');
+  if(num) num.textContent = `Step ${_wIdx+1} of ${total}`;
+
+  const skipBtn = document.getElementById('wiz-skip-btn');
+  if(skipBtn) skipBtn.style.display = (step.optional||step.type==='chips') ? '' : 'none';
+
+  const prevBtn = document.getElementById('wiz-prev-btn');
+  if(prevBtn) prevBtn.style.display = _wIdx > 0 ? '' : 'none';
+
+  const isLast = _wIdx === total - 1;
+  const nextBtn = document.getElementById('wiz-next-btn');
+  if(nextBtn){
+    nextBtn.textContent = isLast ? (mode==='BUYER'?'🔍 Find & Save':'💾 Save Entry') : 'Next →';
+    nextBtn.className   = 'wiz-next-btn' + (isLast?' last':'');
+  }
+
+  const card = document.getElementById('wiz-card');
+  if(!card) return;
+  card.className = 'wiz-card';
+  void card.offsetWidth; // force reflow for animation
+  card.innerHTML = wizBuildStep(step);
+
+  // Auto-focus text inputs
+  const inp = card.querySelector('input:not([type=hidden]):not([type=date]),textarea');
+  if(inp) setTimeout(()=>inp.focus(),150);
+
+  // Render locality tags if on locality step
+  if(step.type==='localities'){
+    renderLocalityTags();
+    populateLocalityPicker();
+  }
+
+  autoScore();
+}
+
+function wizBuildStep(step){
+  const q   = `<div class="wiz-q">${H(step.q)}</div>`;
+  const sub = step.sub ? `<div class="wiz-sub">${H(step.sub)}</div>` : '';
+  switch(step.type){
+    case 'chips':       return q+sub+wizBuildChips();
+    case 'contact':     return q+sub+wizBuildContact();
+    case 'mcq':         return q+sub+wizBuildMCQ(step);
+    case 'text':        return q+sub+wizBuildText(step);
+    case 'textarea':    return q+sub+wizBuildTextarea(step);
+    case 'date':        return q+sub+wizBuildDate(step);
+    case 'caller_score':return q+sub+wizBuildCallerScore();
+    case 'prop_specs':  return q+sub+wizBuildPropSpecs();
+    case 'location':    return q+sub+wizBuildLocation();
+    case 'localities':  return q+sub+wizBuildLocalities();
+    case 'budget':      return q+sub+wizBuildBudget();
+    default: return q+sub;
+  }
+}
+
+function wizBuildChips(){
+  const cbVal = _wVals['f-callback-date']||'';
+  return `<div class="wiz-chips">`+
+    STATUSES.map(s=>{
+      const on = s.val===activeStatus;
+      return `<button type="button" class="wiz-chip"
+        style="color:${on?s.color:s.color+'88'};border-color:${on?s.color:s.color+'33'};background:${on?s.color+'18':'transparent'}"
+        onclick="wizSetStatus('${s.val}')">${H(s.label)}</button>`;
+    }).join('')+`</div>`+
+    (activeStatus==='Callback'?`<div class="wiz-inp-wrap" style="margin-top:12px"><div class="wiz-inp-lbl">Callback Date</div><input type="date" value="${cbVal}" oninput="_wVals['f-callback-date']=this.value"></div>`:'');
+}
+
+function wizSetStatus(v){
+  activeStatus=v;
+  const card=document.getElementById('wiz-card');
+  const step=wizActiveSteps()[_wIdx];
+  if(card&&step) card.innerHTML=wizBuildStep(step);
+}
+
+function wizBuildContact(){
+  const dupWarnId='wiz-dup-w'; const dncWarnId='wiz-dnc-w';
+  return `<div class="wiz-inp-wrap">
+    <div class="wiz-inp-lbl">Full Name</div>
+    <input type="text" placeholder="Lead's full name" value="${H(_wVals['f-name']||'')}"
+      oninput="_wVals['f-name']=this.value;autoScore()">
+    <div class="wiz-inp-lbl">Phone Number</div>
+    <input type="tel" inputmode="tel" placeholder="+91 9XXXXXXXXX" value="${H(_wVals['f-phone']||'')}"
+      oninput="_wVals['f-phone']=this.value;wizDupDNC()">
+    <div id="${dncWarnId}" class="wiz-warn">🚫 Do Not Call — on DNC list</div>
+    <div id="${dupWarnId}" class="wiz-warn"></div>
+    <div class="wiz-inp-lbl">Alt. Phone (optional)</div>
+    <input type="tel" inputmode="tel" placeholder="Secondary number" value="${H(_wVals['f-alt-phone']||'')}"
+      oninput="_wVals['f-alt-phone']=this.value">
+  </div>`;
+}
+
+function wizDupDNC(){
+  const p=norm(_wVals['f-phone']||'');
+  const dncEl=document.getElementById('wiz-dnc-w');
+  const dupEl=document.getElementById('wiz-dup-w');
+  if(dncEl) dncEl.style.display=(p&&dncSet.has(p))?'block':'none';
+  if(!dupEl) return;
+  if(!p||dncSet.has(p)){dupEl.style.display='none';return;}
+  if(logs.some(l=>norm(l.phone||'')===p)){
+    dupEl.innerHTML='⚠ Duplicate — already in today\'s log';
+    dupEl.style.display='block'; return;
+  }
+  dupEl.style.display='none';
+  if(p.length<8) return;
+  clearTimeout(window._wDupTimer);
+  window._wDupTimer=setTimeout(()=>{
+    fetch(`${SHEET_URL}?action=checkPhone&phone=${encodeURIComponent(p)}`)
+      .then(r=>r.json())
+      .then(d=>{if(d.found&&dupEl){dupEl.innerHTML=`⚠ Dup — ${d.name||'This number'} logged${d.date?' on '+d.date:''}`;dupEl.style.display='block';}})
+      .catch(()=>{});
+  },700);
+}
+
+function wizBuildMCQ(step){
+  const cur=_wVals[step.fid]||'';
+  return `<div class="wiz-opts">`+
+    step.opts.map(o=>`<button type="button" class="wiz-opt${o.val===cur?' sel':''}"
+      onclick="wizPickMCQ('${step.fid}','${o.val.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">
+      <span class="wiz-opt-ico">${o.ico||''}</span><span>${H(o.label)}</span></button>`).join('')+
+    `</div>`;
+}
+
+function wizPickMCQ(fid,val){
+  _wVals[fid]=val;
+  const el=document.getElementById(fid); if(el) el.value=val;
+  // re-render to show selection, then auto-advance
+  const card=document.getElementById('wiz-card');
+  const step=wizActiveSteps()[_wIdx];
+  if(card&&step) card.innerHTML=wizBuildStep(step);
+  autoScore();
+  setTimeout(()=>wizNext(),250);
+}
+
+function wizBuildText(step){
+  return `<div class="wiz-inp-wrap">
+    <input type="text" id="wiz-txt" placeholder="${H(step.ph||'')}"
+      value="${H(_wVals[step.fid]||'')}"
+      inputmode="${step.inputmode||'text'}"
+      oninput="_wVals['${step.fid}']=this.value;autoScore()"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();wizNext()}">
+  </div>`;
+}
+
+function wizBuildTextarea(step){
+  return `<div class="wiz-inp-wrap">
+    <textarea id="wiz-ta" placeholder="${H(step.ph||'')}"
+      oninput="_wVals['${step.fid}']=this.value">${H(_wVals[step.fid||'']||'')}</textarea>
+  </div>`;
+}
+
+function wizBuildDate(step){
+  return `<div class="wiz-inp-wrap">
+    <input type="date" value="${H(_wVals[step.fid]||'')}"
+      oninput="_wVals['${step.fid}']=this.value">
+  </div>`;
+}
+
+function wizBuildCallerScore(){
+  return `<div class="wiz-score-row">`+
+    [0,1,2,3].map(v=>`<button type="button" class="wiz-score-btn${callerScore===v?' on':''}" data-v="${v}"
+      onclick="wizSetCallerScore(${v})">${v}</button>`).join('')+
+    `</div><div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--text4)"><span>Hostile</span><span>Excellent</span></div>`;
+}
+
+function wizSetCallerScore(v){
+  callerScore=v;
+  document.querySelectorAll('.wiz-score-btn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)===v));
+  autoScore();
+}
+
+function wizSpecInp(label,fid,ph,im='text'){
+  const val=_wVals[fid]||'';
+  return `<div class="wiz-spec-f"><div class="wiz-spec-lbl">${H(label)}</div>
+    <input type="text" class="wiz-spec-inp" placeholder="${H(ph)}" value="${H(val)}" inputmode="${im}"
+      oninput="_wVals['${fid}']=this.value"></div>`;
+}
+function wizSpecSel(label,fid,opts){
+  const val=_wVals[fid]||'';
+  return `<div class="wiz-spec-f"><div class="wiz-spec-lbl">${H(label)}</div>
+    <div class="sel"><select class="wiz-spec-inp" onchange="_wVals['${fid}']=this.value">
+      ${opts.map(o=>`<option value="${H(o)}"${o===val?' selected':''}>${o||'— Select —'}</option>`).join('')}
+    </select></div></div>`;
+}
+
+function wizBuildPropSpecs(){
+  const pt=_wVals['f-prop-type']||'';
+  if(['Apartment','Penthouse'].includes(pt)) return `<div class="wiz-specs-grid">
+    ${wizSpecInp('Carpet Area (sq.ft)','f-carpet','e.g. 950','decimal')}
+    ${wizSpecInp('Built-up Area (sq.ft)','f-buildup','e.g. 1100','decimal')}
+    ${wizSpecInp('BHK / Config','f-bhk','e.g. 3BHK+Study')}
+    ${wizSpecInp('Floor No.','f-floor','e.g. 4','numeric')}
+    ${wizSpecInp('Parking','f-parking-apt','e.g. 1','numeric')}
+    ${wizSpecInp('Maintenance ₹/mo','f-maintenance','e.g. 3500','decimal')}
+    ${wizSpecSel('Orientation','f-apt-orientation',['','North','South','East','West','North-East','North-West','South-East','South-West'])}
+    </div>`;
+  if(['Independent House','Villa','Row House'].includes(pt)) return `<div class="wiz-specs-grid">
+    ${wizSpecInp('Plot Area (sq.ft)','f-plot-area','e.g. 2400','decimal')}
+    ${wizSpecInp('Built-up Area','f-house-buildup','e.g. 1800','decimal')}
+    ${wizSpecInp('BHK / Config','f-house-bhk','e.g. 4BHK')}
+    ${wizSpecInp('No. of Floors','f-floors','e.g. G+2','numeric')}
+    ${wizSpecInp('Parking','f-parking-house','e.g. 2','numeric')}
+    ${wizSpecSel('Orientation','f-house-orientation',['','North','South','East','West','North-East','North-West','South-East','South-West'])}
+    </div>`;
+  if(['Residential Plot','Commercial Plot','Agricultural Land','Leased Land'].includes(pt)) return `<div class="wiz-specs-grid">
+    ${wizSpecInp('Dimensions','f-dimensions','e.g. 40×60 ft')}
+    ${wizSpecInp('Total Area (sq.ft)','f-plot-total','e.g. 2400','decimal')}
+    ${wizSpecInp('Road Frontage (ft)','f-frontage','e.g. 40','decimal')}
+    ${wizSpecInp('Road Width (ft)','f-road-width','e.g. 30','decimal')}
+    ${wizSpecSel('Orientation','f-orientation',['','North Facing','South Facing','East Facing','West Facing','North-East','North-West','South-East','South-West'])}
+    ${wizSpecSel('Corner Plot','f-corner',['','Yes','No'])}
+    </div>`;
+  if(['Shop / Retail','Office Space','Commercial Building'].includes(pt)) return `<div class="wiz-specs-grid">
+    ${wizSpecInp('Carpet Area (sq.ft)','f-comm-carpet','e.g. 500','decimal')}
+    ${wizSpecInp('Floor No.','f-comm-floor','e.g. Ground')}
+    ${wizSpecInp('Building Name','f-comm-building','Complex name')}
+    ${wizSpecInp('Monthly Maint.','f-comm-maint','e.g. 5000','decimal')}
+    </div>`;
+  return `<div class="wiz-specs-grid">
+    ${wizSpecInp('Total Area','f-other-area','e.g. 5 acres')}
+    ${wizSpecInp('Usage / Zoning','f-other-usage','e.g. Agricultural')}
+    </div>`;
+}
+
+function wizBuildLocation(){
+  return `<div class="wiz-inp-wrap">
+    <div class="wiz-inp-lbl">Locality / Area</div>
+    <input type="text" placeholder="Area or colony name" value="${H(_wVals['f-locality']||'')}"
+      oninput="_wVals['f-locality']=this.value">
+    <div class="wiz-inp-lbl">Neighbourhood / Society (optional)</div>
+    <input type="text" placeholder="Society or neighbourhood" value="${H(_wVals['f-nbhd']||'')}"
+      oninput="_wVals['f-nbhd']=this.value">
+    <div class="wiz-inp-lbl">Google Maps Pin ★</div>
+    <input type="url" placeholder="Paste Maps link here" value="${H(_wVals['f-location-pin']||'')}"
+      style="font-size:14px" oninput="_wVals['f-location-pin']=this.value;autoScore()">
+    <div style="font-size:10px;color:var(--text4);margin-top:3px">Maps pin boosts the lead quality score</div>
+  </div>`;
+}
+
+function wizBuildLocalities(){
+  return `<div>
+    <div class="loc-tag-wrap" id="loc-tag-wrap" style="margin-bottom:10px;min-height:0"></div>
+    <div class="sel"><select id="locality-picker" onchange="addLocalityFromPicker(this.value)">
+      <option value="">＋ Pick from recorded localities…</option>
+    </select></div>
+    <input type="text" id="f-pref-localities" placeholder="Or type a locality + Enter"
+      style="margin-top:8px;width:100%;background:rgba(26,26,37,.6);border:1.5px solid rgba(37,37,53,.8);border-radius:10px;color:var(--text);font-size:16px;font-family:inherit;padding:11px 13px;outline:none;display:block"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomLocality()}"
+      oninput="syncLocalityField()">
+    <div style="font-size:10px;color:var(--text4);margin-top:4px">Tap from list above or type + Enter</div>
+    <input type="hidden" id="f-pref-localities-val">
+  </div>`;
+}
+
+function wizBuildBudget(){
+  const isRent=_wVals['f-buyer-intent']==='Rent';
+  return `<div class="wiz-inp-wrap">
+    <div class="wiz-inp-lbl">${isRent?'Monthly Rent — Minimum':'Budget — Minimum'} ★</div>
+    <input type="text" placeholder="${isRent?'e.g. 12,000':'e.g. 60L'}" value="${H(_wVals['f-budget-min']||'')}"
+      oninput="_wVals['f-budget-min']=this.value;autoScore()">
+    <div class="wiz-inp-lbl">${isRent?'Monthly Rent — Maximum':'Budget — Maximum'} ★</div>
+    <input type="text" placeholder="${isRent?'e.g. 25,000':'e.g. 1.2Cr'}" value="${H(_wVals['f-budget-max']||'')}"
+      oninput="_wVals['f-budget-max']=this.value;autoScore()">
+    ${isRent?`<div style="font-size:11px;color:var(--text3);background:rgba(91,155,213,.06);border:1px solid rgba(91,155,213,.15);border-radius:8px;padding:7px 11px;margin-top:4px">💡 Rental mode — enter monthly rent range</div>`:''}
+  </div>`;
+}
+
+function wizNext(){
+  const steps=wizActiveSteps();
+  const step=steps[_wIdx];
+
+  // Validate required
+  if(step && step.required){
+    let val='';
+    if(step.type==='contact'){
+      val=(_wVals['f-name']||'').trim()||(_wVals['f-phone']||'').trim();
+      if(!val){showToast('Enter a name or phone to continue','t-gold');return;}
+    } else if(step.type==='localities'){
+      val=getLocalityValue();
+      if(!val){showToast('Add at least one locality','t-gold');return;}
+    } else if(step.type==='budget'){
+      val=(_wVals['f-budget-min']||'').trim()||(_wVals['f-budget-max']||'').trim();
+      if(!val){showToast('Enter a budget range','t-gold');return;}
+    } else if(step.fid){
+      val=(_wVals[step.fid]||'').trim();
+      if(!val){showToast(`Please select: ${step.q.replace('?','')}`.slice(0,40),'t-gold');return;}
+    }
+    // Phone format check
+    if(step.type==='contact'){
+      const phone=norm(_wVals['f-phone']||'');
+      if(phone && !/^\d{10}$/.test(phone)){showToast('Phone must be 10 digits','t-red');return;}
+    }
+  }
+
+  // Last step → save
+  if(_wIdx>=steps.length-1){ wizSaveEntry(); return; }
+
+  _wIdx++;
+  wizRender();
+  document.getElementById('wiz-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function wizPrev(){
+  if(_wIdx<=0) return;
+  _wIdx--;
+  wizRender();
+}
+
+function wizSkip(){
+  const steps=wizActiveSteps();
+  if(_wIdx>=steps.length-1) return;
+  _wIdx++;
+  wizRender();
+}
+
+function wizSaveEntry(){
+  // Sync _wVals → hidden form field IDs so saveCall() can read them
+  Object.entries(_wVals).forEach(([id,val])=>{
+    const el=document.getElementById(id); if(el) el.value=val||'';
+  });
+  // Sync hidden selects that saveCall needs
+  ['f-owned-by','f-occupied-by','f-prop-type','f-intent','f-next-action','f-urgency',
+   'f-purpose','f-prop-pref','f-financing','f-buyer-intent','f-buyer-next-action','f-source','f-broker'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && _wVals[id] !== undefined) el.value=_wVals[id];
+  });
+  // Locality hidden value
+  const locH=document.getElementById('f-pref-localities-val'); if(locH) locH.value=getLocalityValue();
+  saveCall();
+  // Restart wizard after save
+  setTimeout(()=>{ _wVals={}; _wIdx=0; wizRender(); },300);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOCALITY — fetch from sheet to persist across sessions
+// ═══════════════════════════════════════════════════════════════
+let _sheetLocalities = [];  // fetched from the sheet
+
+async function fetchLocalitiesFromSheet(){
+  try{
+    const r = await fetch(`${SHEET_URL}?action=localities`);
+    const d = await r.json();
+    if(d.localities && Array.isArray(d.localities)){
+      _sheetLocalities = d.localities;
+      // If locality picker is visible, refresh it
+      if(document.getElementById('locality-picker')) populateLocalityPicker();
+    }
+  }catch(e){ /* offline — fall back to localStorage */ }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // KEYBOARD
 // ═══════════════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
@@ -3011,23 +3583,24 @@ function init(){
   loadConfig();
   loadDNC();
   loadLogs();
-  buildChips();
   updateSheetBadge();
   updateAgentPill();
-  setMode('SELLER');
   _selectedLocalities=[];
-  autoScore();
-  renderCallbacksBanner();
+  _sheetLocalities=[];
+  activeView='form';
   updateOnlineDot();
   window.addEventListener('online',  ()=>{ updateOnlineDot(); showToast('Back online — syncing','t-green'); });
   window.addEventListener('offline', ()=>{ updateOnlineDot(); showToast('Offline — entries save locally','t-gold'); });
-
-  // Wire up draft autosave on any form input
-  const formView = document.getElementById('form-view');
-  if(formView){
-    formView.addEventListener('input',  scheduleDraftSave);
-    formView.addEventListener('change', scheduleDraftSave);
-  }
+  renderCallbacksBanner();
+  // Wizard starts immediately on login
+  document.getElementById('wiz-nav').style.display='block';
+  document.getElementById('save-wrap').style.display='none';
+  mode='SELLER';
+  document.getElementById('btn-seller').className='mode-btn active-seller';
+  document.getElementById('btn-buyer').className='mode-btn';
+  wizInit();
+  // Fetch localities from sheet in background
+  fetchLocalitiesFromSheet();
 }
 
 document.addEventListener('DOMContentLoaded', init);
