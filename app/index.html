@@ -1073,13 +1073,13 @@ body{
             </div>
             <div class="field">
               <label>Preferred Localities<span class="star">★</span></label>
-              <div class="loc-tag-wrap" id="loc-tag-wrap"></div>
+              <div class="loc-tag-wrap" id="h-loc-tag-wrap"></div>
               <div class="sel">
-                <select id="locality-picker" onchange="addLocalityFromPicker(this.value)">
+                <select id="h-locality-picker" onchange="addLocalityFromPicker(this.value)">
                   <option value="">＋ Pick from recorded localities…</option>
                 </select>
               </div>
-              <input type="text" id="f-pref-localities" placeholder="Or type a custom locality + press Enter"
+              <input type="text" id="h-pref-localities" placeholder="Or type a custom locality + press Enter"
                 oninput="syncLocalityField()" style="margin-top:7px"
                 onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomLocality()}">
               <div style="font-size:10px;color:var(--text4);margin-top:4px">Tap from list above, or type &amp; press Enter to add</div>
