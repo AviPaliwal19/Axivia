@@ -1,7 +1,9 @@
-
+{
   "name": "Axivia Field App",
   "short_name": "Axivia",
+  "description": "Field agent tool for logging seller and buyer leads",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0A0A0F",
   "theme_color": "#C9A84C",
