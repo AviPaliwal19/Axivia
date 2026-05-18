@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About — Axivia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Posterama';
+            src: url('posterama-regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #080808;
+            color: #e8e4df;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection { background: #e8e4df; color: #080808; }
+
+        /* ============ HEADER ============ */
+        .header {
+            padding: 2.5rem 0 1.5rem;
+            text-align: center;
+        }
+        .header a {
+            display: inline-block;
+            text-decoration: none;
+        }
+        .wordmark {
+            display: inline-block;
+            font-family: 'Posterama', sans-serif;
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            font-weight: 400;
+            letter-spacing: .35em;
+            text-transform: uppercase;
+            color: #e8e4df;
+        }
+        .wm-a {
+            display: inline-block;
+            height: 0.71em;
+            vertical-align: baseline;
+            fill: currentColor;
+            margin-right: .35em;
+        }
+
+        /* ============ HERO ============ */
+        .hero {
+            padding: 6vh 8vw 8vh;
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .hero-label {
+            font-size: .6rem;
+            font-weight: 400;
+            letter-spacing: .4em;
+            text-transform: uppercase;
+            color: #5a5650;
+            margin-bottom: 2.5rem;
+        }
+        .hero-heading {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-weight: 400;
+            line-height: 1.35;
+            margin-bottom: 2rem;
+        }
+        .hero-heading em {
+            font-style: italic;
+            color: #9b9489;
+        }
+        .hero-line {
+            width: 50px;
+            height: 1px;
+            background: #3a3733;
+            margin: 0 auto;
+        }
+
+        /* ============ STORY SECTIONS ============ */
+        .story {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 8vw;
+        }
+
+        .chapter {
+            padding: 8vh 0;
+            border-top: 1px solid #1e1c1a;
+        }
+
+        .chapter-num {
+            font-size: .55rem;
+            font-weight: 400;
+            letter-spacing: .35em;
+            text-transform: uppercase;
+            color: #3a3733;
+            margin-bottom: 2rem;
+        }
+
+        .chapter-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            font-weight: 400;
+            line-height: 1.4;
+            margin-bottom: 1.8rem;
+        }
+
+        .chapter-body {
+            font-size: .88rem;
+            font-weight: 300;
+            line-height: 2;
+            color: #9b9489;
+        }
+        .chapter-body + .chapter-body {
+            margin-top: 1.5rem;
+        }
+        .chapter-body strong {
+            color: #e8e4df;
+            font-weight: 400;
+        }
+
+        /* ============ QUOTE BREAK ============ */
+        .quote-break {
+            padding: 10vh 8vw;
+            text-align: center;
+            border-top: 1px solid #1e1c1a;
+        }
+        .quote-break blockquote {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+            font-weight: 400;
+            font-style: italic;
+            line-height: 1.5;
+            max-width: 700px;
+            margin: 0 auto;
+            color: #e8e4df;
+        }
+        .quote-break cite {
+            display: block;
+            margin-top: 2rem;
+            font-family: 'Inter', sans-serif;
+            font-size: .65rem;
+            font-weight: 400;
+            font-style: normal;
+            letter-spacing: .25em;
+            text-transform: uppercase;
+            color: #3a3733;
+        }
+
+        /* ============ FOUNDER CARD ============ */
+        .founder {
+            padding: 8vh 8vw;
+            border-top: 1px solid #1e1c1a;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .founder-label {
+            font-size: .55rem;
+            font-weight: 400;
+            letter-spacing: .35em;
+            text-transform: uppercase;
+            color: #3a3733;
+            margin-bottom: 2rem;
+        }
+        .founder-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            margin-bottom: .6rem;
+        }
+        .founder-role {
+            font-size: .75rem;
+            font-weight: 300;
+            color: #5a5650;
+            letter-spacing: .1em;
+            margin-bottom: 2rem;
+        }
+        .founder-bio {
+            font-size: .85rem;
+            font-weight: 300;
+            line-height: 2;
+            color: #9b9489;
+        }
+
+        /* ============ BACK LINK ============ */
+        .back {
+            padding: 6vh 8vw;
+            text-align: center;
+            border-top: 1px solid #1e1c1a;
+        }
+        .back a {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-style: italic;
+            color: #e8e4df;
+            text-decoration: none;
+            position: relative;
+            transition: color .4s;
+        }
+        .back a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #e8e4df;
+            transition: width .5s cubic-bezier(.22, 1, .36, 1);
+        }
+        .back a:hover::after { width: 100%; }
+
+        /* ============ FOOTER ============ */
+        footer {
+            padding: 3rem 8vw;
+            border-top: 1px solid #1e1c1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-wordmark {
+            font-family: 'Posterama', sans-serif;
+            font-size: .7rem;
+            font-weight: 400;
+            letter-spacing: .35em;
+            text-transform: uppercase;
+            color: #e8e4df;
+            opacity: .5;
+            text-decoration: none;
+        }
+        .footer-wm-a {
+            display: inline-block;
+            height: 0.71em;
+            vertical-align: baseline;
+            fill: currentColor;
+            margin-right: .35em;
+        }
+        .f-right {
+            font-size: .6rem;
+            font-weight: 300;
+            color: #3a3733;
+            letter-spacing: .1em;
+        }
+
+        /* ============ REVEAL ============ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);
+        }
+        .reveal.vis { opacity: 1; transform: translateY(0); }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .chapter { padding: 6vh 0; }
+            footer { flex-direction: column; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <a href="index.html" class="wordmark"><svg class="wm-a" viewBox="0 0 100 103"><path fill-rule="evenodd" d="M50 0L100 103H0ZM50 28L13 103H86Z"/></svg>XIVI<svg class="wm-a" viewBox="0 0 100 103"><path fill-rule="evenodd" d="M50 0L100 103H0ZM50 28L13 103H86Z"/></svg></a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-label reveal">The Axivia Story</div>
+    <h1 class="hero-heading reveal">Trust isn't a tagline.<br>It's the <em>entire reason</em> we exist.</h1>
+    <div class="hero-line reveal"></div>
+</section>
+
+<!-- STORY -->
+<div class="story">
+
+    <!-- Chapter 1: Legacy -->
+    <section class="chapter">
+        <div class="chapter-num reveal">The Legacy</div>
+        <h2 class="chapter-title reveal">Three decades before Axivia, there was Paliwal Properties.</h2>
+        <p class="chapter-body reveal">
+            Founded by <strong>Mahesh Paliwal</strong>, Paliwal Properties served Raipur's real estate community for over thirty years &mdash; built on handshakes, honest dealings, and the kind of reputation that doesn't need a marketing budget. Axivia is the next chapter of that legacy, founded by his son <strong>Avi Paliwal</strong>, who carries forward the same principle: your word is your foundation.
+        </p>
+    </section>
+
+    <!-- Chapter 2: The Journey -->
+    <section class="chapter">
+        <div class="chapter-num reveal">The Journey</div>
+        <h2 class="chapter-title reveal">From the lens to the land.</h2>
+        <p class="chapter-body reveal">
+            Avi's path to real estate was anything but conventional. He spent years as a <strong>photographer</strong> &mdash; living quietly, seeing the world through frames and light. That artistic life taught him patience, precision, and an eye for what most people overlook.
+        </p>
+        <p class="chapter-body reveal">
+            Photography led to <strong>event management</strong>, where he learned to deliver the impossible on an unforgiving clock. Orchestrating large-scale events sharpened something in him &mdash; the ability to hold complexity together under pressure, with no room for excuses.
+        </p>
+        <p class="chapter-body reveal">
+            But real estate was in his blood. He founded <strong>Arise Constructions Pvt Ltd</strong>, taking on government infrastructure &mdash; roads, bridges, community centres &mdash; and proved he could build at scale. Every discipline he had touched was preparing him for what came next.
+        </p>
+    </section>
+
+    <!-- Chapter 3: The Problem -->
+    <section class="chapter">
+        <div class="chapter-num reveal">The Problem</div>
+        <h2 class="chapter-title reveal">He saw the rot because he lived through it.</h2>
+        <p class="chapter-body reveal">
+            In 2023, Avi set out to build his own home. What should have been a straightforward project became a years-long education in everything broken about Raipur's real estate market &mdash; <strong>false commitments, sub-standard materials, vendors who vanished after taking the money</strong>. The very industry he grew up in was being hollowed out by people who treated homebuyers as targets, not clients.
+        </p>
+        <p class="chapter-body reveal">
+            He wasn't the only one. Everywhere he looked, families were being misled &mdash; promised dream homes and handed compromises. The market didn't have a trust problem. It had a <strong>trust crisis</strong>.
+        </p>
+    </section>
+
+    <!-- Chapter 4: The Pledge -->
+    <section class="chapter">
+        <div class="chapter-num reveal">The Pledge</div>
+        <h2 class="chapter-title reveal">Axivia exists because someone had to fix this.</h2>
+        <p class="chapter-body reveal">
+            In 2026, Avi pledged to do what no one around him seemed willing to &mdash; make real estate in Raipur <strong>reliable, transparent, and honest</strong>. Not with slogans, but with systems. Not with promises, but with proof.
+        </p>
+        <p class="chapter-body reveal">
+            Axivia was built to be the brokerage that stands between you and the chaos &mdash; verifying what others won't, questioning what others accept, and refusing to let a single client walk into a commitment they'll regret. Every property is vetted. Every vendor is accountable. Every word is meant.
+        </p>
+    </section>
+
+</div>
+
+<!-- QUOTE -->
+<section class="quote-break">
+    <blockquote class="reveal">
+        If you wouldn't sell it to your own family, don't bring it to ours.
+    </blockquote>
+    <cite class="reveal">&mdash; The Axivia Standard</cite>
+</section>
+
+<!-- FOUNDER -->
+<section class="founder">
+    <div class="founder-label reveal">Founder</div>
+    <h3 class="founder-name reveal">Avi Paliwal</h3>
+    <p class="founder-role reveal">Founder &amp; Managing Director, Axivia</p>
+    <p class="founder-bio reveal">
+        Photographer. Event producer. Infrastructure builder. Avi brings an unusual breadth of experience to real estate &mdash; and an uncommon intolerance for mediocrity. He founded Axivia not to enter the market, but to reform it.
+    </p>
+</section>
+
+<!-- BACK -->
+<div class="back">
+    <a href="index.html" class="reveal">Return home</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <span class="footer-wordmark"><svg class="footer-wm-a" viewBox="0 0 100 103"><path fill-rule="evenodd" d="M50 0L100 103H0ZM50 28L13 103H86Z"/></svg>XIVI<svg class="footer-wm-a" viewBox="0 0 100 103"><path fill-rule="evenodd" d="M50 0L100 103H0ZM50 28L13 103H86Z"/></svg></span>
+    <div class="f-right">&copy; 2026 Axivia. All rights reserved.</div>
+</footer>
+
+<script>
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+    }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+</script>
+
+</body>
+</html>
